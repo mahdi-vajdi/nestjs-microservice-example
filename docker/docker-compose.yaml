@@ -1,12 +1,12 @@
 services:
   account:
     build:
-      context: .
-      dockerfile: ./apps/account/Dockerfile
+      context: ..
+      dockerfile: ../apps/account/Dockerfile
       target: development
     command: npm run start:dev account
     env_file:
-      - ./apps/account/.env
+      - ../apps/account/.env
     volumes:
       - .:/usr/src/app
     depends_on:
@@ -14,12 +14,12 @@ services:
 
   auth:
     build:
-      context: .
-      dockerfile: ./apps/auth/Dockerfile
+      context: ..
+      dockerfile: ../apps/auth/Dockerfile
       target: development
     command: npm run start:dev auth
     env_file:
-      - ./apps/auth/.env
+      - ../apps/auth/.env
     volumes:
       - .:/usr/src/app
     depends_on:
@@ -27,12 +27,12 @@ services:
 
   agent:
     build:
-      context: .
-      dockerfile: ./apps/agent/Dockerfile
+      context: ..
+      dockerfile: ../apps/agent/Dockerfile
       target: development
     command: npm run start:dev agent
     env_file:
-      - ./apps/agent/.env
+      - ../apps/agent/.env
     volumes:
       - .:/usr/src/app
     depends_on:
@@ -40,12 +40,12 @@ services:
 
   channel:
     build:
-      context: .
-      dockerfile: ./apps/channel/Dockerfile
+      context: ..
+      dockerfile: ../apps/channel/Dockerfile
       target: development
     command: npm run start:dev channel
     env_file:
-      - ./apps/channel/.env
+      - ../apps/channel/.env
     volumes:
       - .:/usr/src/app
     depends_on:
@@ -53,12 +53,12 @@ services:
 
   gateway:
     build:
-      context: .
-      dockerfile: ./apps/gateway/Dockerfile
+      context: ..
+      dockerfile: ../apps/gateway/Dockerfile
       target: development
     command: npm run start:dev gateway
     env_file:
-      - ./apps/gateway/.env
+      - ../apps/gateway/.env
     ports:
       - '3000:3000'
     volumes:

@@ -2,7 +2,7 @@ FROM node:alpine AS development
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
+COPY ../apps/agent/package.json ./
 COPY package-lock.json ./
 COPY tsconfig.json tsconfig.json
 COPY nest-cli.json nest-cli.json
@@ -23,7 +23,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
+COPY ../apps/agent/package.json ./
 COPY package-lock.json ./
 
 RUN npm install --omit=dev --loglevel verbose

@@ -1,15 +1,17 @@
 {
-  "name": "gateway-service",
+  "name": "agent-service",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "build": "nest build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
+    "@grpc/grpc-js": "^1.13.0",
     "@nestjs-plugins/nestjs-nats-jetstream-transport": "^2.2.6",
     "@nestjs/common": "^11.0.11",
     "@nestjs/config": "^4.0.1",
@@ -17,9 +19,7 @@
     "@nestjs/cqrs": "^11.0.2",
     "@nestjs/microservices": "^11.0.11",
     "@nestjs/mongoose": "^11.0.1",
-    "@nestjs/platform-express": "^11.0.11",
-    "class-validator": "^0.14.1",
-    "express": "^5.0.1",
+    "bcryptjs": "^3.0.2",
     "joi": "^17.13.3",
     "nestjs-pino": "^4.3.1"
   },
@@ -47,5 +47,8 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

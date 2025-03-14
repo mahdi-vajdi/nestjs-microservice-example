@@ -1,4 +1,4 @@
-# Nestsj Microservice App
+# NestJS Microservice App
 A showcase project of a microservices back-end web app created with NestJs, utilizing NATS and GRPC for commumncation between services.<br>
 The services in the project are merely mock examples of how a real world microservice would be.
 

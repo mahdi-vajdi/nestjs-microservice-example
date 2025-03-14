@@ -1,15 +1,15 @@
 {
-  "name": "@dashboard/auth",
+  "name": "admin-gateway",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
+  "description": "",
   "dependencies": {
-    "@nestjs/jwt": "^11.0.0"
+    "@nestjs/platform-express": "^11.0.11",
+    "express": "^5.0.1"
   }
 }

@@ -5,7 +5,7 @@ import {
   AccountMessageResponse,
   GetAccountByEmailRequest,
   GetAccountByIdRequest,
-} from '@app/common';
+} from '@app/common/dto-query';
 import { GrpcMethod } from '@nestjs/microservices';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { AccountService } from '../Application/services/account.service';

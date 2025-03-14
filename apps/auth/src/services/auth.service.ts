@@ -6,18 +6,19 @@ import { lastValueFrom, map } from 'rxjs';
 import * as bcrypt from 'bcryptjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { AuthTokensDto } from '../dto/auth-tokens.dto';
+import { AgentRole, ApiResponse } from '@app/common/dto-generic';
+import {
+  AccountSubjects,
+  AgentDto,
+  AgentSubjects,
+} from '@app/common/dto-command';
+import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import {
   AccountServiceClient,
-  AgentRole,
   AgentServiceClient,
   GRPC_ACCOUNT,
   GRPC_AGENT,
-  AccountSubjects,
-  AgentSubjects,
-  ApiResponse,
-  AgentDto,
-} from '@app/common';
-import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
+} from '@app/common/dto-query';
 
 /**
  * Main service class for handling authentication

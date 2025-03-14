@@ -17,7 +17,7 @@ import { AccountEntityRepository } from './Domain/base-account.entity-repo';
 import { AccountGrpcController } from './Presentation/account.grpc-controller';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerModule } from 'nestjs-pino';
-import { pinoDevConfig, pinoProdConfig } from '@app/common';
+import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
 import { AccountService } from './Application/services/account.service';
 
 @Module({

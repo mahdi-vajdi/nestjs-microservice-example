@@ -6,7 +6,7 @@ import {
   MicroserviceOptions,
   Transport,
 } from '@nestjs/microservices';
-import { GRPC_AGENT } from '@app/common';
+import { GRPC_AGENT } from '@app/common/dto-query';
 import { join } from 'path';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Logger } from 'nestjs-pino';

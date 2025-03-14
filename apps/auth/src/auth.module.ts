@@ -5,12 +5,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  GRPC_ACCOUNT,
-  GRPC_AGENT,
-  pinoDevConfig,
-  pinoProdConfig,
-} from '@app/common';
+import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
+import { GRPC_ACCOUNT, GRPC_AGENT } from '@app/common/dto-query';
 import { JwtHelperService } from './services/jwt-helper.service';
 import { AuthNatsController } from './controllers/auth.nats-controller';
 import { join } from 'path';

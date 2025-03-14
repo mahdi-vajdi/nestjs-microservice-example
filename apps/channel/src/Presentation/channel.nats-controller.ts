@@ -2,7 +2,8 @@ import { Controller } from '@nestjs/common';
 import { CreateChannelDto } from '../Application/dto/create-channel.dto';
 import { UpdateChannelAgentsDto } from '../Application/dto/update-channel-agents.dto';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { ApiResponse, ChannelSubjects } from '@app/common';
+import { ApiResponse } from '@app/common/dto-generic';
+import { ChannelSubjects } from '@app/common/dto-command';
 import { ChannelService } from '../Application/services/channel.service';
 import { ChannelModel } from '../Infrastructure/models/channel.model';
 

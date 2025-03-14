@@ -1,23 +1,20 @@
+import { AuthServiceClient, GRPC_AUTH } from '@app/common/dto-query';
+import { AgentRole } from '@app/common/dto-generic';
+import { ROLES_DECORATOR_KEY } from '@app/common/decorators';
 import {
-  AuthServiceClient,
-  AgentRole,
-  ROLES_DECORATOR_KEY,
-  GRPC_AUTH,
-} from '@app/common';
-import {
-  Injectable,
   CanActivate,
-  OnModuleInit,
-  Logger,
-  Inject,
   ExecutionContext,
   ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleInit,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs/internal/observable/of';
-import { tap, map, catchError } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable()
 export class RefreshTokenGuard implements CanActivate, OnModuleInit {

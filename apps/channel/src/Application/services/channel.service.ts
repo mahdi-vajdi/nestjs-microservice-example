@@ -5,12 +5,12 @@ import { CreateChannelCommand } from '../commands/impl/create-channel.command';
 import { lastValueFrom } from 'rxjs';
 import {
   AgentServiceClient,
-  ApiResponse,
   ChannelMessage,
   ChannelMessageResponse,
   ChannelsMessageResponse,
   GRPC_AGENT,
-} from '@app/common';
+} from '@app/common/dto-query';
+import { ApiResponse } from '@app/common/dto-generic';
 import { ClientGrpc } from '@nestjs/microservices';
 import { GetChannelByIdQuery } from '../queries/impl/get-by-id.query';
 import { ChannelModel } from '../../Infrastructure/models/channel.model';
@@ -120,6 +120,7 @@ export class ChannelService implements OnModuleInit {
       };
     }
   }
+
   async getAccountChannels(
     accountId: string,
   ): Promise<ChannelsMessageResponse> {

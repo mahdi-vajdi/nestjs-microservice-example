@@ -7,18 +7,19 @@ import {
   Payload,
   RpcException,
 } from '@nestjs/microservices';
+import { ApiResponse } from '@app/common/dto-generic';
 import {
-  ApiResponse,
   AuthSubjects,
   AuthTokensDto,
-  NotFoundError,
   RefreshTokensDto,
   SigninDto,
   SignoutDto,
   SignupDto,
-} from '@app/common';
+} from '@app/common/dto-command';
 import { NatsJetStreamContext } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { ForbiddenAccessError } from '@app/common/errors/forbidden-access.error';
+import { NotFoundError } from '@app/common/errors';
+
 /**
  * The controller that handles commands via nats
  *

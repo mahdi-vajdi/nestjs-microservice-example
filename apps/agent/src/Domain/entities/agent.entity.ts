@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { AgentRole } from '@app/common';
+import { AgentRole } from '@app/common/dto-generic';
 
 export class Agent extends AggregateRoot {
   constructor(

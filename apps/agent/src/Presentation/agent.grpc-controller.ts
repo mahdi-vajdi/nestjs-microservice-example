@@ -2,14 +2,14 @@ import { Controller } from '@nestjs/common';
 import {
   AgentExistsRequest,
   AgentExistsResponse,
-  AgentsIdsResponse,
   AgentResponse,
+  AgentsIdsResponse,
   AgentsResponse,
   GetAccountAgentsRequest,
   GetAgentByEmailReqeust,
   GetAgentByIdRequest,
   GetAgnetsIdsRequest,
-} from '@app/common';
+} from '@app/common/dto-query';
 import { GrpcMethod } from '@nestjs/microservices';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { AgentService } from '../Application/services/agent.service';

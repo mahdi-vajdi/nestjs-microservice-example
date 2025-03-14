@@ -12,7 +12,7 @@ import { AgentQueryHandlers } from './Application/queries/handlers';
 import { AgentEntityRepository } from './Domain/base-agent.entity-repo';
 import { AgentNatsController } from './Presentation/agent.nats-cotroller';
 import { LoggerModule } from 'nestjs-pino';
-import { pinoDevConfig, pinoProdConfig } from '@app/common';
+import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
 import { AgentService } from './Application/services/agent.service';
 
 @Module({

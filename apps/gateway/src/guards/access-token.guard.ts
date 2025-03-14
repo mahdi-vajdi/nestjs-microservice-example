@@ -1,9 +1,6 @@
-import {
-  AgentRole,
-  AuthServiceClient,
-  GRPC_AUTH,
-  ROLES_DECORATOR_KEY,
-} from '@app/common';
+import { AuthServiceClient, GRPC_AUTH } from '@app/common/dto-query';
+import { AgentRole } from '@app/common/dto-generic';
+import { ROLES_DECORATOR_KEY } from '@app/common/decorators';
 import {
   CanActivate,
   ExecutionContext,

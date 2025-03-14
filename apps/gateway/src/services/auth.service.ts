@@ -1,12 +1,12 @@
 import {
-  ApiResponse,
   AuthSubjects,
   AuthTokensDto,
   RefreshTokensDto,
   SigninDto,
   SignoutDto,
   SignupDto,
-} from '@app/common';
+} from '@app/common/dto-command';
+import { ApiResponse } from '@app/common/dto-generic';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import {
   HttpException,
@@ -23,10 +23,10 @@ export class AuthService {
 
   signup(dto: SignupDto, res: Response) {
     return this.natsClient
-      .send<ApiResponse<AuthTokensDto>, SignupDto>(
-        { cmd: AuthSubjects.SIGNUP },
-        dto,
-      )
+      .send<
+        ApiResponse<AuthTokensDto>,
+        SignupDto
+      >({ cmd: AuthSubjects.SIGNUP }, dto)
       .pipe(
         map((response) => {
           if (response.success && response.data) {
@@ -48,10 +48,10 @@ export class AuthService {
 
   signin(dto: SigninDto, res: Response) {
     return this.natsClient
-      .send<ApiResponse<AuthTokensDto>, SigninDto>(
-        { cmd: AuthSubjects.SIGNIN },
-        dto,
-      )
+      .send<
+        ApiResponse<AuthTokensDto>,
+        SigninDto
+      >({ cmd: AuthSubjects.SIGNIN }, dto)
       .pipe(
         map((response) => {
           if (response.success && response.data) {

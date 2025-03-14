@@ -3,7 +3,7 @@ import {
   ChannelsMessageResponse,
   GetAccountChannelsRequest,
   GetChannelByIdRequest,
-} from '@app/common';
+} from '@app/common/dto-query';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { GrpcMethod } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';

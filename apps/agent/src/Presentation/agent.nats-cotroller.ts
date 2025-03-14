@@ -3,7 +3,8 @@ import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { UpdateRefreshTokenDto } from '../Application/dto/update-refresh-token.dto';
 import { CreateOwnerAgentDto } from '../Application/dto/create-owner-agent.dto';
 import { CreateAgentDto } from '../Application/dto/create-agent.dto';
-import { AgentDto, AgentSubjects, ApiResponse } from '@app/common';
+import { ApiResponse } from '@app/common/dto-generic';
+import { AgentDto, AgentSubjects } from '@app/common/dto-command';
 import { AgentService } from '../Application/services/agent.service';
 
 /**

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@app/common": "file:../../libs/common",
     "@grpc/grpc-js": "^1.13.0",
     "@nestjs-plugins/nestjs-nats-jetstream-transport": "^2.2.6",
     "@nestjs/common": "^11.0.11",

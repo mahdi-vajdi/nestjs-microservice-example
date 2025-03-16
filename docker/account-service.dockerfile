@@ -1,26 +1,17 @@
-FROM node:22-alpine AS builder
+FROM node:22-alpine AS build
 
 WORKDIR /usr/src/app
 
-# First copy package.json files (root level first)
-COPY package.json package-lock.json ./
+COPY package*.json ./
 COPY apps/account/package.json ./apps/account/
-COPY libs/common/package.json ./libs/common/
-# Copy any other lib package.json files you need
-# COPY libs/jwt-utils/package.json ./libs/jwt-utils/
+COPY libs/common/package*.json ./libs/common/
+COPY tsconfig.json nest-cli.json ./
 
-# Copy config files
-COPY tsconfig.json ./
-COPY nest-cli.json ./
+RUN npm ci --loglevel verbose
 
-# Install dependencies at root level
-RUN npm install --loglevel verbose
-
-# Copy source code
 COPY apps/account ./apps/account
 COPY libs ./libs
 
-# Build the application (use the correct name from nest-cli.json)
 RUN npm run build -- account-service
 
 FROM node:22-alpine AS release
@@ -31,12 +22,12 @@ ENV NODE_ENV=${NODE_ENV}
 WORKDIR /usr/src/app
 
 # Copy production dependencies
-COPY --from=builder /usr/src/app/dist/apps/account ./dist/apps/account
-COPY --from=builder /usr/src/app/package.json ./
-COPY --from=builder /usr/src/app/package-lock.json ./
-COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/dist/apps/account ./dist/apps/account
+COPY --from=build /usr/src/app/package.json ./
+COPY --from=build /usr/src/app/package-lock.json ./
 
-# Copy env file if needed
-COPY .env ./
+RUN npm ci --only=production && npm cache clean --force
+
+COPY apps/account/.env ./
 
 CMD ["node", "dist/apps/account/main"]

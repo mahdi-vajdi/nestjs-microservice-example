@@ -6,7 +6,7 @@ services:
       target: release
     #    command: npm run start:dev account
     env_file:
-      - ../.env
+      - ../apps/account/.env
     volumes:
       - ../.:/usr/src/app
     depends_on:

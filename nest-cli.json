@@ -6,11 +6,13 @@
     "deleteOutDir": true,
     "webpack": true,
     "tsConfigPath": "apps/account/tsconfig.app.json",
-    "assets": ["**/*.proto"],
+    "assets": [
+      "**/*.proto"
+    ],
     "watchAssets": true
   },
   "projects": {
-    "common": {
+    "admin-common": {
       "type": "library",
       "root": "libs/common",
       "entryFile": "index",
@@ -19,7 +21,7 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
-    "channel": {
+    "channel-service": {
       "type": "application",
       "root": "apps/channel",
       "entryFile": "main",
@@ -28,7 +30,7 @@
         "tsConfigPath": "apps/channel/tsconfig.app.json"
       }
     },
-    "account": {
+    "account-service": {
       "type": "application",
       "root": "apps/account",
       "entryFile": "main",
@@ -37,7 +39,7 @@
         "tsConfigPath": "apps/account/tsconfig.app.json"
       }
     },
-    "auth": {
+    "auth-service": {
       "type": "application",
       "root": "apps/auth",
       "entryFile": "main",
@@ -46,7 +48,7 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
-    "agent": {
+    "agent-service": {
       "type": "application",
       "root": "apps/agent",
       "entryFile": "main",
@@ -55,7 +57,7 @@
         "tsConfigPath": "apps/agent/tsconfig.app.json"
       }
     },
-    "gateway": {
+    "gateway-service": {
       "type": "application",
       "root": "apps/gateway",
       "entryFile": "main",

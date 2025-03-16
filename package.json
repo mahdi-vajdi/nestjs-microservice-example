@@ -46,8 +46,7 @@
       "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/jwt-utils(|/.*)$": "<rootDir>/libs/jwt-utils/src/$1"
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
     }
   }
 }

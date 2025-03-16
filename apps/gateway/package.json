@@ -10,7 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@app/common": "file:../../libs/common",
     "@nestjs-plugins/nestjs-nats-jetstream-transport": "^2.2.6",
     "@nestjs/common": "^11.0.11",
     "@nestjs/config": "^4.0.1",
@@ -19,6 +18,7 @@
     "@nestjs/microservices": "^11.0.11",
     "@nestjs/mongoose": "^11.0.1",
     "@nestjs/platform-express": "^11.0.11",
+    "admin-common": "file:../../libs/common",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "express": "^5.0.1",

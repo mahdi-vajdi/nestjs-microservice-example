@@ -11,7 +11,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@app/common": "file:../../libs/common",
     "@grpc/grpc-js": "^1.13.0",
     "@nestjs-plugins/nestjs-nats-jetstream-transport": "^2.2.6",
     "@nestjs/common": "^11.0.11",
@@ -20,6 +19,7 @@
     "@nestjs/cqrs": "^11.0.2",
     "@nestjs/microservices": "^11.0.11",
     "@nestjs/mongoose": "^11.0.1",
+    "admin-common": "file:../../libs/common",
     "joi": "^17.13.3",
     "nestjs-pino": "^4.3.1"
   },

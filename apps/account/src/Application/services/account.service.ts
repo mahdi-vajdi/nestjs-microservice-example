@@ -8,10 +8,9 @@ import {
   AccountExistsResponse,
   AccountMessage,
   AccountMessageResponse,
-  AgentDto,
-  AgentSubjects,
-  ApiResponse,
-} from '@app/common';
+} from '@app/common/dto-query';
+import { AgentDto, AgentSubjects } from '@app/common/dto-command';
+import { ApiResponse } from '@app/common/dto-generic';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { lastValueFrom } from 'rxjs';
 import { GetByIdQuery } from '../queries/impl/get-by-id.query';

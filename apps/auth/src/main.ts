@@ -5,7 +5,7 @@ import {
   MicroserviceOptions,
   Transport,
 } from '@nestjs/microservices';
-import { GRPC_AUTH } from '@app/common';
+import { GRPC_AUTH } from '@app/common/dto-query';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';

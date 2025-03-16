@@ -16,8 +16,6 @@ import { AccountEntityRepositoryImpl } from './Infrastructure/repositories/impl-
 import { AccountEntityRepository } from './Domain/base-account.entity-repo';
 import { AccountGrpcController } from './Presentation/account.grpc-controller';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import { LoggerModule } from 'nestjs-pino';
-import { pinoDevConfig, pinoProdConfig } from '@app/common';
 import { AccountService } from './Application/services/account.service';
 
 @Module({
@@ -31,13 +29,6 @@ import { AccountService } from './Application/services/account.service';
         NATS_URI: Joi.string().required(),
         ACCOUNT_GRPC_URL: Joi.string().required(),
       }),
-    }),
-    LoggerModule.forRootAsync({
-      useFactory: (configService: ConfigService) =>
-        configService.getOrThrow<string>('NODE_ENV') === 'production'
-          ? pinoProdConfig()
-          : pinoDevConfig(),
-      inject: [ConfigService],
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({

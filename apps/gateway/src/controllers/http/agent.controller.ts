@@ -1,17 +1,14 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import {
-  AgentDto,
-  AgentRole,
-  AgentsResponse,
-  ApiResponse,
-  Roles,
-} from '@app/common';
+import { Roles } from '@app/common/decorators';
 import { Request } from 'express';
 import { CreateAgentDto } from '../../dto/agent/create-agent.dto';
 import { Observable } from 'rxjs';
 import { AccessTokenGuard } from '../../guards/access-token.guard';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { AgentService } from '../../services/agent.service';
+import { AgentRole, ApiResponse } from '@app/common/dto-generic';
+import { AgentsResponse } from '@app/common/dto-query';
+import { AgentDto } from '@app/common/dto-command';
 
 @Controller('agent')
 export class AgentHttpController {

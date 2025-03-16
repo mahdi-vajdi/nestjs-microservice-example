@@ -1,0 +1,82 @@
+services:
+  account:
+    build:
+      context: ../
+      dockerfile: docker/account-service.dockerfile
+      target: release
+    #    command: npm run start:dev account
+    env_file:
+      - ../apps/account/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - nats
+      - mongo
+
+  #  auth:
+  #    build:
+  #      context: ..
+  #      dockerfile: ../apps/auth/Dockerfile
+  #      target: development
+  #    command: npm run start:dev auth
+  #    env_file:
+  #      - ../apps/auth/.env
+  #    volumes:
+  #      - .:/usr/src/app
+  #    depends_on:
+  #      - nats
+  #
+  #  agent:
+  #    build:
+  #      context: ..
+  #      dockerfile: ../apps/agent/Dockerfile
+  #      target: development
+  #    command: npm run start:dev agent
+  #    env_file:
+  #      - ../apps/agent/.env
+  #    volumes:
+  #      - .:/usr/src/app
+  #    depends_on:
+  #      - nats
+  #
+  #  channel:
+  #    build:
+  #      context: ..
+  #      dockerfile: ../apps/channel/Dockerfile
+  #      target: development
+  #    command: npm run start:dev channel
+  #    env_file:
+  #      - ../apps/channel/.env
+  #    volumes:
+  #      - .:/usr/src/app
+  #    depends_on:
+  #      - nats
+  #
+  #  gateway:
+  #    build:
+  #      context: ..
+  #      dockerfile: ../apps/gateway/Dockerfile
+  #      target: development
+  #    command: npm run start:dev gateway
+  #    env_file:
+  #      - ../apps/gateway/.env
+  #    ports:
+  #      - '3000:3000'
+  #    volumes:
+  #      - .:/usr/src/app
+  #    depends_on:
+  #      - nats
+  #      - account
+  #      - auth
+  #      - channel
+  #      - agent
+
+  mongo:
+    image: mongo
+
+  nats:
+    image: nats
+    ports:
+      - '4222:4222'
+      - '8222:8222'
+    command: -js

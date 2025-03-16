@@ -1,4 +1,4 @@
-import { AgentRole } from '@app/common';
+import { AgentRole } from '@app/common/dto-generic';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types, SchemaTypes, HydratedDocument } from 'mongoose';
 

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { GRPC_AGENT, pinoDevConfig, pinoProdConfig } from '@app/common';
+import { GRPC_AGENT } from '@app/common/dto-query';
 import { ChannelEntityRepository } from './Domain/base-channel.repo';
 import { ChannelEntityRepositoryImpl } from './Infrastructure/repositories/impl-channel.entity-repo';
 import { ChannelChannelHandlers } from './Application/commands/handlers';
@@ -19,6 +19,7 @@ import { join } from 'path';
 import { ChannelGrpcController } from './Presentation/channel.grpc-controller';
 import { LoggerModule } from 'nestjs-pino';
 import { ChannelService } from './Application/services/channel.service';
+import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
 
 @Module({
   imports: [

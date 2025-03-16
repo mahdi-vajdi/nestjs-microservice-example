@@ -5,7 +5,7 @@ import { ACCOUNT_DB_COLLECTION, AccountModel } from '../models/account.model';
 import { Model, MongooseError, Types } from 'mongoose';
 import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseError } from '@app/common/errors/database.error';
-import { NotFoundError } from '@app/common';
+import { NotFoundError } from '@app/common/errors';
 
 /**
  * Implementation of the AccountEntityRepository interface using Mongoose.

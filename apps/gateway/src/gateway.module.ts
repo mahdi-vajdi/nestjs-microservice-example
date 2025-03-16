@@ -1,12 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  GRPC_AGENT,
-  GRPC_AUTH,
-  GRPC_CHANNEL,
-  pinoDevConfig,
-  pinoProdConfig,
-} from '@app/common';
+import { GRPC_AGENT, GRPC_AUTH, GRPC_CHANNEL } from '@app/common/dto-query';
+import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import * as Joi from 'joi';

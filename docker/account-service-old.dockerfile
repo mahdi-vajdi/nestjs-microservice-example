@@ -1,30 +1,30 @@
-FROM node:alpine AS development
+FROM node:22-alpine AS development
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
-COPY package-lock.json ./
+COPY apps/account/package.json ./
+COPY package*.json ./
 COPY tsconfig.json tsconfig.json
 COPY nest-cli.json nest-cli.json
-
-RUN npm install --loglevel verbose
 
 COPY apps/account apps/account
 COPY libs libs
 
-RUN cd apps/account && npm install --loglevel verbose
+RUN npm install --loglevel verbose
+RUN cd libs/common npm install --loglevel verbose
 
-RUN npm run build account --loglevel verbose
+RUN npm run build -- account-service
 
-FROM node:alpine AS production
+FROM node:22-alpine AS production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
-COPY package-lock.json ./
+COPY apps/account/package.json ./
+COPY package*.json ./
+COPY .env ./
 
 RUN npm install --omit=dev --loglevel verbose
 

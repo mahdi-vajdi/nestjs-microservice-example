@@ -7,7 +7,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { join } from 'path';
-import { GRPC_CHANNEL } from '@app/common';
+import { GRPC_CHANNEL } from '@app/common/dto-query';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Logger } from 'nestjs-pino';
 
@@ -49,4 +49,5 @@ async function bootstrap() {
   await app.init();
   await app.startAllMicroservices();
 }
+
 bootstrap();

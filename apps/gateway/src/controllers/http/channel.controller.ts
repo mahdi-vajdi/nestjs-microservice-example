@@ -1,18 +1,16 @@
+import { ChannelsMessageResponse } from '@app/common/dto-query';
+import { ParseMongoIdPipe } from '@app/common/pipes';
+import { AgentRole } from '@app/common/dto-generic';
+import { Roles } from '@app/common/decorators';
 import {
-  AgentRole,
-  ChannelsMessageResponse,
-  ParseMongoIdPipe,
-  Roles,
-} from '@app/common';
-import {
+  Body,
   Controller,
   Get,
   Param,
+  Patch,
+  Post,
   Req,
   UseGuards,
-  Post,
-  Body,
-  Patch,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { Observable } from 'rxjs/internal/Observable';

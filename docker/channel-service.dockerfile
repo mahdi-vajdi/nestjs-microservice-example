@@ -1,33 +1,20 @@
-FROM node:alpine AS development
-
-WORKDIR /usr/src/app
-
-COPY ../apps/channel/package.json ./
-COPY package-lock.json ./
-COPY tsconfig.json tsconfig.json
-COPY nest-cli.json nest-cli.json
-
-RUN npm install --loglevel verbose
-
-COPY apps/channel apps/channel
-COPY libs libs
-
-RUN cd apps/channel && npm install --loglevel verbose
-
-RUN npm run build channel --loglevel verbose
-
-FROM node:alpine AS production
+FROM admin-base AS release
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-COPY ../apps/channel/package.json ./
-COPY package-lock.json ./
+COPY --from=admin-base /usr/src/app/apps/channel/package.json ./apps/channel/
+COPY --from=admin-base /usr/src/app/libs ./libs
+COPY --from=admin-base /usr/src/app/package.json ./
+COPY --from=admin-base /usr/src/app/package-lock.json ./
 
-RUN npm install --omit=dev --loglevel verbose
+COPY --from=admin-base /usr/src/app/dist/apps/channel ./dist/apps/channel
+COPY --from=admin-base /usr/src/app/dist/libs/ ./dist/libs/
 
-COPY --from=development /usr/src/app/dist ./dist
+COPY apps/channel/.env ./
+
+RUN npm ci --omit=dev && npm cache clean --force
 
 CMD ["node", "dist/apps/channel/main"]

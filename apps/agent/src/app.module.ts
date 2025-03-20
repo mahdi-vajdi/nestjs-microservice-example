@@ -11,9 +11,8 @@ import { AgentCommandHandlers } from './Application/commands/handlers';
 import { AgentQueryHandlers } from './Application/queries/handlers';
 import { AgentEntityRepository } from './Domain/base-agent.entity-repo';
 import { AgentNatsController } from './Presentation/agent.nats-cotroller';
-import { LoggerModule } from 'nestjs-pino';
-import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
 import { AgentService } from './Application/services/agent.service';
+import { LoggerModule } from '@app/common/logger/logger.module';
 
 @Module({
   imports: [
@@ -28,13 +27,7 @@ import { AgentService } from './Application/services/agent.service';
         AGENT_GRPC_URL: Joi.string().required(),
       }),
     }),
-    LoggerModule.forRootAsync({
-      useFactory: (configService: ConfigService) =>
-        configService.getOrThrow<string>('NODE_ENV') === 'production'
-          ? pinoProdConfig()
-          : pinoDevConfig(),
-      inject: [ConfigService],
-    }),
+    LoggerModule,
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('MONGODB_URI'),
@@ -52,4 +45,4 @@ import { AgentService } from './Application/services/agent.service';
     ...AgentQueryHandlers,
   ],
 })
-export class AgentModule {}
+export class AppModule {}

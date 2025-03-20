@@ -1,0 +1,97 @@
+services:
+  base:
+    build:
+      context: ../
+      dockerfile: docker/base-build.Dockerfile
+    image: base-build
+  account:
+    container_name: account-service
+    build:
+      context: ../
+      dockerfile: docker/account-service.dockerfile
+      target: release
+    command: [ "npm", "run", "start:dev", "account-service" ]
+    env_file:
+      - ../apps/account/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - base
+      - nats
+      - mongo
+
+  agent:
+    container_name: agent-service
+    build:
+      context: ../
+      dockerfile: docker/agent-service.dockerfile
+      target: release
+    command: [ "npm", "run", "start:dev", "agent-service" ]
+    env_file:
+      - ../apps/agent/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - base
+      - nats
+
+  auth:
+    container_name: auth-service
+    build:
+      context: ../
+      dockerfile: docker/auth-service.dockerfile
+      target: release
+    command: [ "npm", "run", "start:dev", "auth-service" ]
+    env_file:
+      - ../apps/auth/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - base
+      - nats
+
+  channel:
+    container_name: channel-service
+    build:
+      context: ../
+      dockerfile: docker/channel-service.dockerfile
+      target: release
+    command: [ "npm", "run", "start:dev", "channel-service" ]
+    env_file:
+      - ../apps/channel/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - base
+      - nats
+
+  gateway:
+    container_name: gateway-service
+    build:
+      context: ../
+      dockerfile: docker/gateway-service.dockerfile
+      target: release
+    command: [ "npm", "run", "start:dev", "gateway-service" ]
+    env_file:
+      - ../apps/gateway/.env
+    ports:
+      - '3000:3000'
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - base
+      - nats
+      - account
+      - auth
+      - channel
+      - agent
+
+  mongo:
+    image: mongo
+
+  nats:
+    image: nats
+    ports:
+      - '4222:4222'
+      - '8222:8222'
+    command: -js

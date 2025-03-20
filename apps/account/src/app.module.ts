@@ -17,6 +17,7 @@ import { AccountEntityRepository } from './Domain/base-account.entity-repo';
 import { AccountGrpcController } from './Presentation/account.grpc-controller';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { AccountService } from './Application/services/account.service';
+import { LoggerModule } from '@app/common/logger/logger.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AccountService } from './Application/services/account.service';
         ACCOUNT_GRPC_URL: Joi.string().required(),
       }),
     }),
+    LoggerModule,
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('MONGODB_URI'),
@@ -59,4 +61,4 @@ import { AccountService } from './Application/services/account.service';
     ...AccountQueryHandlers,
   ],
 })
-export class AccountModule {}
+export class AppModule {}

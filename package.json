@@ -45,5 +45,8 @@
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
     }
+  },
+  "dependencies": {
+    "joi": "^17.13.3"
   }
 }

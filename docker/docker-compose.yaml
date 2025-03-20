@@ -1,10 +1,10 @@
 services:
   account:
+    container_name: account-service
     build:
       context: ../
       dockerfile: docker/account-service.dockerfile
       target: release
-    #    command: npm run start:dev account
     env_file:
       - ../apps/account/.env
     volumes:
@@ -13,63 +13,63 @@ services:
       - nats
       - mongo
 
-  #  auth:
-  #    build:
-  #      context: ..
-  #      dockerfile: ../apps/auth/Dockerfile
-  #      target: development
-  #    command: npm run start:dev auth
-  #    env_file:
-  #      - ../apps/auth/.env
-  #    volumes:
-  #      - .:/usr/src/app
-  #    depends_on:
-  #      - nats
-  #
-  #  agent:
-  #    build:
-  #      context: ..
-  #      dockerfile: ../apps/agent/Dockerfile
-  #      target: development
-  #    command: npm run start:dev agent
-  #    env_file:
-  #      - ../apps/agent/.env
-  #    volumes:
-  #      - .:/usr/src/app
-  #    depends_on:
-  #      - nats
-  #
-  #  channel:
-  #    build:
-  #      context: ..
-  #      dockerfile: ../apps/channel/Dockerfile
-  #      target: development
-  #    command: npm run start:dev channel
-  #    env_file:
-  #      - ../apps/channel/.env
-  #    volumes:
-  #      - .:/usr/src/app
-  #    depends_on:
-  #      - nats
-  #
-  #  gateway:
-  #    build:
-  #      context: ..
-  #      dockerfile: ../apps/gateway/Dockerfile
-  #      target: development
-  #    command: npm run start:dev gateway
-  #    env_file:
-  #      - ../apps/gateway/.env
-  #    ports:
-  #      - '3000:3000'
-  #    volumes:
-  #      - .:/usr/src/app
-  #    depends_on:
-  #      - nats
-  #      - account
-  #      - auth
-  #      - channel
-  #      - agent
+  agent:
+    container_name: agent-service
+    build:
+      context: ../
+      dockerfile: docker/agent-service.dockerfile
+      target: release
+    env_file:
+      - ../apps/agent/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - nats
+
+  auth:
+    container_name: auth-service
+    build:
+      context: ../
+      dockerfile: docker/auth-service.dockerfile
+      target: release
+    env_file:
+      - ../apps/auth/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - nats
+
+  channel:
+    container_name: channel-service
+    build:
+      context: ../
+      dockerfile: docker/channel-service.dockerfile
+      target: release
+    env_file:
+      - ../apps/channel/.env
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - nats
+
+  gateway:
+    container_name: gateway-service
+    build:
+      context: ../
+      dockerfile: docker/gateway-service.dockerfile
+      target: release
+    env_file:
+      - ../apps/gateway/.env
+    ports:
+      - '3000:3000'
+    volumes:
+      - ../.:/usr/src/app
+    depends_on:
+      - nats
+      - account
+      - auth
+      - channel
+      - agent
 
   mongo:
     image: mongo

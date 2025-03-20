@@ -20,7 +20,6 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/microservices": "^11.0.11",
     "@nestjs/mongoose": "^11.0.1",
-    "admin-common": "file:../../libs/common",
     "bcryptjs": "^3.0.2",
     "joi": "^17.13.3",
     "nestjs-pino": "^4.3.1"

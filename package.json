@@ -5,11 +5,8 @@
   "private": false,
   "license": "UNLICENSED",
   "workspaces": [
-    "apps/account",
-    "apps/agent",
-    "apps/auth",
-    "apps/channel",
-    "apps/gateway"
+    "apps/*",
+    "libs/*"
   ],
   "scripts": {
     "build": "nest build",

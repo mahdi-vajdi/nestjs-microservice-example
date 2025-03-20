@@ -1,33 +1,20 @@
-FROM node:alpine AS development
-
-WORKDIR /usr/src/app
-
-COPY ../apps/agent/package.json ./
-COPY package-lock.json ./
-COPY tsconfig.json tsconfig.json
-COPY nest-cli.json nest-cli.json
-
-RUN npm install --loglevel verbose
-
-COPY apps/agent apps/agent
-COPY libs libs
-
-RUN cd apps/agent && npm install --loglevel verbose
-
-RUN npm run build agent --loglevel verbose
-
-FROM node:alpine AS production
+FROM admin-base AS release
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
-COPY ../apps/agent/package.json ./
-COPY package-lock.json ./
+COPY --from=admin-base /usr/src/app/apps/agent/package.json ./apps/agent/
+COPY --from=admin-base /usr/src/app/libs ./libs
+COPY --from=admin-base /usr/src/app/package.json ./
+COPY --from=admin-base /usr/src/app/package-lock.json ./
 
-RUN npm install --omit=dev --loglevel verbose
+COPY --from=admin-base /usr/src/app/dist/apps/agent ./dist/apps/agent
+COPY --from=admin-base /usr/src/app/dist/libs/ ./dist/libs/
 
-COPY --from=development /usr/src/app/dist ./dist
+COPY apps/agent/.env ./
+
+RUN npm ci --omit=dev && npm cache clean --force
 
 CMD ["node", "dist/apps/agent/main"]

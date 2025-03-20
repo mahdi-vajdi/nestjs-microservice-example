@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { GRPC_AGENT, GRPC_AUTH, GRPC_CHANNEL } from '@app/common/dto-query';
-import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import * as Joi from 'joi';
@@ -9,10 +8,10 @@ import { ChannelHttpController } from './controllers/http/channel.controller';
 import { AgentHttpController } from './controllers/http/agent.controller';
 import { AuthHttpController } from './controllers/http/auth.controller';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import { LoggerModule } from 'nestjs-pino';
 import { AgentService } from './services/agent.service';
 import { ChannelService } from './services/channel.service';
 import { AuthService } from './services/auth.service';
+import { LoggerModule } from '@app/common/logger/logger.module';
 
 @Module({
   imports: [
@@ -27,13 +26,7 @@ import { AuthService } from './services/auth.service';
         AGENT_GRPC_URL: Joi.string().required(),
       }),
     }),
-    LoggerModule.forRootAsync({
-      useFactory: (configService: ConfigService) =>
-        configService.getOrThrow<string>('NODE_ENV') === 'production'
-          ? pinoProdConfig()
-          : pinoDevConfig(),
-      inject: [ConfigService],
-    }),
+    LoggerModule,
     NatsJetStreamTransport.registerAsync({
       useFactory: (configService: ConfigService) => ({
         connectionOptions: {

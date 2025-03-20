@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { AccountModule } from './account.module';
+import { AppModule } from './app.module';
 import {
   CustomStrategy,
   MicroserviceOptions,
@@ -9,20 +9,18 @@ import {
 import { GRPC_ACCOUNT } from '@app/common/dto-query';
 import { join } from 'path';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import { Logger } from '@nestjs/common';
+import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
+import { LoggerService } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AccountModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
 
   const configService = app.get(ConfigService);
+  const logger = app.get<LoggerService>(LOGGER_PROVIDER);
 
-  const logger = new Logger('test');
-
-  logger.log('starting application');
   app.useLogger(logger);
-
-  logger.log('starting application');
-
   app.connectMicroservice<CustomStrategy>({
     strategy: new NatsJetStreamServer({
       connectionOptions: {
@@ -51,11 +49,7 @@ async function bootstrap() {
   });
 
   await app.init();
-  logger.log('initialized application');
-
   await app.startAllMicroservices();
-
-  logger.log('started application');
 }
 
 bootstrap();

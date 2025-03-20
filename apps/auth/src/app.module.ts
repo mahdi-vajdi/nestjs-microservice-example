@@ -5,13 +5,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
 import { GRPC_ACCOUNT, GRPC_AGENT } from '@app/common/dto-query';
 import { JwtHelperService } from './services/jwt-helper.service';
 import { AuthNatsController } from './controllers/auth.nats-controller';
 import { join } from 'path';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import { LoggerModule } from 'nestjs-pino';
+import { LoggerModule } from '@app/common/logger/logger.module';
 
 @Module({
   imports: [
@@ -27,13 +26,7 @@ import { LoggerModule } from 'nestjs-pino';
         AGENT_GRPC_URL: Joi.string().required(),
       }),
     }),
-    LoggerModule.forRootAsync({
-      useFactory: (configService: ConfigService) =>
-        configService.getOrThrow<string>('NODE_ENV') === 'production'
-          ? pinoProdConfig()
-          : pinoDevConfig(),
-      inject: [ConfigService],
-    }),
+    LoggerModule,
     JwtModule.register({}),
     NatsJetStreamTransport.registerAsync({
       useFactory: (configService: ConfigService) => ({
@@ -76,4 +69,4 @@ import { LoggerModule } from 'nestjs-pino';
   providers: [AuthService, JwtHelperService],
   exports: [AuthService, JwtModule],
 })
-export class AuthModule {}
+export class AppModule {}

@@ -17,9 +17,8 @@ import { ChannelNatsController } from './Presentation/channel.nats-controller';
 import { ChannelQueryRepository } from './Infrastructure/repositories/channel.query-repo';
 import { join } from 'path';
 import { ChannelGrpcController } from './Presentation/channel.grpc-controller';
-import { LoggerModule } from 'nestjs-pino';
 import { ChannelService } from './Application/services/channel.service';
-import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
+import { LoggerModule } from '@app/common/logger/logger.module';
 
 @Module({
   imports: [
@@ -35,13 +34,7 @@ import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
         AGENT_GRPC_URL: Joi.string().required(),
       }),
     }),
-    LoggerModule.forRootAsync({
-      useFactory: (configService: ConfigService) =>
-        configService.getOrThrow<string>('NODE_ENV') === 'production'
-          ? pinoProdConfig()
-          : pinoDevConfig(),
-      inject: [ConfigService],
-    }),
+    LoggerModule,
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('MONGODB_URI'),
@@ -75,4 +68,4 @@ import { pinoDevConfig, pinoProdConfig } from '@app/common/logger';
     ...ChannelQueryHandlers,
   ],
 })
-export class ChannelModule {}
+export class AppModule {}

@@ -3,11 +3,12 @@ import {
   ChannelsMessageResponse,
   GetAccountChannelsRequest,
   GetChannelByIdRequest,
-} from '@app/common/dto-query';
+} from 'libs/common/src/grpc';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { GrpcMethod } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
 import { ChannelService } from '../Application/services/channel.service';
+
 /**
  * The controller that handler queries from the service via grpc
  *

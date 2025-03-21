@@ -6,7 +6,7 @@ import {
   MicroserviceOptions,
   Transport,
 } from '@nestjs/microservices';
-import { GRPC_AGENT } from '@app/common/dto-query';
+import { GRPC_AGENT } from 'libs/common/src/grpc';
 import { join } from 'path';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerService } from '@nestjs/common';
@@ -41,7 +41,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: GRPC_AGENT,
-      protoPath: join(__dirname, '../../../proto/agent.proto'),
+      protoPath: join(__dirname, '../../../libs/common/grpc/proto/agent.proto'),
       url: configService.getOrThrow('AGENT_GRPC_URL'),
     },
   });

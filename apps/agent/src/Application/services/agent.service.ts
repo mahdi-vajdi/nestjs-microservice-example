@@ -12,7 +12,7 @@ import {
   AgentResponse,
   AgentsIdsResponse,
   AgentsResponse,
-} from '@app/common/dto-query';
+} from 'libs/common/src/grpc';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
 import { AgentDto } from '@app/common/dto-command';
 import { GetByEmailQuery } from '../queries/impl/get-by-email.query';

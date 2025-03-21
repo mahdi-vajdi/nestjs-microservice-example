@@ -4,17 +4,15 @@ import { CreateAccountCommand } from '../commands/impl/create-account.command';
 import { GetByEmailQuery } from '../queries/impl/get-by-email.query';
 import { AccountModel } from '../../Infrastructure/models/account.model';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import {
-  AccountExistsResponse,
-  AccountMessage,
-  AccountMessageResponse,
-} from '@app/common/dto-query';
 import { AgentDto, AgentSubjects } from '@app/common/dto-command';
 import { ApiResponse } from '@app/common/dto-generic';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { lastValueFrom } from 'rxjs';
 import { GetByIdQuery } from '../queries/impl/get-by-id.query';
 import { AccountExistsQuery } from '../queries/impl/account-exists.query';
+import { GetAccountByIdResponse } from '@app/common/grpc/models/account/get-account-by-id.model';
+import { GetAccountByEmailResponse } from '@app/common/grpc/models/account/get-account-by-email.model';
+import { AccountExistsResponse } from '@app/common/grpc/models/account/account-exists.model';
 
 @Injectable()
 export class AccountService {
@@ -107,7 +105,7 @@ export class AccountService {
     }
   }
 
-  async getAccountById(accountId: string): Promise<AccountMessageResponse> {
+  async getAccountById(accountId: string): Promise<GetAccountByIdResponse> {
     const account = await this.queryBus.execute<
       GetByIdQuery,
       AccountModel | null
@@ -115,12 +113,15 @@ export class AccountService {
 
     if (account)
       return {
-        account: this.toQueryModel(account),
+        id: account._id.toHexString(),
+        createdAt: account.createdAt.toISOString(),
+        updatedAt: account.updatedAt.toISOString(),
+        email: account.email,
       };
-    else return { account: undefined };
+    else return undefined;
   }
 
-  async getAccountByEmail(email: string): Promise<AccountMessageResponse> {
+  async getAccountByEmail(email: string): Promise<GetAccountByEmailResponse> {
     const account = await this.queryBus.execute<
       GetByEmailQuery,
       AccountModel | null
@@ -128,9 +129,12 @@ export class AccountService {
 
     if (account)
       return {
-        account: this.toQueryModel(account),
+        id: account._id.toHexString(),
+        createdAt: account.createdAt.toISOString(),
+        updatedAt: account.updatedAt.toISOString(),
+        email: account.email,
       };
-    else return { account: undefined };
+    else return undefined;
   }
 
   async accountExists(email: string): Promise<AccountExistsResponse> {
@@ -139,14 +143,5 @@ export class AccountService {
     );
 
     return { exists };
-  }
-
-  private toQueryModel(model: AccountModel): AccountMessage {
-    return {
-      id: model._id.toHexString(),
-      createdAt: model.createdAt.toISOString(),
-      updatedAt: model.updatedAt.toISOString(),
-      email: model.email,
-    };
   }
 }

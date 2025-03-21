@@ -9,7 +9,7 @@ import {
   GetAgentByEmailReqeust,
   GetAgentByIdRequest,
   GetAgnetsIdsRequest,
-} from '@app/common/dto-query';
+} from 'libs/common/src/grpc';
 import { GrpcMethod } from '@nestjs/microservices';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { AgentService } from '../Application/services/agent.service';

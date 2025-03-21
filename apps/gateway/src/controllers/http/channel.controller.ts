@@ -1,4 +1,4 @@
-import { ChannelsMessageResponse } from '@app/common/dto-query';
+import { ChannelsMessageResponse } from 'libs/common/src/grpc';
 import { ParseMongoIdPipe } from '@app/common/pipes';
 import { AgentRole } from '@app/common/dto-generic';
 import { Roles } from '@app/common/decorators';

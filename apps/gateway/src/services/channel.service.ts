@@ -1,4 +1,4 @@
-import { ChannelServiceClient, GRPC_CHANNEL } from '@app/common/dto-query';
+import { ChannelServiceClient, GRPC_CHANNEL } from 'libs/common/src/grpc';
 import { ChannelSubjects } from '@app/common/dto-command';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';

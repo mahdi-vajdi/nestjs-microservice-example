@@ -7,18 +7,10 @@ import * as bcrypt from 'bcryptjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { AuthTokensDto } from '../dto/auth-tokens.dto';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
-import {
-  AccountSubjects,
-  AgentDto,
-  AgentSubjects,
-} from '@app/common/dto-command';
+import { AccountSubjects, AgentDto, AgentSubjects } from '@app/common/dto-command';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import {
-  AccountServiceClient,
-  AgentServiceClient,
-  GRPC_ACCOUNT,
-  GRPC_AGENT,
-} from '@app/common/dto-query';
+import { AgentServiceClient, GRPC_ACCOUNT, GRPC_AGENT } from 'libs/common/src/grpc';
+import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interface';
 
 /**
  * Main service class for handling authentication
@@ -26,7 +18,7 @@ import {
 @Injectable()
 export class AuthService implements OnModuleInit {
   // The Grpc client methods for account and agent service
-  private accountQueryService: AccountServiceClient;
+  private accountQueryService: IAccountGrpcService;
   private agentQueryService: AgentServiceClient;
 
   constructor(
@@ -39,7 +31,7 @@ export class AuthService implements OnModuleInit {
 
   onModuleInit() {
     this.accountQueryService =
-      this.accountGrpcClient.getService<AccountServiceClient>('AccountService');
+      this.accountGrpcClient.getService<IAccountGrpcService>('AccountService');
 
     this.agentQueryService =
       this.agentGrpcClient.getService<AgentServiceClient>('AgentService');
@@ -48,7 +40,7 @@ export class AuthService implements OnModuleInit {
   async signup(signupDto: SignupDto): Promise<ApiResponse<AuthTokensDto>> {
     // check if account exists
     const { exists: accountExists } = await lastValueFrom(
-      this.accountQueryService.accountExists({
+      await this.accountQueryService.accountExists({
         email: signupDto.email,
       }),
     );

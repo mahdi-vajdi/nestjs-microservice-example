@@ -7,7 +7,7 @@ import { AccessTokenGuard } from '../../guards/access-token.guard';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { AgentService } from '../../services/agent.service';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
-import { AgentsResponse } from '@app/common/dto-query';
+import { AgentsResponse } from 'libs/common/src/grpc';
 import { AgentDto } from '@app/common/dto-command';
 
 @Controller('agent')

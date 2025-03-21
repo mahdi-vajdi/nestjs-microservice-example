@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { GRPC_AGENT } from '@app/common/dto-query';
+import { GRPC_AGENT } from 'libs/common/src/grpc';
 import { ChannelEntityRepository } from './Domain/base-channel.repo';
 import { ChannelEntityRepositoryImpl } from './Infrastructure/repositories/impl-channel.entity-repo';
 import { ChannelChannelHandlers } from './Application/commands/handlers';
@@ -51,7 +51,10 @@ import { LoggerModule } from '@app/common/logger/logger.module';
           transport: Transport.GRPC,
           options: {
             package: GRPC_AGENT,
-            protoPath: join(__dirname, '../../../proto/agent.proto'),
+            protoPath: join(
+              __dirname,
+              '../../../libs/common/grpc/proto/agent.proto',
+            ),
             url: configService.getOrThrow('AGENT_GRPC_URL'),
           },
         }),

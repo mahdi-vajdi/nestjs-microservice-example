@@ -8,6 +8,7 @@ export interface ChannelServiceClient {
   getAccountChannels(
     request: GetAccountChannelsRequest,
   ): Observable<ChannelsMessageResponse>;
+
   getChannelById(
     request: GetChannelByIdRequest,
   ): Observable<ChannelMessageResponse>;

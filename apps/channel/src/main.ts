@@ -7,7 +7,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { join } from 'path';
-import { GRPC_CHANNEL } from '@app/common/dto-query';
+import { GRPC_CHANNEL } from 'libs/common/src/grpc';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
@@ -41,7 +41,10 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: GRPC_CHANNEL,
-      protoPath: join(__dirname, '../../../proto/channel.proto'),
+      protoPath: join(
+        __dirname,
+        '../../../libs/common/grpc/proto/channel.proto',
+      ),
       url: configService.getOrThrow('CHANNEL_GRPC_URL'),
     },
   });

@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { JwtPayloadMessage, VerifyAccessTokenMessage, VerifyRefreshTokenMessage } from '@app/common/dto-query';
+import { JwtPayloadMessage, VerifyAccessTokenMessage, VerifyRefreshTokenMessage } from 'libs/common/src/grpc';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { JwtHelperService } from '../services/jwt-helper.service';

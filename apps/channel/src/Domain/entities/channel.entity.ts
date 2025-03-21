@@ -59,12 +59,6 @@ export class Channel extends AggregateRoot {
     return this._settings;
   }
 
-  updateAgents(agentIds: string[]): void {
-    this._agents = agentIds;
-    this._updatedAt = new Date();
-    return;
-  }
-
   // Factory method
   static create(
     id: string,
@@ -90,5 +84,11 @@ export class Channel extends AggregateRoot {
     channel.apply(new ChannelCreatedEvent(channel.id));
 
     return channel;
+  }
+
+  updateAgents(agentIds: string[]): void {
+    this._agents = agentIds;
+    this._updatedAt = new Date();
+    return;
   }
 }

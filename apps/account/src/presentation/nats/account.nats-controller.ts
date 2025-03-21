@@ -2,8 +2,8 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AccountSubjects, AgentDto } from '@app/common/dto-command';
 import { ApiResponse } from '@app/common/dto-generic';
-import { AccountService } from '../Application/services/account.service';
-import { CreateAccountDto } from '../Application/dto/create-account.dto';
+import { AccountService } from '../../Application/services/account.service';
+import { CreateAccountDto } from '../../Application/dto/create-account.dto';
 
 @Controller()
 export class AccountNatsController {

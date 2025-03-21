@@ -13,8 +13,12 @@ export interface AgentServiceClient {
   getAccountAgents(
     request: GetAccountAgentsRequest,
   ): Observable<AgentsResponse>;
+
   getAgentsIds(request: GetAgnetsIdsRequest): Observable<AgentsIdsResponse>;
+
   getAgentById(request: GetAgentByIdRequest): Observable<AgentResponse>;
+
   getAgentByEmail(request: GetAgentByEmailReqeust): Observable<AgentResponse>;
+
   agentExists(request: AgentExistsRequest): Observable<AgentExistsResponse>;
 }

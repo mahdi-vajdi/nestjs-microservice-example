@@ -1,0 +1,48 @@
+import { Controller, Logger } from '@nestjs/common';
+import { GrpcMethod } from '@nestjs/microservices';
+import { AccountService } from '../../Application/services/account.service';
+import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interface';
+import {
+  GetAccountByIdRequest,
+  GetAccountByIdResponse,
+} from '@app/common/grpc/models/account/get-account-by-id.model';
+import {
+  GetAccountByEmailRequest,
+  GetAccountByEmailResponse,
+} from '@app/common/grpc/models/account/get-account-by-email.model';
+import { of } from 'rxjs/internal/observable/of';
+import { Observable } from 'rxjs/internal/Observable';
+import {
+  AccountExistsRequest,
+  AccountExistsResponse,
+} from '@app/common/grpc/models/account/account-exists.model';
+
+@Controller()
+export class AccountGrpcController implements IAccountGrpcService {
+  private readonly logger = new Logger(AccountGrpcController.name);
+
+  constructor(private readonly accountService: AccountService) {
+    this.logger.log('grpc controller for account');
+  }
+
+  @GrpcMethod('AccountService', 'GetAccountById')
+  async getAccountById(
+    req: GetAccountByIdRequest,
+  ): Promise<Observable<GetAccountByIdResponse>> {
+    return of(await this.accountService.getAccountById(req.id));
+  }
+
+  @GrpcMethod('AccountService', 'GetAccountByEmail')
+  async getAccountByEmail(
+    req: GetAccountByEmailRequest,
+  ): Promise<Observable<GetAccountByEmailResponse>> {
+    return of(await this.accountService.getAccountByEmail(req.email));
+  }
+
+  @GrpcMethod('AccountService', 'AccountExists')
+  async accountExists(
+    req: AccountExistsRequest,
+  ): Promise<Observable<AccountExistsResponse>> {
+    return of(await this.accountService.accountExists(req.email));
+  }
+}

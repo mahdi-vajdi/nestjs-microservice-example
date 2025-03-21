@@ -1,4 +1,4 @@
-import { AgentServiceClient, GRPC_AGENT } from '@app/common/dto-query';
+import { AgentServiceClient, GRPC_AGENT } from 'libs/common/src/grpc';
 import { ApiResponse } from '@app/common/dto-generic';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';

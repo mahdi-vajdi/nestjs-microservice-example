@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { GRPC_AGENT, GRPC_AUTH, GRPC_CHANNEL } from '@app/common/dto-query';
+import { GRPC_AGENT, GRPC_AUTH, GRPC_CHANNEL } from 'libs/common/src/grpc';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import * as Joi from 'joi';
@@ -43,7 +43,10 @@ import { LoggerModule } from '@app/common/logger/logger.module';
           transport: Transport.GRPC,
           options: {
             package: GRPC_AUTH,
-            protoPath: join(__dirname, '../../../proto/auth.proto'),
+            protoPath: join(
+              __dirname,
+              '../../../libs/common/grpc/proto/auth.proto',
+            ),
             url: configService.getOrThrow('AUTH_GRPC_URL'),
           },
         }),
@@ -55,7 +58,10 @@ import { LoggerModule } from '@app/common/logger/logger.module';
           transport: Transport.GRPC,
           options: {
             package: GRPC_CHANNEL,
-            protoPath: join(__dirname, '../../../proto/channel.proto'),
+            protoPath: join(
+              __dirname,
+              '../../../libs/common/grpc/proto/channel.proto',
+            ),
             url: configService.getOrThrow('CHANNEL_GRPC_URL'),
           },
         }),
@@ -67,7 +73,10 @@ import { LoggerModule } from '@app/common/logger/logger.module';
           transport: Transport.GRPC,
           options: {
             package: GRPC_AGENT,
-            protoPath: join(__dirname, '../../../proto/agent.proto'),
+            protoPath: join(
+              __dirname,
+              '../../../libs/common/grpc/proto/agent.proto',
+            ),
             url: configService.getOrThrow('AGENT_GRPC_URL'),
           },
         }),

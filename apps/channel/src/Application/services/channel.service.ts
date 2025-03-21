@@ -9,7 +9,7 @@ import {
   ChannelMessageResponse,
   ChannelsMessageResponse,
   GRPC_AGENT,
-} from '@app/common/dto-query';
+} from 'libs/common/src/grpc';
 import { ApiResponse } from '@app/common/dto-generic';
 import { ClientGrpc } from '@nestjs/microservices';
 import { GetChannelByIdQuery } from '../queries/impl/get-by-id.query';

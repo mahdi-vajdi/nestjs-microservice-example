@@ -4,13 +4,14 @@ import { AuthGrpcController } from './controllers/auth.grpc-controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { GRPC_ACCOUNT, GRPC_AGENT } from '@app/common/dto-query';
+import { ClientsModule, GrpcOptions, Transport } from '@nestjs/microservices';
+import { GRPC_ACCOUNT, GRPC_AGENT } from 'libs/common/src/grpc';
 import { JwtHelperService } from './services/jwt-helper.service';
 import { AuthNatsController } from './controllers/auth.nats-controller';
 import { join } from 'path';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerModule } from '@app/common/logger/logger.module';
+import { ACCOUNT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/account.options';
 
 @Module({
   imports: [
@@ -44,7 +45,10 @@ import { LoggerModule } from '@app/common/logger/logger.module';
           transport: Transport.GRPC,
           options: {
             package: GRPC_AGENT,
-            protoPath: join(__dirname, '../../../proto/agent.proto'),
+            protoPath: join(
+              __dirname,
+              '../../../libs/common/grpc/proto/agent.proto',
+            ),
             url: configService.getOrThrow('AGENT_GRPC_URL'),
           },
         }),
@@ -52,14 +56,9 @@ import { LoggerModule } from '@app/common/logger/logger.module';
       },
       {
         name: GRPC_ACCOUNT,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: GRPC_ACCOUNT,
-            protoPath: join(__dirname, '../../../proto/account.proto'),
-            url: configService.getOrThrow('ACCOUNT_GRPC_URL'),
-          },
-        }),
+        useFactory: (configService: ConfigService) => {
+          return configService.get<GrpcOptions>(ACCOUNT_GRPC_CLIENT_PROVIDER);
+        },
         inject: [ConfigService],
       },
     ]),

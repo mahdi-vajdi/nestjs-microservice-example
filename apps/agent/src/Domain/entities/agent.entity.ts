@@ -77,14 +77,6 @@ export class Agent extends AggregateRoot {
     return this._refreshToken;
   }
 
-  // entity state operations
-  changeRefreshToken(refreshToken: string | null) {
-    if (this.refreshToken === undefined) refreshToken = null;
-
-    this._refreshToken = refreshToken;
-    this._updatedAt = new Date();
-  }
-
   // Static fatory method
   static create(
     id: string,
@@ -117,5 +109,13 @@ export class Agent extends AggregateRoot {
     );
 
     // TODO: you can publish an event here
+  }
+
+  // entity state operations
+  changeRefreshToken(refreshToken: string | null) {
+    if (this.refreshToken === undefined) refreshToken = null;
+
+    this._refreshToken = refreshToken;
+    this._updatedAt = new Date();
   }
 }

@@ -5,20 +5,30 @@ import {
   MicroserviceOptions,
   Transport,
 } from '@nestjs/microservices';
-import { GRPC_AUTH } from '@app/common/dto-query';
+import { GRPC_AUTH } from 'libs/common/src/grpc';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
+import { LoggerModule } from '@app/common/logger/logger.module';
+import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.service';
+
+async function loadLogger(): Promise<LoggerService> {
+  const appContext = await NestFactory.createApplicationContext(LoggerModule);
+  return appContext.get<WinstonLoggerService>(LOGGER_PROVIDER);
+}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const logger = await loadLogger();
+
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    logger: logger,
+  });
 
   const configService = app.get<ConfigService>(ConfigService);
-  const logger = app.get<LoggerService>(LOGGER_PROVIDER);
 
-  app.useLogger(logger);
   app.connectMicroservice<CustomStrategy>({
     strategy: new NatsJetStreamServer({
       connectionOptions: {
@@ -41,7 +51,7 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: GRPC_AUTH,
-      protoPath: join(__dirname, '../../../proto/auth.proto'),
+      protoPath: join(__dirname, '../../../libs/common/grpc/proto/auth.proto'),
       url: configService.getOrThrow('AUTH_GRPC_URL'),
     },
   });

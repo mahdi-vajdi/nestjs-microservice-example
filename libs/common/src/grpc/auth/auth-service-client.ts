@@ -7,6 +7,7 @@ export interface AuthServiceClient {
   verifyAccessToken(
     request: VerifyAccessTokenMessage,
   ): Observable<JwtPayloadMessage>;
+
   verifyRefreshToken(
     request: VerifyRefreshTokenMessage,
   ): Observable<JwtPayloadMessage>;

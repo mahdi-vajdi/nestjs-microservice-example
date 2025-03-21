@@ -1,4 +1,4 @@
-import { AuthServiceClient, GRPC_AUTH } from '@app/common/dto-query';
+import { AuthServiceClient, GRPC_AUTH } from 'libs/common/src/grpc';
 import { AgentRole } from '@app/common/dto-generic';
 import { ROLES_DECORATOR_KEY } from '@app/common/decorators';
 import {

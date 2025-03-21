@@ -3,12 +3,6 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CreateChannelDto } from '../dto/create-channel.dto';
 import { CreateChannelCommand } from '../commands/impl/create-channel.command';
 import { lastValueFrom } from 'rxjs';
-import {
-  ChannelMessage,
-  ChannelMessageResponse,
-  ChannelsMessageResponse,
-  GRPC_AGENT,
-} from 'libs/common/src/grpc';
 import { ApiResponse } from '@app/common/dto-generic';
 import { ClientGrpc } from '@nestjs/microservices';
 import { GetChannelByIdQuery } from '../queries/impl/get-by-id.query';
@@ -17,6 +11,10 @@ import { UpdateChannelAgentsDto } from '../dto/update-channel-agents.dto';
 import { UpdateChannelAgentsCommand } from '../commands/impl/update-channel-agents';
 import { GetAccountChannelsQuery } from '../queries/impl/get-account-cahnnels.query';
 import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
+import { ChannelMessage } from '@app/common/grpc/models/channel/channel-message.dto';
+import { GetChannelByIdResponse } from '@app/common/grpc/models/channel/get-channel-by-id.dto';
+import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
+import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
 
 @Injectable()
 export class ChannelService implements OnModuleInit {
@@ -26,7 +24,8 @@ export class ChannelService implements OnModuleInit {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    @Inject(GRPC_AGENT) private readonly agentGrpcClient: ClientGrpc,
+    @Inject(AGENT_GRPC_CLIENT_PROVIDER)
+    private readonly agentGrpcClient: ClientGrpc,
   ) {}
 
   onModuleInit() {
@@ -122,7 +121,7 @@ export class ChannelService implements OnModuleInit {
 
   async getAccountChannels(
     accountId: string,
-  ): Promise<ChannelsMessageResponse> {
+  ): Promise<GetAccountChannelsResponse> {
     const channels = await this.queryBus.execute<
       GetAccountChannelsQuery,
       ChannelModel[] | null
@@ -138,14 +137,16 @@ export class ChannelService implements OnModuleInit {
   async getById(
     accountId: string,
     channelId: string,
-  ): Promise<ChannelMessageResponse> {
+  ): Promise<GetChannelByIdResponse> {
     const channel = await this.queryBus.execute<
       GetChannelByIdQuery,
       ChannelModel
     >(new GetChannelByIdQuery(accountId, channelId));
 
-    if (channel) return { channel: this.toQueryModel(channel) };
-    else return { channel: undefined };
+    if (channel) this.toQueryModel(channel);
+    else {
+      return undefined;
+    }
   }
 
   private toQueryModel(channel: ChannelModel): ChannelMessage {

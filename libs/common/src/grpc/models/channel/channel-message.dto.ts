@@ -16,7 +16,7 @@ export interface ChannelSettingsMessage {
     logo: string;
     seeWhileTyping: boolean;
     sendVoice: boolean;
-    showRaychatCredit: boolean;
+    showCredit: boolean;
     InfoForm: {
       isEnabled: boolean;
       isOptional: boolean;

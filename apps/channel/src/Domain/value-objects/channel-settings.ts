@@ -3,7 +3,7 @@ export class ChannelSettings {
     logo: string;
     seeWhileTyping: boolean;
     sendVoice: boolean;
-    showRaychatCredit: boolean;
+    showCredit: boolean;
     infoForm: {
       isEnabled: boolean;
       isOptional: boolean;

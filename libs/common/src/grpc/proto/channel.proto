@@ -43,7 +43,7 @@ message ChannelSettingsMessage {
     string logo = 1;
     bool seeWhileTyping = 2;
     bool sendVoice = 3;
-    bool showRaychatCredit = 4;
+    bool showCredit = 4;
     InfoForm infoForm = 5;
 
     message InfoForm {

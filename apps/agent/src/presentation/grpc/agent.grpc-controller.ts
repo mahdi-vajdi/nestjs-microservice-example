@@ -65,8 +65,6 @@ export class AgentGrpcController implements IAgentGrpcService {
     req: AgentExistsRequest,
   ): Promise<Observable<AgentExistsResponse>> {
     const res = await this.agentService.agentExists(req.email, req.phone);
-    this.logger.log(`checking agent: ${res}`);
-
     return of(res);
   }
 }

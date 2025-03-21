@@ -35,13 +35,12 @@ async function loadConfig(): Promise<ConfigService> {
 
 async function bootstrap() {
   const logger = await loadLogger();
+  const configService = await loadConfig();
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
     logger: logger,
   });
-
-  const configService = await loadConfig();
 
   const grpcConfig = configService.get<IGrpcConfig>(GRPC_CONFIG_TOKEN);
   app.connectMicroservice<MicroserviceOptions>({

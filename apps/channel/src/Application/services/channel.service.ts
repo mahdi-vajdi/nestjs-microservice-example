@@ -4,7 +4,6 @@ import { CreateChannelDto } from '../dto/create-channel.dto';
 import { CreateChannelCommand } from '../commands/impl/create-channel.command';
 import { lastValueFrom } from 'rxjs';
 import {
-  AgentServiceClient,
   ChannelMessage,
   ChannelMessageResponse,
   ChannelsMessageResponse,
@@ -17,11 +16,12 @@ import { ChannelModel } from '../../Infrastructure/models/channel.model';
 import { UpdateChannelAgentsDto } from '../dto/update-channel-agents.dto';
 import { UpdateChannelAgentsCommand } from '../commands/impl/update-channel-agents';
 import { GetAccountChannelsQuery } from '../queries/impl/get-account-cahnnels.query';
+import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
 
 @Injectable()
 export class ChannelService implements OnModuleInit {
   private readonly logger = new Logger(ChannelService.name);
-  private agentQueryService: AgentServiceClient;
+  private agentQueryService: IAgentGrpcService;
 
   constructor(
     private readonly commandBus: CommandBus,
@@ -31,7 +31,7 @@ export class ChannelService implements OnModuleInit {
 
   onModuleInit() {
     this.agentQueryService =
-      this.agentGrpcClient.getService<AgentServiceClient>('AgentService');
+      this.agentGrpcClient.getService<IAgentGrpcService>('AgentService');
   }
 
   async create(
@@ -41,11 +41,10 @@ export class ChannelService implements OnModuleInit {
       // Get agents ids if caller wants
       const agents: string[] = [];
       if (dto.addAllAgents) {
-        const { agentsIds } = await lastValueFrom(
-          this.agentQueryService.getAgentsIds({
-            accountId: dto.accountId,
-          }),
-        );
+        const res = await this.agentQueryService.getAgentsIds({
+          accountId: dto.accountId,
+        });
+        const { agentsIds } = await lastValueFrom(res);
         if (agentsIds) agents.push(...agentsIds);
       }
 

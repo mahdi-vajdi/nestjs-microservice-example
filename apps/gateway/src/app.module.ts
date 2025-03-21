@@ -40,17 +40,9 @@ import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.optio
     ClientsModule.registerAsync([
       {
         name: GRPC_AUTH,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: GRPC_AUTH,
-            protoPath: join(
-              __dirname,
-              '../../../libs/common/grpc/proto/auth.proto',
-            ),
-            url: configService.getOrThrow('AUTH_GRPC_URL'),
-          },
-        }),
+        useFactory: (configService: ConfigService) => {
+          return configService.get<GrpcOptions>(AGENT_GRPC_CLIENT_PROVIDER);
+        },
         inject: [ConfigService],
       },
       {
@@ -80,4 +72,4 @@ import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.optio
   controllers: [AuthHttpController, ChannelHttpController, AgentHttpController],
   providers: [AuthService, AgentService, ChannelService],
 })
-export class GatewayModule {}
+export class AppModule {}

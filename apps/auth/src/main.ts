@@ -1,60 +1,79 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {
-  CustomStrategy,
-  MicroserviceOptions,
-  Transport,
-} from '@nestjs/microservices';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { GRPC_AUTH } from 'libs/common/src/grpc';
-import { join } from 'path';
-import { ConfigService } from '@nestjs/config';
-import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
+import { join } from 'node:path';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.service';
+import {
+  GRPC_CONFIG_TOKEN,
+  grpcConfig,
+  IGrpcConfig,
+} from '@app/common/grpc/configs/grpc.config';
 
 async function loadLogger(): Promise<LoggerService> {
-  const appContext = await NestFactory.createApplicationContext(LoggerModule);
+  const appContext = await NestFactory.createApplicationContext(LoggerModule, {
+    bufferLogs: true,
+  });
   return appContext.get<WinstonLoggerService>(LOGGER_PROVIDER);
+}
+
+async function loadConfig(): Promise<ConfigService> {
+  const appContext = await NestFactory.createApplicationContext(
+    ConfigModule.forRoot({
+      load: [grpcConfig],
+    }),
+    {
+      bufferLogs: true,
+    },
+  );
+  return appContext.get<ConfigService>(ConfigService);
 }
 
 async function bootstrap() {
   const logger = await loadLogger();
+  const configService = await loadConfig();
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
     logger: logger,
   });
 
-  const configService = app.get<ConfigService>(ConfigService);
-
-  app.connectMicroservice<CustomStrategy>({
-    strategy: new NatsJetStreamServer({
-      connectionOptions: {
-        servers: configService.getOrThrow<string>('NATS_URI'),
-        name: 'auth-listener',
-      },
-      consumerOptions: {
-        deliverGroup: 'auth-group',
-        durable: 'auth-durable',
-        deliverTo: 'auth-messages',
-        manualAck: true,
-      },
-      streamConfig: {
-        name: 'authStream',
-        subjects: ['auth.*'],
-      },
-    }),
-  });
+  const grpcConfig = configService.get<IGrpcConfig>(GRPC_CONFIG_TOKEN);
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
       package: GRPC_AUTH,
-      protoPath: join(__dirname, '../../../libs/common/grpc/proto/auth.proto'),
-      url: configService.getOrThrow('AUTH_GRPC_URL'),
+      protoPath: join(
+        __dirname,
+        '../../../libs/common/src/grpc/proto/auth.proto',
+      ),
+      url: grpcConfig.url,
+      loader: { keepCase: true },
     },
   });
+
+  // app.connectMicroservice<CustomStrategy>({
+  //   strategy: new NatsJetStreamServer({
+  //     connectionOptions: {
+  //       servers: configService.getOrThrow<string>('NATS_URI'),
+  //       name: 'auth-listener',
+  //     },
+  //     consumerOptions: {
+  //       deliverGroup: 'auth-group',
+  //       durable: 'auth-durable',
+  //       deliverTo: 'auth-messages',
+  //       manualAck: true,
+  //     },
+  //     streamConfig: {
+  //       name: 'authStream',
+  //       subjects: ['auth.*'],
+  //     },
+  //   }),
+  // });
 
   await app.init();
   await app.startAllMicroservices();

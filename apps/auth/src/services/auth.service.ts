@@ -9,8 +9,10 @@ import { AuthTokensDto } from '../dto/auth-tokens.dto';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
 import { AccountSubjects, AgentDto, AgentSubjects } from '@app/common/dto-command';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import { AgentServiceClient, GRPC_ACCOUNT, GRPC_AGENT } from 'libs/common/src/grpc';
 import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interface';
+import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
+import { ACCOUNT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/account.options';
+import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
 
 /**
  * Main service class for handling authentication
@@ -19,12 +21,13 @@ import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interfa
 export class AuthService implements OnModuleInit {
   // The Grpc client methods for account and agent service
   private accountQueryService: IAccountGrpcService;
-  private agentQueryService: AgentServiceClient;
+  private agentQueryService: IAgentGrpcService;
 
   constructor(
     private readonly natsClient: NatsJetStreamClientProxy,
-    @Inject(GRPC_AGENT) private readonly agentGrpcClient: ClientGrpc,
-    @Inject(GRPC_ACCOUNT)
+    @Inject(AGENT_GRPC_CLIENT_PROVIDER)
+    private readonly agentGrpcClient: ClientGrpc,
+    @Inject(ACCOUNT_GRPC_CLIENT_PROVIDER)
     private readonly accountGrpcClient: ClientGrpc,
     private readonly jwtUtils: JwtHelperService,
   ) {}
@@ -34,7 +37,7 @@ export class AuthService implements OnModuleInit {
       this.accountGrpcClient.getService<IAccountGrpcService>('AccountService');
 
     this.agentQueryService =
-      this.agentGrpcClient.getService<AgentServiceClient>('AgentService');
+      this.agentGrpcClient.getService<IAgentGrpcService>('AgentService');
   }
 
   async signup(signupDto: SignupDto): Promise<ApiResponse<AuthTokensDto>> {
@@ -95,9 +98,12 @@ export class AuthService implements OnModuleInit {
     email,
     password,
   }: SigninDto): Promise<ApiResponse<AuthTokensDto>> {
+    const res = await this.agentQueryService.getAgentByEmail({
+      agentEmail: email,
+    });
     const agent = await lastValueFrom(
-      this.agentQueryService.getAgentByEmail({ agentEmail: email }).pipe(
-        map(async ({ agent }) => {
+      res.pipe(
+        map(async (agent) => {
           if (
             agent &&
             (await bcrypt.compare(password, agent.password)) &&
@@ -157,11 +163,10 @@ export class AuthService implements OnModuleInit {
     agentId: string,
     refreshToken: string,
   ): Promise<ApiResponse<AuthTokensDto>> {
-    const { agent } = await lastValueFrom(
-      this.agentQueryService.getAgentById({
-        agentId,
-      }),
-    );
+    const res = await this.agentQueryService.getAgentById({
+      agentId: agentId,
+    });
+    const agent = await lastValueFrom(res);
 
     if (!agent || !agent.refreshToken)
       return {

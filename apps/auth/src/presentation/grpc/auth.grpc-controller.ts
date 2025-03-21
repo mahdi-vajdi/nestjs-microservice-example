@@ -1,30 +1,31 @@
 import { Controller } from '@nestjs/common';
-import { JwtPayloadMessage, VerifyAccessTokenMessage, VerifyRefreshTokenMessage } from 'libs/common/src/grpc';
+import { JwtPayloadMessage } from '@app/common/grpc';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
-import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
-import { JwtHelperService } from '../services/jwt-helper.service';
-import { JwtPayloadDto } from '../dto/jwt-payload.dto';
+import { JwtHelperService } from '../../services/jwt-helper.service';
+import { JwtPayloadDto } from '../../dto/jwt-payload.dto';
+import { IAuthGrpcService } from '@app/common/grpc/interfaces/auth.interface';
+import {
+  VerifyAccessTokenRequest,
+  VerifyAccessTokenResponse,
+} from '@app/common/grpc/models/auth/auth-access.dto';
+import {
+  VerifyRefreshTokenRequest,
+  VerifyRefreshTokenResponse,
+} from '@app/common/grpc/models/auth/auth-refresh.dto';
+import { Observable } from 'rxjs/internal/Observable';
+import { of } from 'rxjs/internal/observable/of';
 
-/**
- * The Controller that handles the queries via grpc
- *
- * @export
- * @class AuthGrpcController
- * @typedef {AuthGrpcController}
- */
 @Controller()
-export class AuthGrpcController {
+export class AuthGrpcController implements IAuthGrpcService {
   constructor(private readonly jwtService: JwtHelperService) {}
 
   @GrpcMethod('AuthService', 'VerifyAccessToken')
   async verifyAccessToken(
-    data: VerifyAccessTokenMessage,
-    metadata: Metadata,
-    call: ServerUnaryCall<any, any>,
-  ): Promise<JwtPayloadMessage> {
+    data: VerifyAccessTokenRequest,
+  ): Promise<Observable<VerifyAccessTokenResponse>> {
     try {
       const payload = await this.jwtService.verifyAccessToken(data.accessToken);
-      return this.toJwtPayloadMessage(payload);
+      return of(this.toJwtPayloadMessage(payload));
     } catch (error) {
       throw new RpcException({
         statusCode: 401,
@@ -35,15 +36,13 @@ export class AuthGrpcController {
 
   @GrpcMethod('AuthService', 'VerifyRefreshToken')
   async verifyRefreshToken(
-    data: VerifyRefreshTokenMessage,
-    metadata: Metadata,
-    call: ServerUnaryCall<any, any>,
-  ): Promise<JwtPayloadMessage> {
+    data: VerifyRefreshTokenRequest,
+  ): Promise<Observable<VerifyRefreshTokenResponse>> {
     try {
       const payload = await this.jwtService.verifyRefreshToken(
         data.refreshToken,
       );
-      return this.toJwtPayloadMessage(payload);
+      return of(this.toJwtPayloadMessage(payload));
     } catch (error) {
       throw new RpcException({
         statusCode: 401,

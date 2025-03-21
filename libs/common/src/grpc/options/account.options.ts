@@ -16,7 +16,7 @@ export const accountGrpcOptions = () => {
 
         const grpcOptions = {
           package: [GRPC_ACCOUNT],
-          protoPath: [join(__dirname, '../proto/account.proto')],
+          protoPath: [join(__dirname, '../../libs/common/grpc/proto/account.proto')],
           url: process.env.ACCOUNT_GRPC_URL,
         };
 

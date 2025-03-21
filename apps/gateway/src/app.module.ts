@@ -12,6 +12,7 @@ import { LoggerModule } from '@app/common/logger/logger.module';
 import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
 import { authGrpcOptions } from '@app/common/grpc/options/auth.options';
 import { channelGrpcOptions } from '@app/common/grpc/options/channel.options';
+import { ClientsModule } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -36,40 +37,11 @@ import { channelGrpcOptions } from '@app/common/grpc/options/channel.options';
       }),
       inject: [ConfigService],
     }),
-    authGrpcOptions(),
-    channelGrpcOptions(),
-    agentGrpcOptions(),
-    // ClientsModule.registerAsync([
-    //   {
-    //     name: GRPC_AUTH,
-    //     useFactory: (configService: ConfigService) => {
-    //       return configService.get<GrpcOptions>(AGENT_GRPC_CLIENT_PROVIDER);
-    //     },
-    //     inject: [ConfigService],
-    //   },
-    //   {
-    //     name: GRPC_CHANNEL,
-    //     useFactory: (configService: ConfigService) => ({
-    //       transport: Transport.GRPC,
-    //       options: {
-    //         package: GRPC_CHANNEL,
-    //         protoPath: join(
-    //           __dirname,
-    //           '../../../libs/common/grpc/proto/channel.proto',
-    //         ),
-    //         url: configService.getOrThrow('CHANNEL_GRPC_URL'),
-    //       },
-    //     }),
-    //     inject: [ConfigService],
-    //   },
-    //   {
-    //     name: GRPC_AGENT,
-    //     useFactory: (configService: ConfigService) => {
-    //       return configService.get<GrpcOptions>(AGENT_GRPC_CLIENT_PROVIDER);
-    //     },
-    //     inject: [ConfigService],
-    //   },
-    // ]),
+    ClientsModule.registerAsync([
+      authGrpcOptions,
+      channelGrpcOptions,
+      agentGrpcOptions,
+    ]),
   ],
   controllers: [AuthHttpController, ChannelHttpController, AgentHttpController],
   providers: [AuthService, AgentService, ChannelService],

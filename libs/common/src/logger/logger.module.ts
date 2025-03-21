@@ -68,4 +68,5 @@ import { LOGGER_PROVIDER } from './provider/logger.provider';
   ],
   exports: [LOGGER_PROVIDER],
 })
-export class LoggerModule {}
+export class LoggerModule {
+}

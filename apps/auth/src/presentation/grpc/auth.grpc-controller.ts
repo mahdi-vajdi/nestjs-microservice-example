@@ -1,8 +1,6 @@
 import { Controller } from '@nestjs/common';
-import { JwtPayloadMessage } from '@app/common/grpc';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { JwtHelperService } from '../../services/jwt-helper.service';
-import { JwtPayloadDto } from '../../dto/jwt-payload.dto';
 import { IAuthGrpcService } from '@app/common/grpc/interfaces/auth.interface';
 import {
   VerifyAccessTokenRequest,
@@ -25,7 +23,12 @@ export class AuthGrpcController implements IAuthGrpcService {
   ): Promise<Observable<VerifyAccessTokenResponse>> {
     try {
       const payload = await this.jwtService.verifyAccessToken(data.accessToken);
-      return of(this.toJwtPayloadMessage(payload));
+      return of({
+        sub: payload.sub,
+        account: payload.account,
+        email: payload.email,
+        role: payload.role.toString(),
+      });
     } catch (error) {
       throw new RpcException({
         statusCode: 401,
@@ -42,21 +45,17 @@ export class AuthGrpcController implements IAuthGrpcService {
       const payload = await this.jwtService.verifyRefreshToken(
         data.refreshToken,
       );
-      return of(this.toJwtPayloadMessage(payload));
+      return of({
+        sub: payload.sub,
+        account: payload.account,
+        email: payload.email,
+        role: payload.role.toString(),
+      });
     } catch (error) {
       throw new RpcException({
         statusCode: 401,
         message: error.message,
       });
     }
-  }
-
-  private toJwtPayloadMessage(dto: JwtPayloadDto): JwtPayloadMessage {
-    return {
-      sub: dto.sub,
-      account: dto.account,
-      email: dto.email,
-      role: dto.role.toString(),
-    };
   }
 }

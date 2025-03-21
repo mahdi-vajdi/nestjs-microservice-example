@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { GRPC_AGENT } from 'libs/common/src/grpc';
 import { join } from 'path';
 import { LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
@@ -13,6 +12,7 @@ import {
   grpcConfig,
   IGrpcConfig,
 } from '@app/common/grpc/configs/grpc.config';
+import { AGENT_GRPC_PACKAGE_NAME } from '@app/common/grpc/options/agent.options';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -41,12 +41,13 @@ async function bootstrap() {
     bufferLogs: true,
     logger: logger,
   });
+  console.log('grpc config: ');
 
   const grpcConfig = configService.get<IGrpcConfig>(GRPC_CONFIG_TOKEN);
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      package: GRPC_AGENT,
+      package: AGENT_GRPC_PACKAGE_NAME,
       protoPath: join(
         __dirname,
         '../../../libs/common/src/grpc/proto/agent.proto',

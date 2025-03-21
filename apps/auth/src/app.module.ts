@@ -9,6 +9,7 @@ import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-tr
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { accountGrpcOptions } from '@app/common/grpc/options/account.options';
 import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
+import { ClientsModule } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -29,29 +30,7 @@ import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
       }),
       inject: [ConfigService],
     }),
-    accountGrpcOptions(),
-    agentGrpcOptions(),
-    // ClientsModule.registerAsync([
-    //   {
-    //     name: GRPC_AGENT,
-    //     useFactory: (configService: ConfigService) => {
-    //       return configService.get<MicroserviceOptions>(
-    //         AGENT_GRPC_CLIENT_PROVIDER,
-    //       );
-    //     },
-    //     inject: [ConfigService],
-    //   },
-    //   {
-    //     name: GRPC_ACCOUNT,
-    //     useFactory: (configService: ConfigService) => {
-    //       return configService.get<MicroserviceOptions>(
-    //         ACCOUNT_GRPC_CLIENT_PROVIDER,
-    //       );
-    //     },
-    //     inject: [ConfigService],
-    //   },
-    // ]),
-    // ClientsModule.register([]),
+    ClientsModule.registerAsync([accountGrpcOptions, agentGrpcOptions]),
   ],
   controllers: [AuthNatsController, AuthGrpcController],
   providers: [AuthService, JwtHelperService],

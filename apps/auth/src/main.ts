@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { GRPC_AUTH } from 'libs/common/src/grpc';
 import { join } from 'node:path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerService } from '@nestjs/common';
@@ -13,6 +12,7 @@ import {
   grpcConfig,
   IGrpcConfig,
 } from '@app/common/grpc/configs/grpc.config';
+import { AUTH_GRPC_PACKAGE_NAME } from '@app/common/grpc/options/auth.options';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -46,7 +46,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      package: GRPC_AUTH,
+      package: AUTH_GRPC_PACKAGE_NAME,
       protoPath: join(
         __dirname,
         '../../../libs/common/src/grpc/proto/auth.proto',

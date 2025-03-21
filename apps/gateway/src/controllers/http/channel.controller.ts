@@ -1,4 +1,3 @@
-import { ChannelsMessageResponse } from 'libs/common/src/grpc';
 import { ParseMongoIdPipe } from '@app/common/pipes';
 import { AgentRole } from '@app/common/dto-generic';
 import { Roles } from '@app/common/decorators';
@@ -19,6 +18,7 @@ import { UpdateChannelAgentsDto } from '../../dto/channel/update-channel-agents.
 import { AccessTokenGuard } from '../../guards/access-token.guard';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { ChannelService } from '../../services/channel.service';
+import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
 
 @Controller('channel')
 export class ChannelHttpController {
@@ -38,9 +38,11 @@ export class ChannelHttpController {
   @UseGuards(AccessTokenGuard)
   @Roles(AgentRole.OWNER, AgentRole.ADMIN)
   @Get()
-  getAccountChannels(@Req() req: Request): Observable<ChannelsMessageResponse> {
+  async getAccountChannels(
+    @Req() req: Request,
+  ): Promise<Observable<GetAccountChannelsResponse>> {
     const jwtPayload = req['user'] as JwtPayloadDto;
-    return this.channelService.getAccountChannels(jwtPayload);
+    return await this.channelService.getAccountChannels(jwtPayload);
   }
 
   @UseGuards(AccessTokenGuard)

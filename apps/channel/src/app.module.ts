@@ -16,6 +16,7 @@ import { ChannelGrpcController } from './presentation/grpc/channel.grpc-controll
 import { ChannelService } from './Application/services/channel.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
+import { ClientsModule } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
     MongooseModule.forFeature([
       { name: CHANNEL_DB_COLLECTION, schema: ChannelSchema },
     ]),
-    agentGrpcOptions(),
+    ClientsModule.registerAsync([agentGrpcOptions]),
   ],
   controllers: [ChannelNatsController, ChannelGrpcController],
   providers: [

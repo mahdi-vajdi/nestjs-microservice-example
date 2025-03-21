@@ -1,5 +1,6 @@
 import { ConfigFactory, registerAs } from '@nestjs/config';
 import * as Joi from 'joi';
+import { env } from 'node:process';
 
 export interface IGrpcConfig {
   url: string;
@@ -16,7 +17,7 @@ export const grpcConfig = registerAs<IGrpcConfig, ConfigFactory<IGrpcConfig>>(
   () => {
     const { error, value } = grpcConfigSchema.validate(
       {
-        url: process.env.GRPC_URL,
+        url: env.GRPC_URL,
       },
       {
         allowUnknown: false,

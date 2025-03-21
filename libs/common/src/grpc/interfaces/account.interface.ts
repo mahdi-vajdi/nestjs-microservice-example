@@ -7,10 +7,7 @@ import {
   GetAccountByEmailRequest,
   GetAccountByEmailResponse,
 } from '@app/common/grpc/models/account/get-account-by-email.model';
-import {
-  AccountExistsRequest,
-  AccountExistsResponse,
-} from '@app/common/grpc/models/account/account-exists.model';
+import { AccountExistsRequest, AccountExistsResponse } from '@app/common/grpc/models/account/account-exists.model';
 
 export interface IAccountGrpcService {
   getAccountById(

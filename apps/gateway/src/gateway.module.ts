@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule, GrpcOptions, Transport } from '@nestjs/microservices';
 import { GRPC_AGENT, GRPC_AUTH, GRPC_CHANNEL } from 'libs/common/src/grpc';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
@@ -12,6 +12,7 @@ import { AgentService } from './services/agent.service';
 import { ChannelService } from './services/channel.service';
 import { AuthService } from './services/auth.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
+import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
 
 @Module({
   imports: [
@@ -69,17 +70,9 @@ import { LoggerModule } from '@app/common/logger/logger.module';
       },
       {
         name: GRPC_AGENT,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: GRPC_AGENT,
-            protoPath: join(
-              __dirname,
-              '../../../libs/common/grpc/proto/agent.proto',
-            ),
-            url: configService.getOrThrow('AGENT_GRPC_URL'),
-          },
-        }),
+        useFactory: (configService: ConfigService) => {
+          return configService.get<GrpcOptions>(AGENT_GRPC_CLIENT_PROVIDER);
+        },
         inject: [ConfigService],
       },
     ]),

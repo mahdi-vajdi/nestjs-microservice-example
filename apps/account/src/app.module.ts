@@ -20,13 +20,13 @@ import { AccountGrpcController } from './presentation/grpc/account-grpc.controll
 
 @Module({
   imports: [
+    CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
       cache: true,
     }),
     LoggerModule,
-    CqrsModule,
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('MONGODB_URI'),

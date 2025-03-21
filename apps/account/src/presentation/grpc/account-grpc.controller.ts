@@ -21,9 +21,7 @@ import {
 export class AccountGrpcController implements IAccountGrpcService {
   private readonly logger = new Logger(AccountGrpcController.name);
 
-  constructor(private readonly accountService: AccountService) {
-    this.logger.log('grpc controller for account');
-  }
+  constructor(private readonly accountService: AccountService) {}
 
   @GrpcMethod('AccountService', 'GetAccountById')
   async getAccountById(

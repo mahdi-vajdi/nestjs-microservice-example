@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateOwnerAgentDto } from '../dto/create-owner-agent.dto';
 import { UpdateRefreshTokenDto } from '../dto/update-refresh-token.dto';
@@ -6,13 +6,6 @@ import { UpdateRefreshTokenCommand } from '../commands/impl/update-refresh-token
 import { CreateAgentCommand } from '../commands/impl/create-agent.command';
 import { CreateAgentDto } from '../dto/create-agent.dto';
 import { AgentExistsQuery } from '../queries/impl/agent-exists-query';
-import {
-  AgentExistsResponse,
-  AgentMessage,
-  AgentResponse,
-  AgentsIdsResponse,
-  AgentsResponse,
-} from 'libs/common/src/grpc';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
 import { AgentDto } from '@app/common/dto-command';
 import { GetByEmailQuery } from '../queries/impl/get-by-email.query';
@@ -20,9 +13,16 @@ import { AgentModel } from '../../Infrastructure/models/agent.model';
 import { GetAccountAgentsQuery } from '../queries/impl/get-account-agents.query';
 import { GetAccountAgentsIdsQuery } from '../queries/impl/get-account-agents-ids.query';
 import { GetByIdQuery } from '../queries/impl/get-by-id.query';
+import { GetAccountAgentsResponse } from '@app/common/grpc/models/agent/get-account-agents.model';
+import { AgentExistsResponse } from '@app/common/grpc/models/agent/agents.exists.model';
+import { GetAgentIdsResponse } from '@app/common/grpc/models/agent/get-agents-ids.model';
+import { GetAgentByIdResponse } from '@app/common/grpc/models/agent/get-agent-by-id.model';
+import { GetAgentByEmailResponse } from '@app/common/grpc/models/agent/get-agent-by-email.model';
 
 @Injectable()
 export class AgentService {
+  private readonly logger = new Logger(AgentService.name);
+
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -159,7 +159,7 @@ export class AgentService {
     }
   }
 
-  async getAccountAgents(accountId: string): Promise<AgentsResponse> {
+  async getAccountAgents(accountId: string): Promise<GetAccountAgentsResponse> {
     const agents = await this.queryBus.execute<
       GetAccountAgentsQuery,
       AgentModel[]
@@ -167,12 +167,27 @@ export class AgentService {
 
     if (agents && agents.length > 0) {
       return {
-        agents: agents.map((agent) => this.toGrpcModel(agent)),
+        agents: agents.map((agent) => ({
+          id: agent._id.toHexString(),
+          createdAt: agent.createdAt.toISOString(),
+          updatedAt: agent.updatedAt.toISOString(),
+          account: agent.account.toHexString(),
+          email: agent.email,
+          phone: agent.phone,
+          firstName: agent.firstName,
+          lastName: agent.lastName,
+          title: agent.title,
+          role: AgentRole[agent.role],
+          password: agent.password,
+          refreshToken: agent.refreshToken,
+        })),
       };
-    } else return { agents: undefined };
+    } else {
+      return undefined;
+    }
   }
 
-  async getAgentsIds(accountId: string): Promise<AgentsIdsResponse> {
+  async getAgentsIds(accountId: string): Promise<GetAgentIdsResponse> {
     const agentsIds = await this.queryBus.execute<
       GetAccountAgentsIdsQuery,
       string[]
@@ -185,19 +200,32 @@ export class AgentService {
     } else return { agentsIds: undefined };
   }
 
-  async getById(agentId: string): Promise<AgentResponse> {
+  async getById(agentId: string): Promise<GetAgentByIdResponse> {
     const agent = await this.queryBus.execute<GetByIdQuery, AgentModel>(
       new GetByIdQuery(agentId),
     );
 
     if (agent) {
       return {
-        agent: this.toGrpcModel(agent),
+        id: agent._id.toHexString(),
+        createdAt: agent.createdAt.toISOString(),
+        updatedAt: agent.updatedAt.toISOString(),
+        account: agent.account.toHexString(),
+        email: agent.email,
+        phone: agent.phone,
+        firstName: agent.firstName,
+        lastName: agent.lastName,
+        title: agent.title,
+        role: AgentRole[agent.role],
+        password: agent.password,
+        refreshToken: agent.refreshToken,
       };
-    } else return { agent: undefined };
+    } else {
+      return undefined;
+    }
   }
 
-  async getByEmail(agentEmail: string): Promise<AgentResponse> {
+  async getByEmail(agentEmail: string): Promise<GetAgentByEmailResponse> {
     const agent = await this.queryBus.execute<
       GetByEmailQuery,
       AgentModel | null
@@ -205,9 +233,22 @@ export class AgentService {
 
     if (agent) {
       return {
-        agent: this.toGrpcModel(agent),
+        id: agent._id.toHexString(),
+        createdAt: agent.createdAt.toISOString(),
+        updatedAt: agent.updatedAt.toISOString(),
+        account: agent.account.toHexString(),
+        email: agent.email,
+        phone: agent.phone,
+        firstName: agent.firstName,
+        lastName: agent.lastName,
+        title: agent.title,
+        role: AgentRole[agent.role],
+        password: agent.password,
+        refreshToken: agent.refreshToken,
       };
-    } else return { agent: undefined };
+    } else {
+      return undefined;
+    }
   }
 
   async agentExists(
@@ -240,23 +281,6 @@ export class AgentService {
       role: agent.role,
       avatar: agent.avatar,
       online: agent.online,
-    };
-  }
-
-  private toGrpcModel(agent: AgentModel): AgentMessage {
-    return {
-      id: agent._id.toHexString(),
-      createdAt: agent.createdAt.toISOString(),
-      updatedAt: agent.updatedAt.toISOString(),
-      account: agent.account.toHexString(),
-      email: agent.email,
-      phone: agent.phone,
-      firstName: agent.firstName,
-      lastName: agent.lastName,
-      title: agent.title,
-      role: AgentRole[agent.role],
-      password: agent.password,
-      refreshToken: agent.refreshToken,
     };
   }
 }

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule, GrpcOptions } from '@nestjs/microservices';
 import { GRPC_AGENT } from 'libs/common/src/grpc';
 import { ChannelEntityRepository } from './Domain/base-channel.repo';
 import { ChannelEntityRepositoryImpl } from './Infrastructure/repositories/impl-channel.entity-repo';
@@ -15,10 +15,10 @@ import {
 import { CqrsModule } from '@nestjs/cqrs';
 import { ChannelNatsController } from './Presentation/channel.nats-controller';
 import { ChannelQueryRepository } from './Infrastructure/repositories/channel.query-repo';
-import { join } from 'path';
 import { ChannelGrpcController } from './Presentation/channel.grpc-controller';
 import { ChannelService } from './Application/services/channel.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
+import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
 
 @Module({
   imports: [
@@ -47,17 +47,9 @@ import { LoggerModule } from '@app/common/logger/logger.module';
     ClientsModule.registerAsync([
       {
         name: GRPC_AGENT,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: GRPC_AGENT,
-            protoPath: join(
-              __dirname,
-              '../../../libs/common/grpc/proto/agent.proto',
-            ),
-            url: configService.getOrThrow('AGENT_GRPC_URL'),
-          },
-        }),
+        useFactory: (configService: ConfigService) => {
+          return configService.get<GrpcOptions>(AGENT_GRPC_CLIENT_PROVIDER);
+        },
         inject: [ConfigService],
       },
     ]),

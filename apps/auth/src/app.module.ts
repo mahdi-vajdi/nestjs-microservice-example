@@ -4,14 +4,14 @@ import { AuthGrpcController } from './controllers/auth.grpc-controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
-import { ClientsModule, GrpcOptions, Transport } from '@nestjs/microservices';
+import { ClientsModule, GrpcOptions } from '@nestjs/microservices';
 import { GRPC_ACCOUNT, GRPC_AGENT } from 'libs/common/src/grpc';
 import { JwtHelperService } from './services/jwt-helper.service';
 import { AuthNatsController } from './controllers/auth.nats-controller';
-import { join } from 'path';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { ACCOUNT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/account.options';
+import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
 
 @Module({
   imports: [
@@ -41,17 +41,9 @@ import { ACCOUNT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/account.o
     ClientsModule.registerAsync([
       {
         name: GRPC_AGENT,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: GRPC_AGENT,
-            protoPath: join(
-              __dirname,
-              '../../../libs/common/grpc/proto/agent.proto',
-            ),
-            url: configService.getOrThrow('AGENT_GRPC_URL'),
-          },
-        }),
+        useFactory: (configService: ConfigService) => {
+          return configService.get<GrpcOptions>(AGENT_GRPC_CLIENT_PROVIDER);
+        },
         inject: [ConfigService],
       },
       {

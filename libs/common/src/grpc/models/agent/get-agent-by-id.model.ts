@@ -1,4 +1,8 @@
-export interface AgentMessage {
+export interface GetAgentByIdRequest {
+  agentId: string;
+}
+
+export interface GetAgentByIdResponse {
   id: string;
   createdAt: string;
   updatedAt: string;

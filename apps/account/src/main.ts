@@ -4,15 +4,15 @@ import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { GRPC_ACCOUNT } from 'libs/common/src/grpc';
 import { join } from 'path';
-import {
-  GRPC_CONFIG_TOKEN,
-  grpcConfig,
-  IGrpcConfig,
-} from './presentation/grpc/config/grpc.config';
 import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.service';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
 import { LoggerService } from '@nestjs/common';
 import { LoggerModule } from '@app/common/logger/logger.module';
+import {
+  GRPC_CONFIG_TOKEN,
+  grpcConfig,
+  IGrpcConfig,
+} from '@app/common/grpc/configs/grpc.config';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -30,7 +30,6 @@ async function loadConfig(): Promise<ConfigService> {
       bufferLogs: true,
     },
   );
-
   return appContext.get<ConfigService>(ConfigService);
 }
 

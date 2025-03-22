@@ -1,4 +1,3 @@
-import { AgentServiceClient, GRPC_AGENT } from '@app/common/dto-query';
 import { ApiResponse } from '@app/common/dto-generic';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
@@ -6,19 +5,26 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { JwtPayloadDto } from '../dto/auth/jwt-payload.dto';
 import { CreateAgentDto } from '../dto/agent/create-agent.dto';
 import { AgentDto, AgentSubjects } from '@app/common/dto-command';
+import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_SERVICE_NAME,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 @Injectable()
 export class AgentService implements OnModuleInit {
-  private agentQueryService: AgentServiceClient;
+  private agentQueryService: IAgentGrpcService;
 
   constructor(
     private readonly natsClient: NatsJetStreamClientProxy,
-    @Inject(GRPC_AGENT) private readonly agentGrpcClient: ClientGrpc,
+    @Inject(AGENT_GRPC_CLIENT_PROVIDER)
+    private readonly agentGrpcClient: ClientGrpc,
   ) {}
 
   onModuleInit() {
-    this.agentQueryService =
-      this.agentGrpcClient.getService<AgentServiceClient>('AgentService');
+    this.agentQueryService = this.agentGrpcClient.getService<IAgentGrpcService>(
+      AGENT_GRPC_SERVICE_NAME,
+    );
   }
 
   createAgent(user: JwtPayloadDto, dto: CreateAgentDto) {

@@ -3,13 +3,6 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CreateChannelDto } from '../dto/create-channel.dto';
 import { CreateChannelCommand } from '../commands/impl/create-channel.command';
 import { lastValueFrom } from 'rxjs';
-import {
-  AgentServiceClient,
-  ChannelMessage,
-  ChannelMessageResponse,
-  ChannelsMessageResponse,
-  GRPC_AGENT,
-} from '@app/common/dto-query';
 import { ApiResponse } from '@app/common/dto-generic';
 import { ClientGrpc } from '@nestjs/microservices';
 import { GetChannelByIdQuery } from '../queries/impl/get-by-id.query';
@@ -17,21 +10,31 @@ import { ChannelModel } from '../../Infrastructure/models/channel.model';
 import { UpdateChannelAgentsDto } from '../dto/update-channel-agents.dto';
 import { UpdateChannelAgentsCommand } from '../commands/impl/update-channel-agents';
 import { GetAccountChannelsQuery } from '../queries/impl/get-account-cahnnels.query';
+import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
+import { ChannelMessage } from '@app/common/grpc/models/channel/channel-message.dto';
+import { GetChannelByIdResponse } from '@app/common/grpc/models/channel/get-channel-by-id.dto';
+import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_SERVICE_NAME,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 @Injectable()
 export class ChannelService implements OnModuleInit {
   private readonly logger = new Logger(ChannelService.name);
-  private agentQueryService: AgentServiceClient;
+  private agentQueryService: IAgentGrpcService;
 
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    @Inject(GRPC_AGENT) private readonly agentGrpcClient: ClientGrpc,
+    @Inject(AGENT_GRPC_CLIENT_PROVIDER)
+    private readonly agentGrpcClient: ClientGrpc,
   ) {}
 
   onModuleInit() {
-    this.agentQueryService =
-      this.agentGrpcClient.getService<AgentServiceClient>('AgentService');
+    this.agentQueryService = this.agentGrpcClient.getService<IAgentGrpcService>(
+      AGENT_GRPC_SERVICE_NAME,
+    );
   }
 
   async create(
@@ -41,11 +44,10 @@ export class ChannelService implements OnModuleInit {
       // Get agents ids if caller wants
       const agents: string[] = [];
       if (dto.addAllAgents) {
-        const { agentsIds } = await lastValueFrom(
-          this.agentQueryService.getAgentsIds({
-            accountId: dto.accountId,
-          }),
-        );
+        const res = await this.agentQueryService.getAgentsIds({
+          accountId: dto.accountId,
+        });
+        const { agentsIds } = await lastValueFrom(res);
         if (agentsIds) agents.push(...agentsIds);
       }
 
@@ -123,7 +125,7 @@ export class ChannelService implements OnModuleInit {
 
   async getAccountChannels(
     accountId: string,
-  ): Promise<ChannelsMessageResponse> {
+  ): Promise<GetAccountChannelsResponse> {
     const channels = await this.queryBus.execute<
       GetAccountChannelsQuery,
       ChannelModel[] | null
@@ -139,14 +141,16 @@ export class ChannelService implements OnModuleInit {
   async getById(
     accountId: string,
     channelId: string,
-  ): Promise<ChannelMessageResponse> {
+  ): Promise<GetChannelByIdResponse> {
     const channel = await this.queryBus.execute<
       GetChannelByIdQuery,
       ChannelModel
     >(new GetChannelByIdQuery(accountId, channelId));
 
-    if (channel) return { channel: this.toQueryModel(channel) };
-    else return { channel: undefined };
+    if (channel) this.toQueryModel(channel);
+    else {
+      return undefined;
+    }
   }
 
   private toQueryModel(channel: ChannelModel): ChannelMessage {

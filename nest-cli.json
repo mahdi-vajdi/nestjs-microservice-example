@@ -5,11 +5,7 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/account/tsconfig.app.json",
-    "assets": [
-      "**/*.proto"
-    ],
-    "watchAssets": true
+    "tsConfigPath": "apps/account/tsconfig.app.json"
   },
   "projects": {
     "admin-common": {
@@ -18,7 +14,14 @@
       "entryFile": "index",
       "sourceRoot": "libs/common/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/common/tsconfig.lib.json"
+        "tsConfigPath": "libs/common/tsconfig.lib.json",
+        "assets": [
+          {
+            "include": "**/*.proto",
+            "watchAssets": true,
+            "outDir": "dist/libs/common"
+          }
+        ]
       }
     },
     "channel-service": {

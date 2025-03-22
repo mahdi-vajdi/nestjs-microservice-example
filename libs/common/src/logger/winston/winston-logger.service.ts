@@ -10,7 +10,8 @@ export class WinstonLoggerService implements LoggerService, TypeOrmLogger {
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     private readonly logger: LoggerService,
-  ) {}
+  ) {
+  }
 
   /*
     Implementing methods for nestjs logger service

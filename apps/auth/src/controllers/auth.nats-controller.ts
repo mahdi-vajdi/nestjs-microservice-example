@@ -1,12 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import {
-  Ctx,
-  EventPattern,
-  MessagePattern,
-  Payload,
-  RpcException,
-} from '@nestjs/microservices';
+import { Ctx, EventPattern, MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { ApiResponse } from '@app/common/dto-generic';
 import {
   AuthSubjects,

@@ -3,6 +3,7 @@ import { AgentModel } from '../models/agent.model';
 import { Model, MongooseError, Types } from 'mongoose';
 import { Logger } from '@nestjs/common';
 import { DatabaseError } from '@app/common/errors/database.error';
+
 /**
  * Repository for query side of the agent service
  *

@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package grpc_channel;
+
+service ChannelService {
+  rpc GetAccountChannels(GetAccountChannelsRequest)
+      returns (ChannelsMessageResponse) {}
+  rpc GetChannelById(GetChannelByIdRequest) returns (ChannelMessageResponse) {}
+}
+
+message GetAccountChannelsRequest {
+  string accountId = 1;
+}
+
+message GetChannelByIdRequest {
+  string accountId = 1;
+  string channelId = 2;
+}
+
+message ChannelsMessageResponse {
+  repeated ChannelMessage channels = 1;
+}
+
+message ChannelMessageResponse {
+  ChannelMessage channel = 1;
+}
+
+message ChannelMessage {
+  string id = 1;
+  string createdAt = 2;
+  string updatedAt = 3;
+  string account = 4;
+  string title = 5;
+  string url = 6;
+  string token = 7;
+  bool isEnabled = 8;
+  repeated string agents = 9;
+  ChannelSettingsMessage chennelSettings = 10;
+}
+
+message ChannelSettingsMessage {
+  message Main {
+    string logo = 1;
+    bool seeWhileTyping = 2;
+    bool sendVoice = 3;
+    bool showCredit = 4;
+    InfoForm infoForm = 5;
+
+    message InfoForm {
+      bool isEnabled = 1;
+      bool isOptional = 2;
+      string type = 3;
+    }
+  }
+
+  message WidgetLandings {
+    string language = 1;
+    string title = 2;
+    string description = 3;
+    string startMessage = 4;
+    string startReply = 5;
+  }
+
+  message WidgetCustomization {
+    string logo = 1;
+    string bgColor = 2;
+    string loBgColor = 3;
+    string secondaryColor = 4;
+    string bgTheme = 5;
+  }
+
+  message WidgetDisplay {
+    bool showInPagesEnabled = 1;
+    repeated string showPages = 2;
+    bool hideInPagesEnabled = 3;
+    repeated string hideInPages = 4;
+  }
+
+  message WidgetPosition {
+    string ltrPosition = 1;
+    int32 ltrBottom = 2;
+    int32 ltrRight = 3;
+    bool ltrShowInMobile = 4;
+    string rtlPosition = 5;
+    int32 rtlBottom = 6;
+    int32 rtlLeft = 7;
+    bool rtlShowInMobile = 8;
+  }
+
+  Main main = 1;
+  repeated WidgetLandings landings = 2;
+  WidgetCustomization customization = 3;
+  WidgetDisplay display = 4;
+  WidgetPosition position = 5;
+}

@@ -20,8 +20,6 @@ import { LOGGER_PROVIDER } from './provider/logger.provider';
           WINSTON_LOGGER_CONFIG_TOKEN,
         );
 
-        if (!winstonConfig) throw new Error('winston config is undefined');
-
         if (winstonConfig.useFile) {
           return {
             format: format.combine(
@@ -70,4 +68,5 @@ import { LOGGER_PROVIDER } from './provider/logger.provider';
   ],
   exports: [LOGGER_PROVIDER],
 })
-export class LoggerModule {}
+export class LoggerModule {
+}

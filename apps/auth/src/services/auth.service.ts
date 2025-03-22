@@ -7,18 +7,12 @@ import * as bcrypt from 'bcryptjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { AuthTokensDto } from '../dto/auth-tokens.dto';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
-import {
-  AccountSubjects,
-  AgentDto,
-  AgentSubjects,
-} from '@app/common/dto-command';
+import { AccountSubjects, AgentDto, AgentSubjects } from '@app/common/dto-command';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import {
-  AccountServiceClient,
-  AgentServiceClient,
-  GRPC_ACCOUNT,
-  GRPC_AGENT,
-} from '@app/common/dto-query';
+import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interface';
+import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
+import { ACCOUNT_GRPC_CLIENT_PROVIDER, ACCOUNT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/account-grpc.config';
+import { AGENT_GRPC_CLIENT_PROVIDER, AGENT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/agent-grpc.config';
 
 /**
  * Main service class for handling authentication
@@ -26,29 +20,33 @@ import {
 @Injectable()
 export class AuthService implements OnModuleInit {
   // The Grpc client methods for account and agent service
-  private accountQueryService: AccountServiceClient;
-  private agentQueryService: AgentServiceClient;
+  private accountQueryService: IAccountGrpcService;
+  private agentQueryService: IAgentGrpcService;
 
   constructor(
     private readonly natsClient: NatsJetStreamClientProxy,
-    @Inject(GRPC_AGENT) private readonly agentGrpcClient: ClientGrpc,
-    @Inject(GRPC_ACCOUNT)
+    @Inject(AGENT_GRPC_CLIENT_PROVIDER)
+    private readonly agentGrpcClient: ClientGrpc,
+    @Inject(ACCOUNT_GRPC_CLIENT_PROVIDER)
     private readonly accountGrpcClient: ClientGrpc,
     private readonly jwtUtils: JwtHelperService,
   ) {}
 
   onModuleInit() {
     this.accountQueryService =
-      this.accountGrpcClient.getService<AccountServiceClient>('AccountService');
+      this.accountGrpcClient.getService<IAccountGrpcService>(
+        ACCOUNT_GRPC_SERVICE_NAME,
+      );
 
-    this.agentQueryService =
-      this.agentGrpcClient.getService<AgentServiceClient>('AgentService');
+    this.agentQueryService = this.agentGrpcClient.getService<IAgentGrpcService>(
+      AGENT_GRPC_SERVICE_NAME,
+    );
   }
 
   async signup(signupDto: SignupDto): Promise<ApiResponse<AuthTokensDto>> {
     // check if account exists
     const { exists: accountExists } = await lastValueFrom(
-      this.accountQueryService.accountExists({
+      await this.accountQueryService.accountExists({
         email: signupDto.email,
       }),
     );
@@ -103,9 +101,12 @@ export class AuthService implements OnModuleInit {
     email,
     password,
   }: SigninDto): Promise<ApiResponse<AuthTokensDto>> {
+    const res = await this.agentQueryService.getAgentByEmail({
+      agentEmail: email,
+    });
     const agent = await lastValueFrom(
-      this.agentQueryService.getAgentByEmail({ agentEmail: email }).pipe(
-        map(async ({ agent }) => {
+      res.pipe(
+        map(async (agent) => {
           if (
             agent &&
             (await bcrypt.compare(password, agent.password)) &&
@@ -165,11 +166,10 @@ export class AuthService implements OnModuleInit {
     agentId: string,
     refreshToken: string,
   ): Promise<ApiResponse<AuthTokensDto>> {
-    const { agent } = await lastValueFrom(
-      this.agentQueryService.getAgentById({
-        agentId,
-      }),
-    );
+    const res = await this.agentQueryService.getAgentById({
+      agentId: agentId,
+    });
+    const agent = await lastValueFrom(res);
 
     if (!agent || !agent.refreshToken)
       return {

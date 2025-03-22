@@ -17,6 +17,7 @@ export abstract class AgentEntityRepository {
    * @returns {Promise<void>}
    */
   abstract add(entity: Agent): Promise<void>;
+
   /**
    * Update an existing agent model
    *
@@ -26,6 +27,7 @@ export abstract class AgentEntityRepository {
    * @returns {Promise<void>}
    */
   abstract save(entity: Agent): Promise<void>;
+
   /**
    * Find an agent model by its Id
    *

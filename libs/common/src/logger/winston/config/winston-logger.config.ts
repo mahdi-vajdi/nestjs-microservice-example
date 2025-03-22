@@ -7,7 +7,7 @@ export interface IWinstonLoggerConfig {
   level: string;
 }
 
-export const WINSTON_LOGGER_CONFIG_TOKEN = 'winston-logger-configs-token';
+export const WINSTON_LOGGER_CONFIG_TOKEN = 'winston-logger-config-token';
 
 const winstonLoggerConfigSchema = Joi.object<IWinstonLoggerConfig>({
   useFile: Joi.boolean().default(false),

@@ -1,8 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as Joi from 'joi';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { GRPC_AGENT } from '@app/common/dto-query';
 import { ChannelEntityRepository } from './Domain/base-channel.repo';
 import { ChannelEntityRepositoryImpl } from './Infrastructure/repositories/impl-channel.entity-repo';
 import { ChannelChannelHandlers } from './Application/commands/handlers';
@@ -13,26 +10,27 @@ import {
   ChannelSchema,
 } from './Infrastructure/models/channel.model';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ChannelNatsController } from './Presentation/channel.nats-controller';
+import { ChannelNatsController } from './presentation/channel.nats-controller';
 import { ChannelQueryRepository } from './Infrastructure/repositories/channel.query-repo';
-import { join } from 'path';
-import { ChannelGrpcController } from './Presentation/channel.grpc-controller';
+import { ChannelGrpcController } from './presentation/grpc/channel.grpc-controller';
 import { ChannelService } from './Application/services/channel.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
+import { ClientsModule } from '@nestjs/microservices';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_CONFIG_TOKEN,
+  agentGrpcConfig,
+  IAgentGrpcConfig,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 @Module({
   imports: [
     CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: Joi.object({
-        MONGODB_URI: Joi.string().required(),
-        NATS_URI: Joi.string().required(),
-        AUTH_GRPC_URL: Joi.string().required(),
-        CHANNEL_GRPC_URL: Joi.string().required(),
-        ACCOUNT_GRPC_URL: Joi.string().required(),
-        AGENT_GRPC_URL: Joi.string().required(),
-      }),
+      envFilePath: '.env',
+      cache: true,
+      load: [agentGrpcConfig],
     }),
     LoggerModule,
     MongooseModule.forRootAsync({
@@ -46,15 +44,10 @@ import { LoggerModule } from '@app/common/logger/logger.module';
     ]),
     ClientsModule.registerAsync([
       {
-        name: GRPC_AGENT,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: GRPC_AGENT,
-            protoPath: join(__dirname, '../../../proto/agent.proto'),
-            url: configService.getOrThrow('AGENT_GRPC_URL'),
-          },
-        }),
+        name: AGENT_GRPC_CLIENT_PROVIDER,
+        useFactory: (configService: ConfigService) => {
+          return configService.get<IAgentGrpcConfig>(AGENT_GRPC_CONFIG_TOKEN);
+        },
         inject: [ConfigService],
       },
     ]),

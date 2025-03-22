@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AccountNatsController } from './Presentation/account.nats-controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as Joi from 'joi';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
   ACCOUNT_DB_COLLECTION,
@@ -14,22 +12,19 @@ import { AccountEventHandlers } from './Application/events/handlers';
 import { AccountQueryRepository } from './Infrastructure/repositories/account.query-repo';
 import { AccountEntityRepositoryImpl } from './Infrastructure/repositories/impl-account.entity-repo';
 import { AccountEntityRepository } from './Domain/base-account.entity-repo';
-import { AccountGrpcController } from './Presentation/account.grpc-controller';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { AccountService } from './Application/services/account.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
+import { AccountNatsController } from './presentation/nats/account.nats-controller';
+import { AccountGrpcController } from './presentation/grpc/account-grpc.controller';
 
 @Module({
   imports: [
     CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: Joi.object({
-        NODE_ENV: Joi.string().required(),
-        MONGODB_URI: Joi.string().required(),
-        NATS_URI: Joi.string().required(),
-        ACCOUNT_GRPC_URL: Joi.string().required(),
-      }),
+      envFilePath: ['.env'],
+      cache: true,
     }),
     LoggerModule,
     MongooseModule.forRootAsync({
@@ -42,12 +37,14 @@ import { LoggerModule } from '@app/common/logger/logger.module';
       { name: ACCOUNT_DB_COLLECTION, schema: AccountSchema },
     ]),
     NatsJetStreamTransport.registerAsync({
-      useFactory: (configService: ConfigService) => ({
-        connectionOptions: {
-          servers: configService.getOrThrow<string>('NATS_URI'),
-          name: 'account-publisher',
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        return {
+          connectionOptions: {
+            servers: configService.getOrThrow<string>('NATS_URI'),
+            name: 'account-publisher',
+          },
+        };
+      },
       inject: [ConfigService],
     }),
   ],

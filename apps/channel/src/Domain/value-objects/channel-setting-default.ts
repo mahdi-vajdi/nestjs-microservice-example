@@ -6,7 +6,7 @@ export const DefaultChannelSettings: ChannelSettings = {
     logo: 'uploads/channel-photos/channel-web.png',
     seeWhileTyping: false,
     sendVoice: true,
-    showRaychatCredit: true,
+    showCredit: true,
     infoForm: {
       isEnabled: false,
       isOptional: true,
@@ -17,14 +17,14 @@ export const DefaultChannelSettings: ChannelSettings = {
   widgetLandings: [
     {
       laguage: Language.PERSIAN,
-      title: 'سیستم پشتیبانی آنلاین رایچت',
+      title: 'سیستم پشتیبانی آنلاین ',
       description: 'توضیحات',
       startMessage: 'ارسال پیام برای ما',
       startReply: 'ما به زودی پاسخگوی شما هستیم',
     },
     {
       laguage: Language.ENGLISH,
-      title: 'Raychat Customer Service',
+      title: 'Customer Service',
       description: 'Description',
       startMessage: 'Ask us anything',
       startReply: 'We will reply to you as soon as possible!',

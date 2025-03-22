@@ -1,4 +1,5 @@
 import { AgentRole } from '@app/common/dto-generic';
+
 export interface CreateAgentDto {
   accountId: string;
   email: string;

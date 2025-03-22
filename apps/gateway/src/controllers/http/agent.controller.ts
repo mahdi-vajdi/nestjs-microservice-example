@@ -7,8 +7,8 @@ import { AccessTokenGuard } from '../../guards/access-token.guard';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { AgentService } from '../../services/agent.service';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
-import { AgentsResponse } from '@app/common/dto-query';
 import { AgentDto } from '@app/common/dto-command';
+import { GetAccountAgentsResponse } from '@app/common/grpc/models/agent/get-account-agents.model';
 
 @Controller('agent')
 export class AgentHttpController {
@@ -28,8 +28,10 @@ export class AgentHttpController {
   @UseGuards(AccessTokenGuard)
   @Roles(AgentRole.OWNER, AgentRole.ADMIN)
   @Get()
-  getAccountAgents(@Req() req: Request): Observable<AgentsResponse> {
+  async getAccountAgents(
+    @Req() req: Request,
+  ): Promise<Observable<GetAccountAgentsResponse>> {
     const jwtPaylaod = req['user'] as JwtPayloadDto;
-    return this.agentService.getAccountAgents(jwtPaylaod);
+    return await this.agentService.getAccountAgents(jwtPaylaod);
   }
 }

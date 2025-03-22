@@ -1,4 +1,3 @@
-import { ChannelServiceClient, GRPC_CHANNEL } from '@app/common/dto-query';
 import { ChannelSubjects } from '@app/common/dto-command';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
@@ -7,19 +6,26 @@ import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { JwtPayloadDto } from '../dto/auth/jwt-payload.dto';
 import { CreateChannelDto } from '../dto/channel/create-channel.dto';
 import { UpdateChannelAgentsDto } from '../dto/channel/update-channel-agents.dto';
+import { IChannelGrpcService } from '@app/common/grpc/interfaces/channel.interface';
+import {
+  CHANNEL_GRPC_CLIENT_PROVIDER,
+  CHANNEL_GRPC_SERVICE_NAME,
+} from '@app/common/grpc/configs/channel-grpc.config';
 
 @Injectable()
 export class ChannelService implements OnModuleInit {
-  queryService: ChannelServiceClient;
+  queryService: IChannelGrpcService;
 
   constructor(
-    @Inject(GRPC_CHANNEL) private readonly grpcClient: ClientGrpc,
+    @Inject(CHANNEL_GRPC_CLIENT_PROVIDER)
+    private readonly grpcClient: ClientGrpc,
     private readonly natsClient: NatsJetStreamClientProxy,
   ) {}
 
   onModuleInit() {
-    this.queryService =
-      this.grpcClient.getService<ChannelServiceClient>('ChannelService');
+    this.queryService = this.grpcClient.getService<IChannelGrpcService>(
+      CHANNEL_GRPC_SERVICE_NAME,
+    );
   }
 
   async create(user: JwtPayloadDto, dto: CreateChannelDto) {

@@ -16,6 +16,7 @@ import { NotFoundError } from '@app/common/errors';
 @Injectable()
 export class AccountEntityRepositoryImpl implements AccountEntityRepository {
   private readonly logger = new Logger(AccountEntityRepositoryImpl.name);
+
   constructor(
     @InjectModel(ACCOUNT_DB_COLLECTION)
     private readonly accountModel: Model<AccountModel>,

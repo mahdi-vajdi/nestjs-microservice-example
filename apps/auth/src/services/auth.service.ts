@@ -11,8 +11,8 @@ import { AccountSubjects, AgentDto, AgentSubjects } from '@app/common/dto-comman
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interface';
 import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
-import { ACCOUNT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/account.options';
-import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
+import { ACCOUNT_GRPC_CLIENT_PROVIDER, ACCOUNT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/account-grpc.config';
+import { AGENT_GRPC_CLIENT_PROVIDER, AGENT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/agent-grpc.config';
 
 /**
  * Main service class for handling authentication
@@ -34,10 +34,13 @@ export class AuthService implements OnModuleInit {
 
   onModuleInit() {
     this.accountQueryService =
-      this.accountGrpcClient.getService<IAccountGrpcService>('AccountService');
+      this.accountGrpcClient.getService<IAccountGrpcService>(
+        ACCOUNT_GRPC_SERVICE_NAME,
+      );
 
-    this.agentQueryService =
-      this.agentGrpcClient.getService<IAgentGrpcService>('AgentService');
+    this.agentQueryService = this.agentGrpcClient.getService<IAgentGrpcService>(
+      AGENT_GRPC_SERVICE_NAME,
+    );
   }
 
   async signup(signupDto: SignupDto): Promise<ApiResponse<AuthTokensDto>> {

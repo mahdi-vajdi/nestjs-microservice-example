@@ -7,7 +7,10 @@ import { JwtPayloadDto } from '../dto/auth/jwt-payload.dto';
 import { CreateChannelDto } from '../dto/channel/create-channel.dto';
 import { UpdateChannelAgentsDto } from '../dto/channel/update-channel-agents.dto';
 import { IChannelGrpcService } from '@app/common/grpc/interfaces/channel.interface';
-import { CHANNEL_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/channel.options';
+import {
+  CHANNEL_GRPC_CLIENT_PROVIDER,
+  CHANNEL_GRPC_SERVICE_NAME,
+} from '@app/common/grpc/configs/channel-grpc.config';
 
 @Injectable()
 export class ChannelService implements OnModuleInit {
@@ -20,8 +23,9 @@ export class ChannelService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.queryService =
-      this.grpcClient.getService<IChannelGrpcService>('ChannelService');
+    this.queryService = this.grpcClient.getService<IChannelGrpcService>(
+      CHANNEL_GRPC_SERVICE_NAME,
+    );
   }
 
   async create(user: JwtPayloadDto, dto: CreateChannelDto) {

@@ -16,6 +16,7 @@ import {
   AccountExistsRequest,
   AccountExistsResponse,
 } from '@app/common/grpc/models/account/account-exists.model';
+import { ACCOUNT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/account-grpc.config';
 
 @Controller()
 export class AccountGrpcController implements IAccountGrpcService {
@@ -23,21 +24,21 @@ export class AccountGrpcController implements IAccountGrpcService {
 
   constructor(private readonly accountService: AccountService) {}
 
-  @GrpcMethod('AccountService', 'GetAccountById')
+  @GrpcMethod(ACCOUNT_GRPC_SERVICE_NAME, 'GetAccountById')
   async getAccountById(
     req: GetAccountByIdRequest,
   ): Promise<Observable<GetAccountByIdResponse>> {
     return of(await this.accountService.getAccountById(req.id));
   }
 
-  @GrpcMethod('AccountService', 'GetAccountByEmail')
+  @GrpcMethod(ACCOUNT_GRPC_SERVICE_NAME, 'GetAccountByEmail')
   async getAccountByEmail(
     req: GetAccountByEmailRequest,
   ): Promise<Observable<GetAccountByEmailResponse>> {
     return of(await this.accountService.getAccountByEmail(req.email));
   }
 
-  @GrpcMethod('AccountService', 'AccountExists')
+  @GrpcMethod(ACCOUNT_GRPC_SERVICE_NAME, 'AccountExists')
   async accountExists(
     req: AccountExistsRequest,
   ): Promise<Observable<AccountExistsResponse>> {

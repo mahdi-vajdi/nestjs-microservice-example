@@ -12,19 +12,20 @@ import {
 } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs/internal/observable/of';
+import { CHANNEL_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/channel-grpc.config';
 
 @Controller()
 export class ChannelGrpcController implements IChannelGrpcService {
   constructor(private readonly channelService: ChannelService) {}
 
-  @GrpcMethod('ChannelService', 'GetAccountChannels')
+  @GrpcMethod(CHANNEL_GRPC_SERVICE_NAME, 'GetAccountChannels')
   async getAccountChannels(
     req: GetAccountChannelsRequest,
   ): Promise<Observable<GetAccountChannelsResponse>> {
     return of(await this.channelService.getAccountChannels(req.accountId));
   }
 
-  @GrpcMethod('ChannelService', 'GetChannelById')
+  @GrpcMethod(CHANNEL_GRPC_SERVICE_NAME, 'GetChannelById')
   async getChannelById(
     req: GetChannelByIdRequest,
   ): Promise<Observable<GetChannelByIdResponse>> {

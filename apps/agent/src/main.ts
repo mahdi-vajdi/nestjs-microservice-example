@@ -1,18 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { join } from 'path';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.service';
 import {
-  GRPC_CONFIG_TOKEN,
-  grpcConfig,
-  IGrpcConfig,
-} from '@app/common/grpc/configs/grpc.config';
-import { AGENT_GRPC_PACKAGE_NAME } from '@app/common/grpc/options/agent.options';
+  AGENT_GRPC_CONFIG_TOKEN,
+  agentGrpcConfig,
+  IAgentGrpcConfig,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -24,11 +22,8 @@ async function loadLogger(): Promise<LoggerService> {
 async function loadConfig(): Promise<ConfigService> {
   const appContext = await NestFactory.createApplicationContext(
     ConfigModule.forRoot({
-      load: [grpcConfig],
+      load: [agentGrpcConfig],
     }),
-    {
-      bufferLogs: true,
-    },
   );
   return appContext.get<ConfigService>(ConfigService);
 }
@@ -41,21 +36,11 @@ async function bootstrap() {
     bufferLogs: true,
     logger: logger,
   });
-  console.log('grpc config: ');
 
-  const grpcConfig = configService.get<IGrpcConfig>(GRPC_CONFIG_TOKEN);
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.GRPC,
-    options: {
-      package: AGENT_GRPC_PACKAGE_NAME,
-      protoPath: join(
-        __dirname,
-        '../../../libs/common/src/grpc/proto/agent.proto',
-      ),
-      url: grpcConfig.url,
-      loader: { keepCase: true },
-    },
-  });
+  const grpcConfig = configService.get<IAgentGrpcConfig>(
+    AGENT_GRPC_CONFIG_TOKEN,
+  );
+  app.connectMicroservice<MicroserviceOptions>(grpcConfig);
 
   // app.connectMicroservice<CustomStrategy>({
   //   strategy: new NatsJetStreamServer({

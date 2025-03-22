@@ -1,18 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { join } from 'node:path';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerService } from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.service';
 import {
-  GRPC_CONFIG_TOKEN,
-  grpcConfig,
-  IGrpcConfig,
-} from '@app/common/grpc/configs/grpc.config';
-import { AUTH_GRPC_PACKAGE_NAME } from '@app/common/grpc/options/auth.options';
+  AUTH_GRPC_CONFIG_TOKEN,
+  authGrpcConfig,
+  IAuthGrpcConfig,
+} from '@app/common/grpc/configs/auth-grpc.config';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -24,7 +22,7 @@ async function loadLogger(): Promise<LoggerService> {
 async function loadConfig(): Promise<ConfigService> {
   const appContext = await NestFactory.createApplicationContext(
     ConfigModule.forRoot({
-      load: [grpcConfig],
+      load: [authGrpcConfig],
     }),
     {
       bufferLogs: true,
@@ -42,19 +40,8 @@ async function bootstrap() {
     logger: logger,
   });
 
-  const grpcConfig = configService.get<IGrpcConfig>(GRPC_CONFIG_TOKEN);
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.GRPC,
-    options: {
-      package: AUTH_GRPC_PACKAGE_NAME,
-      protoPath: join(
-        __dirname,
-        '../../../libs/common/src/grpc/proto/auth.proto',
-      ),
-      url: grpcConfig.url,
-      loader: { keepCase: true },
-    },
-  });
+  const grpcConfig = configService.get<IAuthGrpcConfig>(AUTH_GRPC_CONFIG_TOKEN);
+  app.connectMicroservice<MicroserviceOptions>(grpcConfig);
 
   // app.connectMicroservice<CustomStrategy>({
   //   strategy: new NatsJetStreamServer({

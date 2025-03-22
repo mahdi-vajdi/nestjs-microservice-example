@@ -15,8 +15,13 @@ import { ChannelQueryRepository } from './Infrastructure/repositories/channel.qu
 import { ChannelGrpcController } from './presentation/grpc/channel.grpc-controller';
 import { ChannelService } from './Application/services/channel.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
-import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
 import { ClientsModule } from '@nestjs/microservices';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_CONFIG_TOKEN,
+  agentGrpcConfig,
+  IAgentGrpcConfig,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 @Module({
   imports: [
@@ -25,6 +30,7 @@ import { ClientsModule } from '@nestjs/microservices';
       isGlobal: true,
       envFilePath: '.env',
       cache: true,
+      load: [agentGrpcConfig],
     }),
     LoggerModule,
     MongooseModule.forRootAsync({
@@ -36,7 +42,15 @@ import { ClientsModule } from '@nestjs/microservices';
     MongooseModule.forFeature([
       { name: CHANNEL_DB_COLLECTION, schema: ChannelSchema },
     ]),
-    ClientsModule.registerAsync([agentGrpcOptions]),
+    ClientsModule.registerAsync([
+      {
+        name: AGENT_GRPC_CLIENT_PROVIDER,
+        useFactory: (configService: ConfigService) => {
+          return configService.get<IAgentGrpcConfig>(AGENT_GRPC_CONFIG_TOKEN);
+        },
+        inject: [ConfigService],
+      },
+    ]),
   ],
   controllers: [ChannelNatsController, ChannelGrpcController],
   providers: [

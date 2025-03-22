@@ -6,7 +6,10 @@ import { JwtPayloadDto } from '../dto/auth/jwt-payload.dto';
 import { CreateAgentDto } from '../dto/agent/create-agent.dto';
 import { AgentDto, AgentSubjects } from '@app/common/dto-command';
 import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
-import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_SERVICE_NAME,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 @Injectable()
 export class AgentService implements OnModuleInit {
@@ -19,8 +22,9 @@ export class AgentService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.agentQueryService =
-      this.agentGrpcClient.getService<IAgentGrpcService>('AgentService');
+    this.agentQueryService = this.agentGrpcClient.getService<IAgentGrpcService>(
+      AGENT_GRPC_SERVICE_NAME,
+    );
   }
 
   createAgent(user: JwtPayloadDto, dto: CreateAgentDto) {

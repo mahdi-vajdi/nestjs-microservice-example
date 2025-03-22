@@ -15,7 +15,10 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { IAuthGrpcService } from '@app/common/grpc/interfaces/auth.interface';
 import { lastValueFrom } from 'rxjs';
 import { of } from 'rxjs/internal/observable/of';
-import { AUTH_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/auth.options';
+import {
+  AUTH_GRPC_CLIENT_PROVIDER,
+  AUTH_GRPC_SERVICE_NAME,
+} from '@app/common/grpc/configs/auth-grpc.config';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate, OnModuleInit {
@@ -29,7 +32,9 @@ export class AccessTokenGuard implements CanActivate, OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.authService = this.client.getService<IAuthGrpcService>('AuthService');
+    this.authService = this.client.getService<IAuthGrpcService>(
+      AUTH_GRPC_SERVICE_NAME,
+    );
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

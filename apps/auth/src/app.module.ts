@@ -7,9 +7,19 @@ import { JwtHelperService } from './services/jwt-helper.service';
 import { AuthNatsController } from './controllers/auth.nats-controller';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerModule } from '@app/common/logger/logger.module';
-import { accountGrpcOptions } from '@app/common/grpc/options/account.options';
-import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
 import { ClientsModule } from '@nestjs/microservices';
+import {
+  ACCOUNT_GRPC_CLIENT_PROVIDER,
+  ACCOUNT_GRPC_CONFIG_TOKEN,
+  accountGrpcConfig,
+  IAccountGrpcConfig,
+} from '@app/common/grpc/configs/account-grpc.config';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_CONFIG_TOKEN,
+  agentGrpcConfig,
+  IAgentGrpcConfig,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 @Module({
   imports: [
@@ -17,7 +27,7 @@ import { ClientsModule } from '@nestjs/microservices';
       isGlobal: true,
       envFilePath: '.env',
       cache: true,
-      load: [agentGrpcOptions, accountGrpcOptions],
+      load: [agentGrpcConfig, accountGrpcConfig],
     }),
     LoggerModule,
     JwtModule.register({}),
@@ -30,7 +40,24 @@ import { ClientsModule } from '@nestjs/microservices';
       }),
       inject: [ConfigService],
     }),
-    ClientsModule.registerAsync([accountGrpcOptions, agentGrpcOptions]),
+    ClientsModule.registerAsync([
+      {
+        name: ACCOUNT_GRPC_CLIENT_PROVIDER,
+        useFactory: (configService: ConfigService) => {
+          return configService.get<IAccountGrpcConfig>(
+            ACCOUNT_GRPC_CONFIG_TOKEN,
+          );
+        },
+        inject: [ConfigService],
+      },
+      {
+        name: AGENT_GRPC_CLIENT_PROVIDER,
+        useFactory: (configService: ConfigService) => {
+          return configService.get<IAgentGrpcConfig>(AGENT_GRPC_CONFIG_TOKEN);
+        },
+        inject: [ConfigService],
+      },
+    ]),
   ],
   controllers: [AuthNatsController, AuthGrpcController],
   providers: [AuthService, JwtHelperService],

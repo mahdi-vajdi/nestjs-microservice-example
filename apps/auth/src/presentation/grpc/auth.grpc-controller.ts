@@ -12,12 +12,13 @@ import {
 } from '@app/common/grpc/models/auth/auth-refresh.dto';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs/internal/observable/of';
+import { AUTH_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/auth-grpc.config';
 
 @Controller()
 export class AuthGrpcController implements IAuthGrpcService {
   constructor(private readonly jwtService: JwtHelperService) {}
 
-  @GrpcMethod('AuthService', 'VerifyAccessToken')
+  @GrpcMethod(AUTH_GRPC_SERVICE_NAME, 'VerifyAccessToken')
   async verifyAccessToken(
     data: VerifyAccessTokenRequest,
   ): Promise<Observable<VerifyAccessTokenResponse>> {
@@ -37,7 +38,7 @@ export class AuthGrpcController implements IAuthGrpcService {
     }
   }
 
-  @GrpcMethod('AuthService', 'VerifyRefreshToken')
+  @GrpcMethod(AUTH_GRPC_SERVICE_NAME, 'VerifyRefreshToken')
   async verifyRefreshToken(
     data: VerifyRefreshTokenRequest,
   ): Promise<Observable<VerifyRefreshTokenResponse>> {

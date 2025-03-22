@@ -23,7 +23,7 @@ import { AccountGrpcController } from './presentation/grpc/account-grpc.controll
     CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['.env'],
       cache: true,
     }),
     LoggerModule,
@@ -38,7 +38,6 @@ import { AccountGrpcController } from './presentation/grpc/account-grpc.controll
     ]),
     NatsJetStreamTransport.registerAsync({
       useFactory: (configService: ConfigService) => {
-        console.log(`nats uri ${configService.getOrThrow<string>('NATS_URI')}`);
         return {
           connectionOptions: {
             servers: configService.getOrThrow<string>('NATS_URI'),

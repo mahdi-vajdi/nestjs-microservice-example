@@ -1,18 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { join } from 'path';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.service';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
 import { LoggerService } from '@nestjs/common';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import {
-  GRPC_CONFIG_TOKEN,
-  grpcConfig,
-  IGrpcConfig,
-} from '@app/common/grpc/configs/grpc.config';
-import { ACCOUNT_GRPC_PACKAGE_NAME } from '@app/common/grpc/options/account.options';
+  ACCOUNT_GRPC_CONFIG_TOKEN,
+  accountGrpcConfig,
+  IAccountGrpcConfig,
+} from '@app/common/grpc/configs/account-grpc.config';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -24,11 +22,8 @@ async function loadLogger(): Promise<LoggerService> {
 async function loadConfig(): Promise<ConfigService> {
   const appContext = await NestFactory.createApplicationContext(
     ConfigModule.forRoot({
-      load: [grpcConfig],
+      load: [accountGrpcConfig],
     }),
-    {
-      bufferLogs: true,
-    },
   );
   return appContext.get<ConfigService>(ConfigService);
 }
@@ -42,19 +37,10 @@ async function bootstrap() {
     logger: logger,
   });
 
-  const grpcConfig = configService.get<IGrpcConfig>(GRPC_CONFIG_TOKEN);
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.GRPC,
-    options: {
-      package: ACCOUNT_GRPC_PACKAGE_NAME,
-      protoPath: join(
-        __dirname,
-        '../../../libs/common/src/grpc/proto/account.proto',
-      ),
-      url: grpcConfig.url,
-      loader: { keepCase: true },
-    },
-  });
+  const grpcConfig = configService.get<IAccountGrpcConfig>(
+    ACCOUNT_GRPC_CONFIG_TOKEN,
+  );
+  app.connectMicroservice<MicroserviceOptions>(grpcConfig);
 
   // app.connectMicroservice<CustomStrategy>({
   //   strategy: new NatsJetStreamServer({

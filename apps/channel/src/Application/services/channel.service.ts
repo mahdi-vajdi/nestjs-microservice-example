@@ -14,7 +14,10 @@ import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
 import { ChannelMessage } from '@app/common/grpc/models/channel/channel-message.dto';
 import { GetChannelByIdResponse } from '@app/common/grpc/models/channel/get-channel-by-id.dto';
 import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
-import { AGENT_GRPC_CLIENT_PROVIDER } from '@app/common/grpc/options/agent.options';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_SERVICE_NAME,
+} from '@app/common/grpc/configs/agent-grpc.config';
 
 @Injectable()
 export class ChannelService implements OnModuleInit {
@@ -29,8 +32,9 @@ export class ChannelService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.agentQueryService =
-      this.agentGrpcClient.getService<IAgentGrpcService>('AgentService');
+    this.agentQueryService = this.agentGrpcClient.getService<IAgentGrpcService>(
+      AGENT_GRPC_SERVICE_NAME,
+    );
   }
 
   async create(

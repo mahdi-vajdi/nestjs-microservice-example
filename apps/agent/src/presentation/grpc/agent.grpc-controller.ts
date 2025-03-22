@@ -25,6 +25,7 @@ import {
 } from '@app/common/grpc/models/agent/get-agent-by-email.model';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs/internal/observable/of';
+import { AGENT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/agent-grpc.config';
 
 @Controller()
 export class AgentGrpcController implements IAgentGrpcService {
@@ -32,35 +33,35 @@ export class AgentGrpcController implements IAgentGrpcService {
 
   constructor(private readonly agentService: AgentService) {}
 
-  @GrpcMethod('AgentService', 'GetAccountAgents')
+  @GrpcMethod(AGENT_GRPC_SERVICE_NAME, 'GetAccountAgents')
   async getAccountAgents(
     req: GetAccountAgentsRequest,
   ): Promise<Observable<GetAccountAgentsResponse>> {
     return of(await this.agentService.getAccountAgents(req.accountId));
   }
 
-  @GrpcMethod('AgentService', 'GetAgentsIds')
+  @GrpcMethod(AGENT_GRPC_SERVICE_NAME, 'GetAgentsIds')
   async getAgentsIds(
     req: GetAgentsIdsRequest,
   ): Promise<Observable<GetAgentIdsResponse>> {
     return of(await this.agentService.getAgentsIds(req.accountId));
   }
 
-  @GrpcMethod('AgentService', 'GetAgentById')
+  @GrpcMethod(AGENT_GRPC_SERVICE_NAME, 'GetAgentById')
   async getAgentById(
     req: GetAgentByIdRequest,
   ): Promise<Observable<GetAgentByIdResponse>> {
     return of(await this.agentService.getById(req.agentId));
   }
 
-  @GrpcMethod('AgentService', 'GetAgentByEmail')
+  @GrpcMethod(AGENT_GRPC_SERVICE_NAME, 'GetAgentByEmail')
   async getAgentByEmail(
     req: GetAgentByEmailRequest,
   ): Promise<Observable<GetAgentByEmailResponse>> {
     return of(await this.agentService.getByEmail(req.agentEmail));
   }
 
-  @GrpcMethod('AgentService', 'AgentExists')
+  @GrpcMethod(AGENT_GRPC_SERVICE_NAME, 'AgentExists')
   async agentExists(
     req: AgentExistsRequest,
   ): Promise<Observable<AgentExistsResponse>> {

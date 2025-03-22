@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as Joi from 'joi';
 import { ChannelHttpController } from './controllers/http/channel.controller';
 import { AgentHttpController } from './controllers/http/agent.controller';
 import { AuthHttpController } from './controllers/http/auth.controller';
@@ -9,23 +8,31 @@ import { AgentService } from './services/agent.service';
 import { ChannelService } from './services/channel.service';
 import { AuthService } from './services/auth.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
-import { agentGrpcOptions } from '@app/common/grpc/options/agent.options';
-import { authGrpcOptions } from '@app/common/grpc/options/auth.options';
-import { channelGrpcOptions } from '@app/common/grpc/options/channel.options';
 import { ClientsModule } from '@nestjs/microservices';
+import {
+  AGENT_GRPC_CLIENT_PROVIDER,
+  AGENT_GRPC_CONFIG_TOKEN,
+  agentGrpcConfig,
+  IAgentGrpcConfig,
+} from '@app/common/grpc/configs/agent-grpc.config';
+import {
+  AUTH_GRPC_CLIENT_PROVIDER,
+  AUTH_GRPC_CONFIG_TOKEN,
+  authGrpcConfig,
+  IAuthGrpcConfig,
+} from '@app/common/grpc/configs/auth-grpc.config';
+import {
+  CHANNEL_GRPC_CLIENT_PROVIDER,
+  CHANNEL_GRPC_CONFIG_TOKEN,
+  channelGrpcConfig,
+} from '@app/common/grpc/configs/channel-grpc.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: Joi.object({
-        NODE_ENV: Joi.string().required(),
-        HTTP_PORT: Joi.number().required(),
-        NATS_URI: Joi.string().required(),
-        AUTH_GRPC_URL: Joi.string().required(),
-        CHANNEL_GRPC_URL: Joi.string().required(),
-        AGENT_GRPC_URL: Joi.string().required(),
-      }),
+      envFilePath: ['.env'],
+      load: [agentGrpcConfig, authGrpcConfig, channelGrpcConfig],
     }),
     LoggerModule,
     NatsJetStreamTransport.registerAsync({
@@ -38,9 +45,27 @@ import { ClientsModule } from '@nestjs/microservices';
       inject: [ConfigService],
     }),
     ClientsModule.registerAsync([
-      authGrpcOptions,
-      channelGrpcOptions,
-      agentGrpcOptions,
+      {
+        name: AGENT_GRPC_CLIENT_PROVIDER,
+        useFactory: (configService: ConfigService) => {
+          return configService.get<IAgentGrpcConfig>(AGENT_GRPC_CONFIG_TOKEN);
+        },
+        inject: [ConfigService],
+      },
+      {
+        name: AUTH_GRPC_CLIENT_PROVIDER,
+        useFactory: (configService: ConfigService) => {
+          return configService.get<IAuthGrpcConfig>(AUTH_GRPC_CONFIG_TOKEN);
+        },
+        inject: [ConfigService],
+      },
+      {
+        name: CHANNEL_GRPC_CLIENT_PROVIDER,
+        useFactory: (configService: ConfigService) => {
+          return configService.get<IAgentGrpcConfig>(CHANNEL_GRPC_CONFIG_TOKEN);
+        },
+        inject: [ConfigService],
+      },
     ]),
   ],
   controllers: [AuthHttpController, ChannelHttpController, AgentHttpController],

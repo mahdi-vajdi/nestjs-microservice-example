@@ -15,13 +15,13 @@ import { LoggerModule } from '@app/common/logger/logger.module';
 
 @Module({
   imports: [
+    CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['.env'],
       cache: true,
     }),
     LoggerModule,
-    CqrsModule,
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('MONGODB_URI'),

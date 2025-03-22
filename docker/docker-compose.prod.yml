@@ -2,9 +2,13 @@ services:
   account:
     container_name: account-service
     build:
+      tags:
+        - account-service
       context: ../
       dockerfile: docker/account-service.dockerfile
       target: release
+    env_file:
+      - ../apps/account/.env
     depends_on:
       - nats
       - mongo
@@ -15,6 +19,8 @@ services:
       context: ../
       dockerfile: docker/agent-service.dockerfile
       target: release
+    env_file:
+      - ../apps/agent/.env
     depends_on:
       - nats
 
@@ -24,6 +30,8 @@ services:
       context: ../
       dockerfile: docker/auth-service.dockerfile
       target: release
+    env_file:
+      - ../apps/auth/.env
     depends_on:
       - nats
 
@@ -33,6 +41,8 @@ services:
       context: ../
       dockerfile: docker/channel-service.dockerfile
       target: release
+    env_file:
+      - ../apps/channel/.env
     depends_on:
       - nats
 
@@ -42,6 +52,8 @@ services:
       context: ../
       dockerfile: docker/gateway-service.dockerfile
       target: release
+    env_file:
+      - ../apps/gateway/.env
     ports:
       - '3000:3000'
     depends_on:
@@ -52,9 +64,11 @@ services:
       - agent
 
   mongo:
+    container_name: mongodb
     image: mongo
 
   nats:
+    container_name: nats
     image: nats
     ports:
       - '4222:4222'

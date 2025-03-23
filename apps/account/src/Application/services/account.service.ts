@@ -4,8 +4,7 @@ import { CreateAccountCommand } from '../commands/impl/create-account.command';
 import { GetByEmailQuery } from '../queries/impl/get-by-email.query';
 import { AccountModel } from '../../Infrastructure/models/account.model';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
-import { AgentDto, AgentSubjects } from '@app/common/dto-command';
-import { ApiResponse } from '@app/common/dto-generic';
+import { AgentDto, ApiResponse } from '@app/common/dto-generic';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { lastValueFrom } from 'rxjs';
 import { GetByIdQuery } from '../queries/impl/get-by-id.query';
@@ -13,6 +12,7 @@ import { AccountExistsQuery } from '../queries/impl/account-exists.query';
 import { GetAccountByIdResponse } from '@app/common/grpc/models/account/get-account-by-id.model';
 import { GetAccountByEmailResponse } from '@app/common/grpc/models/account/get-account-by-email.model';
 import { AccountExistsResponse } from '@app/common/grpc/models/account/account-exists.model';
+import { CreateOwnerAgentRequest } from '@app/common/streams/agent/create-owner-agent.model';
 
 @Injectable()
 export class AccountService {
@@ -57,7 +57,7 @@ export class AccountService {
       // Create the default agent that owns the account
       const createAgentResult = await lastValueFrom(
         this.natsClient.send<ApiResponse<AgentDto | null>>(
-          { cmd: AgentSubjects.CREATE_OWNER_AGENT },
+          { cmd: new CreateOwnerAgentRequest().streamKey() },
           {
             accountId: account._id,
             firstName: dto.firstName,

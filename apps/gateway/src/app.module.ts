@@ -8,7 +8,7 @@ import { AgentService } from './services/agent.service';
 import { ChannelService } from './services/channel.service';
 import { AuthService } from './services/auth.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
-import { ClientsModule } from '@nestjs/microservices';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import {
   AGENT_GRPC_CLIENT_PROVIDER,
   AGENT_GRPC_CONFIG_TOKEN,
@@ -45,6 +45,18 @@ import {
       inject: [ConfigService],
     }),
     ClientsModule.registerAsync([
+      {
+        name: 'TEST',
+        useFactory: (configService: ConfigService) => {
+          return {
+            transport: Transport.NATS,
+            options: {
+              jetst: true,
+            },
+          };
+        },
+        inject: [ConfigService],
+      },
       {
         name: AGENT_GRPC_CLIENT_PROVIDER,
         useFactory: (configService: ConfigService) => {

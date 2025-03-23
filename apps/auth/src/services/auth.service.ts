@@ -6,13 +6,14 @@ import { lastValueFrom, map } from 'rxjs';
 import * as bcrypt from 'bcryptjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { AuthTokensDto } from '../dto/auth-tokens.dto';
-import { AgentRole, ApiResponse } from '@app/common/dto-generic';
-import { AccountSubjects, AgentDto, AgentSubjects } from '@app/common/dto-command';
+import { AgentDto, AgentRole, ApiResponse } from '@app/common/dto-generic';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interface';
 import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
 import { ACCOUNT_GRPC_CLIENT_PROVIDER, ACCOUNT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/account-grpc.config';
 import { AGENT_GRPC_CLIENT_PROVIDER, AGENT_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/agent-grpc.config';
+import { CreateAccountRequest } from '@app/common/streams/account/create-account.model';
+import { UpdateRefreshTokenRequest } from '@app/common/streams/agent/update-refresh-token.model';
 
 /**
  * Main service class for handling authentication
@@ -64,7 +65,7 @@ export class AuthService implements OnModuleInit {
     const { success: createAccountSuccess, data: createdAgent } =
       await lastValueFrom(
         this.natsClient.send<ApiResponse<AgentDto | null>, SignupDto>(
-          { cmd: AccountSubjects.CREATE_ACCOUNT },
+          { cmd: new CreateAccountRequest().streamKey() },
           signupDto,
         ),
       );
@@ -86,7 +87,7 @@ export class AuthService implements OnModuleInit {
     );
 
     // update the refresh token for the agent
-    this.natsClient.emit<void>(AgentSubjects.UPDATE_REFRESH_TOKEN, {
+    this.natsClient.emit<void>(new UpdateRefreshTokenRequest().streamKey(), {
       agentId: createdAgent.id,
       newToken: authTokens.refreshToken,
     });
@@ -136,7 +137,7 @@ export class AuthService implements OnModuleInit {
       AgentRole[agent.role],
     );
 
-    this.natsClient.emit<void>(AgentSubjects.UPDATE_REFRESH_TOKEN, {
+    this.natsClient.emit<void>(new UpdateRefreshTokenRequest().streamKey(), {
       agentId: agent.id,
       newToken: tokens.refreshToken,
     });
@@ -148,7 +149,7 @@ export class AuthService implements OnModuleInit {
   }
 
   signout(agentId: string): ApiResponse<null> {
-    this.natsClient.emit<void>(AgentSubjects.UPDATE_REFRESH_TOKEN, {
+    this.natsClient.emit<void>(new UpdateRefreshTokenRequest().streamKey(), {
       agentId: agentId,
       newToken: null,
     });
@@ -198,7 +199,7 @@ export class AuthService implements OnModuleInit {
       AgentRole[agent.role],
     );
 
-    this.natsClient.emit<void>(AgentSubjects.UPDATE_REFRESH_TOKEN, {
+    this.natsClient.emit<void>(new UpdateRefreshTokenRequest().streamKey(), {
       agentId: agent.id,
       newToken: tokens.refreshToken,
     });

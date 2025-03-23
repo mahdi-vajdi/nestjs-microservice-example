@@ -10,7 +10,6 @@ import {
   ChannelSchema,
 } from './Infrastructure/models/channel.model';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ChannelNatsController } from './presentation/channel.nats-controller';
 import { ChannelQueryRepository } from './Infrastructure/repositories/channel.query-repo';
 import { ChannelGrpcController } from './presentation/grpc/channel.grpc-controller';
 import { ChannelService } from './Application/services/channel.service';
@@ -22,6 +21,7 @@ import {
   agentGrpcConfig,
   IAgentGrpcConfig,
 } from '@app/common/grpc/configs/agent-grpc.config';
+import { ChannelNatsController } from './presentation/nats/channel-nats.controller';
 
 @Module({
   imports: [

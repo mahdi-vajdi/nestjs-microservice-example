@@ -1,4 +1,3 @@
-import { ChannelSubjects } from '@app/common/dto-command';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -11,6 +10,8 @@ import {
   CHANNEL_GRPC_CLIENT_PROVIDER,
   CHANNEL_GRPC_SERVICE_NAME,
 } from '@app/common/grpc/configs/channel-grpc.config';
+import { CreateChannelRequest } from '@app/common/streams/channel/create-channel.model';
+import { UpdateChannelAgentsRequest } from '@app/common/streams/channel/update-channel-agents.model';
 
 @Injectable()
 export class ChannelService implements OnModuleInit {
@@ -30,7 +31,7 @@ export class ChannelService implements OnModuleInit {
 
   async create(user: JwtPayloadDto, dto: CreateChannelDto) {
     await lastValueFrom(
-      this.natsClient.emit<void>(ChannelSubjects.CREATE_CHANNEL, {
+      this.natsClient.emit<void>(new CreateChannelRequest().streamKey(), {
         accountId: user.account,
         ...dto,
       }),
@@ -43,7 +44,7 @@ export class ChannelService implements OnModuleInit {
     dto: UpdateChannelAgentsDto,
   ) {
     await lastValueFrom(
-      this.natsClient.emit<void>(ChannelSubjects.UPDATE_CHANNEL_AGENTS, {
+      this.natsClient.emit<void>(new UpdateChannelAgentsRequest().streamKey(), {
         requesterAccountId: user.account,
         channelId,
         ...dto,

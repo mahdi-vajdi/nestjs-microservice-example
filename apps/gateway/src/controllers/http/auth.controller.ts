@@ -9,11 +9,12 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { RefreshTokenGuard } from '../../guards/refresh-token.guard';
-import { SignupDto as HtppSignupDto } from '../../dto/auth/signup.dto';
-import { SigninDto as HtppSigninDto } from '../../dto/auth/signin.dto';
+import { SignupDto } from '../../dto/auth/signup.dto';
+import { SigninDto } from '../../dto/auth/signin.dto';
 import { AccessTokenGuard } from '../../guards/access-token.guard';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { AuthService } from '../../services/auth.service';
+import { SignupRequest } from '@app/common/streams/auth/signup.model';
 
 @Controller('auth')
 export class AuthHttpController {
@@ -22,15 +23,24 @@ export class AuthHttpController {
   @Post('signup')
   signup(
     @Res({ passthrough: true }) res: Response,
-    @Body() signupDto: HtppSignupDto,
+    @Body() signupDto: SignupDto,
   ) {
-    return this.authService.signup(signupDto, res);
+    return this.authService.signup(
+      new SignupRequest({
+        email: signupDto.email,
+        firstName: signupDto.firstName,
+        lastName: signupDto.lastName,
+        phone: signupDto.lastName,
+        password: signupDto.password,
+      }),
+      res,
+    );
   }
 
   @Post('signin')
   signin(
     @Res({ passthrough: true }) res: Response,
-    @Body() signinDto: HtppSigninDto,
+    @Body() signinDto: SigninDto,
   ) {
     return this.authService.signin(signinDto, res);
   }

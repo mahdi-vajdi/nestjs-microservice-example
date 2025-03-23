@@ -1,12 +1,4 @@
-import {
-  AuthSubjects,
-  AuthTokensDto,
-  RefreshTokensDto,
-  SigninDto,
-  SignoutDto,
-  SignupDto,
-} from '@app/common/dto-command';
-import { ApiResponse } from '@app/common/dto-generic';
+import { ApiResponse, AuthTokensDto } from '@app/common/dto-generic';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import {
   HttpException,
@@ -16,17 +8,24 @@ import {
 import { Response } from 'express';
 import { map } from 'rxjs/operators';
 import { JwtPayloadDto } from '../dto/auth/jwt-payload.dto';
+import { SignupRequest } from '@app/common/streams/auth/signup.model';
+import { SignInRequest } from '@app/common/streams/auth/signin.model';
+import { RefreshTokensRequest } from '@app/common/streams/auth/refresh-tokens.model';
+import { SignOutRequest } from '@app/common/streams/auth/signout.model';
+import { SigninDto } from '../dto/auth/signin.dto';
+import { SignupDto } from '../dto/auth/signup.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly natsClient: NatsJetStreamClientProxy) {}
 
   signup(dto: SignupDto, res: Response) {
+    const request = new SignupRequest(dto);
     return this.natsClient
       .send<
         ApiResponse<AuthTokensDto>,
-        SignupDto
-      >({ cmd: AuthSubjects.SIGNUP }, dto)
+        SignupRequest
+      >({ cmd: request.streamKey() }, request)
       .pipe(
         map((response) => {
           if (response.success && response.data) {
@@ -47,11 +46,12 @@ export class AuthService {
   }
 
   signin(dto: SigninDto, res: Response) {
+    const request = new SignInRequest(dto);
     return this.natsClient
       .send<
         ApiResponse<AuthTokensDto>,
         SigninDto
-      >({ cmd: AuthSubjects.SIGNIN }, dto)
+      >({ cmd: request.streamKey() }, request)
       .pipe(
         map((response) => {
           if (response.success && response.data) {
@@ -72,9 +72,13 @@ export class AuthService {
   }
 
   signout(jwtPayload: JwtPayloadDto, res: Response) {
-    this.natsClient.emit<ApiResponse<null>, SignoutDto>(AuthSubjects.SIGNOUT, {
+    const request = new SignOutRequest({
       agentId: jwtPayload.sub,
     });
+    this.natsClient.emit<ApiResponse<null>, SignOutRequest>(
+      request.streamKey(),
+      request,
+    );
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
   }
@@ -84,14 +88,15 @@ export class AuthService {
     jwtPaylaod: JwtPayloadDto,
     res: Response,
   ) {
+    const request = new RefreshTokensRequest({
+      agentId: jwtPaylaod.sub,
+      refreshToken,
+    });
     return this.natsClient
-      .send<ApiResponse<AuthTokensDto>, RefreshTokensDto>(
-        { cmd: AuthSubjects.REFRESH_TOKENS },
-        {
-          agentId: jwtPaylaod.sub,
-          refreshToken,
-        },
-      )
+      .send<
+        ApiResponse<AuthTokensDto>,
+        RefreshTokensRequest
+      >(request.streamKey(), request)
       .pipe(
         map((response) => {
           if (response.success && response.data) {

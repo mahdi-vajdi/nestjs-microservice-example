@@ -1,4 +1,4 @@
-import { AgentRole } from '@app/common/dto-generic';
+import { AgentRole } from '@app/common/dto-generic/index';
 
 export interface AgentDto {
   id: string;

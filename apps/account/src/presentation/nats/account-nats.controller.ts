@@ -1,17 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AccountSubjects, AgentDto } from '@app/common/dto-command';
-import { ApiResponse } from '@app/common/dto-generic';
+import { AgentDto, ApiResponse } from '@app/common/dto-generic';
 import { AccountService } from '../../Application/services/account.service';
-import { CreateAccountDto } from '../../Application/dto/create-account.dto';
+import { CreateAccountRequest } from '@app/common/streams/account/create-account.model';
 
 @Controller()
 export class AccountNatsController {
   constructor(private readonly accountService: AccountService) {}
 
-  @MessagePattern({ cmd: AccountSubjects.CREATE_ACCOUNT })
+  @MessagePattern({ cmd: new CreateAccountRequest().streamKey() })
   async createAccount(
-    @Payload() dto: CreateAccountDto,
+    @Payload() dto: CreateAccountRequest,
   ): Promise<ApiResponse<AgentDto | null>> {
     return await this.accountService.createAccount(dto);
   }

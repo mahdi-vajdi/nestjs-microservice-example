@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AgentGrpcController } from './presentation/grpc/agent.grpc-controller';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,9 +8,10 @@ import { AgentQueryRepository } from './Infrastructure/repositories/agent.query-
 import { AgentCommandHandlers } from './Application/commands/handlers';
 import { AgentQueryHandlers } from './Application/queries/handlers';
 import { AgentEntityRepository } from './Domain/base-agent.entity-repo';
-import { AgentNatsController } from './presentation/agent.nats-cotroller';
 import { AgentService } from './Application/services/agent.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
+import { AgentGrpcController } from './presentation/grpc/agent-grpc.controller';
+import { AgentNatsController } from './presentation/nats/agent-nats.controller';
 
 @Module({
   imports: [

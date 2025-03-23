@@ -15,7 +15,7 @@ import { AccountEntityRepository } from './Domain/base-account.entity-repo';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { AccountService } from './Application/services/account.service';
 import { LoggerModule } from '@app/common/logger/logger.module';
-import { AccountNatsController } from './presentation/nats/account.nats-controller';
+import { AccountNatsController } from './presentation/nats/account-nats.controller';
 import { AccountGrpcController } from './presentation/grpc/account-grpc.controller';
 
 @Module({

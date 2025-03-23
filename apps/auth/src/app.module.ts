@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
-import { AuthGrpcController } from './presentation/grpc/auth.grpc-controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtHelperService } from './services/jwt-helper.service';
-import { AuthNatsController } from './controllers/auth.nats-controller';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { ClientsModule } from '@nestjs/microservices';
@@ -20,6 +18,8 @@ import {
   agentGrpcConfig,
   IAgentGrpcConfig,
 } from '@app/common/grpc/configs/agent-grpc.config';
+import { AuthNatsController } from './presentation/nats/auth-nats.controller';
+import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
 
 @Module({
   imports: [

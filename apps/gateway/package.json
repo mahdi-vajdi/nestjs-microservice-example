@@ -2,10 +2,6 @@
   "name": "gateway-service",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "build": "nest build",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "",
   "license": "ISC",
   "description": "",

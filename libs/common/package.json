@@ -12,7 +12,9 @@
   "type": "commonjs",
   "dependencies": {
     "@nestjs/common": "^11.0.11",
+    "@nestjs/microservices": "^11.0.12",
     "mongoose": "^8.12.1",
+    "nats": "^2.29.3",
     "nest-winston": "^1.10.2",
     "nestjs-pino": "^4.3.1",
     "rxjs": "^7.8.2",

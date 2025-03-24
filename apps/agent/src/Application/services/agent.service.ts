@@ -7,7 +7,7 @@ import { CreateAgentCommand } from '../commands/impl/create-agent.command';
 import { CreateAgentDto } from '../dto/create-agent.dto';
 import { AgentExistsQuery } from '../queries/impl/agent-exists-query';
 import { AgentRole, ApiResponse } from '@app/common/dto-generic';
-import { AgentDto } from '@app/common/dto-command';
+import { AgentDto } from '@app/common/dto-generic';
 import { GetByEmailQuery } from '../queries/impl/get-by-email.query';
 import { AgentModel } from '../../Infrastructure/models/agent.model';
 import { GetAccountAgentsQuery } from '../queries/impl/get-account-agents.query';

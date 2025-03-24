@@ -64,12 +64,12 @@ services:
       - agent
 
   mongo:
-    container_name: mongodb
     image: mongo
+    container_name: admin-mongodb
 
   nats:
-    container_name: nats
     image: nats
+    container_name: admin-nats
     ports:
       - '4222:4222'
       - '8222:8222'

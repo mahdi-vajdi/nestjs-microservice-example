@@ -6,10 +6,6 @@
   "directories": {
     "test": "test"
   },
-  "scripts": {
-    "build": "nest build",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "dependencies": {
     "@grpc/grpc-js": "^1.13.0",
     "@nestjs-plugins/nestjs-nats-jetstream-transport": "^2.2.6",

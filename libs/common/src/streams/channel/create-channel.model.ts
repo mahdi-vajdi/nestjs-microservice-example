@@ -1,12 +1,12 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
-export class CreateChannelRequest implements StreamMessage {
+export class CreateChannel implements StreamMessage {
   accountId: string;
   title: string;
   url: string;
   addAllAgents: boolean;
 
-  constructor(init?: Partial<CreateChannelRequest>) {
+  constructor(init?: Partial<CreateChannel>) {
     Object.assign(this, init);
   }
 

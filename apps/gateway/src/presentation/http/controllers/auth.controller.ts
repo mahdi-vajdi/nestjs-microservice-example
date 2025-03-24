@@ -8,12 +8,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { RefreshTokenGuard } from '../../guards/refresh-token.guard';
-import { SignupDto } from '../../dto/auth/signup.dto';
-import { SigninDto } from '../../dto/auth/signin.dto';
-import { AccessTokenGuard } from '../../guards/access-token.guard';
-import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
-import { AuthService } from '../../services/auth.service';
+import { RefreshTokenGuard } from '../guards/refresh-token.guard';
+import { SignupDto } from '../../../dto/auth/signup.dto';
+import { SigninDto } from '../../../dto/auth/signin.dto';
+import { AccessTokenGuard } from '../guards/access-token.guard';
+import { JwtPayloadDto } from '../../../dto/auth/jwt-payload.dto';
+import { AuthService } from '../../../application/services/auth.service';
 import { Signup } from '@app/common/streams/auth/signup.model';
 
 @Controller('auth')

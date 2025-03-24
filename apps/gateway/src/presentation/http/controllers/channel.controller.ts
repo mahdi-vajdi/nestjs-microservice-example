@@ -12,12 +12,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Observable } from 'rxjs/internal/Observable';
-import { CreateChannelDto } from '../../dto/channel/create-channel.dto';
-import { UpdateChannelAgentsDto } from '../../dto/channel/update-channel-agents.dto';
-import { AccessTokenGuard } from '../../guards/access-token.guard';
-import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
-import { ChannelService } from '../../services/channel.service';
+import { CreateChannelDto } from '../../../dto/channel/create-channel.dto';
+import { UpdateChannelAgentsDto } from '../../../dto/channel/update-channel-agents.dto';
+import { AccessTokenGuard } from '../guards/access-token.guard';
+import { JwtPayloadDto } from '../../../dto/auth/jwt-payload.dto';
+import { ChannelService } from '../../../application/services/channel.service';
 import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
 
 @Controller('channel')
@@ -40,7 +39,7 @@ export class ChannelHttpController {
   @Get()
   async getAccountChannels(
     @Req() req: Request,
-  ): Promise<Observable<GetAccountChannelsResponse>> {
+  ): Promise<GetAccountChannelsResponse> {
     const jwtPayload = req['user'] as JwtPayloadDto;
     return await this.channelService.getAccountChannels(jwtPayload);
   }

@@ -1,9 +1,9 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
-export class SignOutRequest implements StreamMessage {
+export class SignOut implements StreamMessage {
   agentId: string;
 
-  constructor(init?: Partial<SignOutRequest>) {
+  constructor(init?: Partial<SignOut>) {
     Object.assign(this, init);
   }
 

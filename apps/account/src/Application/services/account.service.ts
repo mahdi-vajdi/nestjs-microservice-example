@@ -12,7 +12,7 @@ import { AccountExistsQuery } from '../queries/impl/account-exists.query';
 import { GetAccountByIdResponse } from '@app/common/grpc/models/account/get-account-by-id.model';
 import { GetAccountByEmailResponse } from '@app/common/grpc/models/account/get-account-by-email.model';
 import { AccountExistsResponse } from '@app/common/grpc/models/account/account-exists.model';
-import { CreateOwnerAgentRequest } from '@app/common/streams/agent/create-owner-agent.model';
+import { CreateOwnerAgent } from '@app/common/streams/agent/create-owner-agent.model';
 
 @Injectable()
 export class AccountService {
@@ -57,7 +57,7 @@ export class AccountService {
       // Create the default agent that owns the account
       const createAgentResult = await lastValueFrom(
         this.natsClient.send<ApiResponse<AgentDto | null>>(
-          { cmd: new CreateOwnerAgentRequest().streamKey() },
+          { cmd: new CreateOwnerAgent().streamKey() },
           {
             accountId: account._id,
             firstName: dto.firstName,

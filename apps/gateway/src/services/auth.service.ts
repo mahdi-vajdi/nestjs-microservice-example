@@ -8,10 +8,10 @@ import {
 import { Response } from 'express';
 import { map } from 'rxjs/operators';
 import { JwtPayloadDto } from '../dto/auth/jwt-payload.dto';
-import { SignupRequest } from '@app/common/streams/auth/signup.model';
-import { SignInRequest } from '@app/common/streams/auth/signin.model';
-import { RefreshTokensRequest } from '@app/common/streams/auth/refresh-tokens.model';
-import { SignOutRequest } from '@app/common/streams/auth/signout.model';
+import { Signup } from '@app/common/streams/auth/signup.model';
+import { SignIn } from '@app/common/streams/auth/signin.model';
+import { RefreshTokens } from '@app/common/streams/auth/refresh-tokens.model';
+import { SignOut } from '@app/common/streams/auth/signout.model';
 import { SigninDto } from '../dto/auth/signin.dto';
 import { SignupDto } from '../dto/auth/signup.dto';
 
@@ -20,11 +20,11 @@ export class AuthService {
   constructor(private readonly natsClient: NatsJetStreamClientProxy) {}
 
   signup(dto: SignupDto, res: Response) {
-    const request = new SignupRequest(dto);
+    const request = new Signup(dto);
     return this.natsClient
       .send<
         ApiResponse<AuthTokensDto>,
-        SignupRequest
+        Signup
       >({ cmd: request.streamKey() }, request)
       .pipe(
         map((response) => {
@@ -46,7 +46,7 @@ export class AuthService {
   }
 
   signin(dto: SigninDto, res: Response) {
-    const request = new SignInRequest(dto);
+    const request = new SignIn(dto);
     return this.natsClient
       .send<
         ApiResponse<AuthTokensDto>,
@@ -72,10 +72,10 @@ export class AuthService {
   }
 
   signout(jwtPayload: JwtPayloadDto, res: Response) {
-    const request = new SignOutRequest({
+    const request = new SignOut({
       agentId: jwtPayload.sub,
     });
-    this.natsClient.emit<ApiResponse<null>, SignOutRequest>(
+    this.natsClient.emit<ApiResponse<null>, SignOut>(
       request.streamKey(),
       request,
     );
@@ -88,14 +88,14 @@ export class AuthService {
     jwtPaylaod: JwtPayloadDto,
     res: Response,
   ) {
-    const request = new RefreshTokensRequest({
+    const request = new RefreshTokens({
       agentId: jwtPaylaod.sub,
       refreshToken,
     });
     return this.natsClient
       .send<
         ApiResponse<AuthTokensDto>,
-        RefreshTokensRequest
+        RefreshTokens
       >(request.streamKey(), request)
       .pipe(
         map((response) => {

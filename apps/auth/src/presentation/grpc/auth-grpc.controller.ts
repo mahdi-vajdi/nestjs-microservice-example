@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
-import { JwtHelperService } from '../../services/jwt-helper.service';
+import { JwtHelperService } from '../../application/services/jwt-helper.service';
 import { IAuthGrpcService } from '@app/common/grpc/interfaces/auth.interface';
 import {
   VerifyAccessTokenRequest,

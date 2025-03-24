@@ -1,6 +1,6 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
-export class CreateOwnerAgentRequest implements StreamMessage {
+export class CreateOwnerAgent implements StreamMessage {
   accountId: string;
   firstName: string;
   lastName: string;
@@ -9,7 +9,7 @@ export class CreateOwnerAgentRequest implements StreamMessage {
   phone: string;
   password: string;
 
-  constructor(init?: Partial<CreateOwnerAgentRequest>) {
+  constructor(init?: Partial<CreateOwnerAgent>) {
     Object.assign(this, init);
   }
 

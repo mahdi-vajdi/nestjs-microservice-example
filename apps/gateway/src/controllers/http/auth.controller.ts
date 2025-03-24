@@ -14,7 +14,7 @@ import { SigninDto } from '../../dto/auth/signin.dto';
 import { AccessTokenGuard } from '../../guards/access-token.guard';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { AuthService } from '../../services/auth.service';
-import { SignupRequest } from '@app/common/streams/auth/signup.model';
+import { Signup } from '@app/common/streams/auth/signup.model';
 
 @Controller('auth')
 export class AuthHttpController {
@@ -26,7 +26,7 @@ export class AuthHttpController {
     @Body() signupDto: SignupDto,
   ) {
     return this.authService.signup(
-      new SignupRequest({
+      new Signup({
         email: signupDto.email,
         firstName: signupDto.firstName,
         lastName: signupDto.lastName,

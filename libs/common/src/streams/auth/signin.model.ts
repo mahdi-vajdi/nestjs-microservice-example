@@ -1,11 +1,11 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
-export class SignInRequest implements StreamMessage {
+export class SignIn implements StreamMessage {
   email: string;
   password: string;
 
 
-  constructor(init?: Partial<SignInRequest>) {
+  constructor(init?: Partial<SignIn>) {
     Object.assign(this, init);
   }
 

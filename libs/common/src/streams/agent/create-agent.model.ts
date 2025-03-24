@@ -1,7 +1,7 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 import { AgentRole } from '@app/common/dto-generic';
 
-export class CreateAgentRequest implements StreamMessage {
+export class CreateAgent implements StreamMessage {
   accountId: string;
   email: string;
   phone: string;
@@ -12,7 +12,7 @@ export class CreateAgentRequest implements StreamMessage {
   password: string;
   role: AgentRole;
 
-  constructor(init?: Partial<CreateAgentRequest>) {
+  constructor(init?: Partial<CreateAgent>) {
     Object.assign(this, init);
   }
 

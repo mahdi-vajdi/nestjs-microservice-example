@@ -1,25 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './services/auth.service';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtHelperService } from './services/jwt-helper.service';
-import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
+import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from '@app/common/logger/logger.module';
-import { ClientsModule } from '@nestjs/microservices';
-import {
-  ACCOUNT_GRPC_CLIENT_PROVIDER,
-  ACCOUNT_GRPC_CONFIG_TOKEN,
-  accountGrpcConfig,
-  IAccountGrpcConfig,
-} from '@app/common/grpc/configs/account-grpc.config';
-import {
-  AGENT_GRPC_CLIENT_PROVIDER,
-  AGENT_GRPC_CONFIG_TOKEN,
-  agentGrpcConfig,
-  IAgentGrpcConfig,
-} from '@app/common/grpc/configs/agent-grpc.config';
-import { AuthNatsController } from './presentation/nats/auth-nats.controller';
-import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
+import { PresentationModule } from './presentation/presentation.module';
 
 @Module({
   imports: [
@@ -27,40 +9,9 @@ import { AuthGrpcController } from './presentation/grpc/auth-grpc.controller';
       isGlobal: true,
       envFilePath: '.env',
       cache: true,
-      load: [agentGrpcConfig, accountGrpcConfig],
     }),
     LoggerModule,
-    JwtModule.register({}),
-    NatsJetStreamTransport.registerAsync({
-      useFactory: (configService: ConfigService) => ({
-        connectionOptions: {
-          servers: configService.getOrThrow<string>('NATS_URI'),
-          name: 'auth-publisher',
-        },
-      }),
-      inject: [ConfigService],
-    }),
-    ClientsModule.registerAsync([
-      {
-        name: ACCOUNT_GRPC_CLIENT_PROVIDER,
-        useFactory: (configService: ConfigService) => {
-          return configService.get<IAccountGrpcConfig>(
-            ACCOUNT_GRPC_CONFIG_TOKEN,
-          );
-        },
-        inject: [ConfigService],
-      },
-      {
-        name: AGENT_GRPC_CLIENT_PROVIDER,
-        useFactory: (configService: ConfigService) => {
-          return configService.get<IAgentGrpcConfig>(AGENT_GRPC_CONFIG_TOKEN);
-        },
-        inject: [ConfigService],
-      },
-    ]),
+    PresentationModule,
   ],
-  controllers: [AuthNatsController, AuthGrpcController],
-  providers: [AuthService, JwtHelperService],
-  exports: [AuthService, JwtModule],
 })
 export class AppModule {}

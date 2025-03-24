@@ -9,7 +9,7 @@ import {
   AGENT_GRPC_CLIENT_PROVIDER,
   AGENT_GRPC_SERVICE_NAME,
 } from '@app/common/grpc/configs/agent-grpc.config';
-import { CreateAgentRequest } from '@app/common/streams/agent/create-agent.model';
+import { CreateAgent } from '@app/common/streams/agent/create-agent.model';
 
 @Injectable()
 export class AgentService implements OnModuleInit {
@@ -29,7 +29,7 @@ export class AgentService implements OnModuleInit {
 
   createAgent(user: JwtPayloadDto, dto: CreateAgentDto) {
     return this.natsClient.send<ApiResponse<AgentDto | null>>(
-      { cmd: new CreateAgentRequest().streamKey() },
+      { cmd: new CreateAgent().streamKey() },
       {
         requesterAccountId: user.account,
         ...dto,

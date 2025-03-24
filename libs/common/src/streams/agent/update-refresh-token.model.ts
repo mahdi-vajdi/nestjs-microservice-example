@@ -1,10 +1,10 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
-export class UpdateRefreshTokenRequest implements StreamMessage {
+export class UpdateRefreshToken implements StreamMessage {
   agentId: string;
   newToken: string;
 
-  constructor(init?: Partial<UpdateRefreshTokenRequest>) {
+  constructor(init?: Partial<UpdateRefreshToken>) {
     Object.assign(this, init);
   }
 

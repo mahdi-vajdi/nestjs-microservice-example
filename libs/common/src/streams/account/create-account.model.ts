@@ -1,13 +1,13 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
-export class CreateAccountRequest implements StreamMessage {
+export class CreateAccount implements StreamMessage {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   password: string;
 
-  constructor(init?: Partial<CreateAccountRequest>) {
+  constructor(init?: Partial<CreateAccount>) {
     Object.assign(this, init);
   }
 

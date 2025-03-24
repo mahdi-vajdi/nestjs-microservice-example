@@ -3,9 +3,9 @@ import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { UpdateRefreshTokenDto } from '../../Application/dto/update-refresh-token.dto';
 import { AgentDto, ApiResponse } from '@app/common/dto-generic';
 import { AgentService } from '../../Application/services/agent.service';
-import { CreateOwnerAgentRequest } from '@app/common/streams/agent/create-owner-agent.model';
-import { CreateAgentRequest } from '@app/common/streams/agent/create-agent.model';
-import { UpdateRefreshTokenRequest } from '@app/common/streams/agent/update-refresh-token.model';
+import { CreateOwnerAgent } from '@app/common/streams/agent/create-owner-agent.model';
+import { CreateAgent } from '@app/common/streams/agent/create-agent.model';
+import { UpdateRefreshToken } from '@app/common/streams/agent/update-refresh-token.model';
 
 /**
  * The controller that handles commands via NATS
@@ -14,21 +14,21 @@ import { UpdateRefreshTokenRequest } from '@app/common/streams/agent/update-refr
 export class AgentNatsController {
   constructor(private readonly agentService: AgentService) {}
 
-  @MessagePattern({ cmd: new CreateOwnerAgentRequest().streamKey() })
+  @MessagePattern({ cmd: new CreateOwnerAgent().streamKey() })
   async createOwnerAgent(
-    @Payload() dto: CreateOwnerAgentRequest,
+    @Payload() dto: CreateOwnerAgent,
   ): Promise<ApiResponse<AgentDto | null>> {
     return await this.agentService.createOwnerAgent(dto);
   }
 
-  @MessagePattern({ cmd: new CreateAgentRequest().streamKey() })
+  @MessagePattern({ cmd: new CreateAgent().streamKey() })
   async createAgent(
-    @Payload() dto: CreateAgentRequest,
+    @Payload() dto: CreateAgent,
   ): Promise<ApiResponse<AgentDto | null>> {
     return await this.agentService.createAgent(dto);
   }
 
-  @EventPattern(new UpdateRefreshTokenRequest().streamKey())
+  @EventPattern(new UpdateRefreshToken().streamKey())
   async updateRefreshToken(
     @Payload() dto: UpdateRefreshTokenDto,
   ): Promise<ApiResponse<null>> {

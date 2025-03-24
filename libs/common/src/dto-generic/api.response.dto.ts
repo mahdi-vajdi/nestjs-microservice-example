@@ -1,6 +1,6 @@
 export interface ApiResponse<T> {
   success: boolean;
-  data?: T; // Data type parameterized
+  data?: T;
   error?: {
     code: number;
     message: string;

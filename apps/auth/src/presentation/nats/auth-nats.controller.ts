@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../application/services/auth.service';
 import {
   Ctx,
   EventPattern,
@@ -11,26 +11,24 @@ import { ApiResponse, AuthTokensDto } from '@app/common/dto-generic';
 import { NatsJetStreamContext } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { ForbiddenAccessError } from '@app/common/errors/forbidden-access.error';
 import { NotFoundError } from '@app/common/errors';
-import { SignupRequest } from '@app/common/streams/auth/signup.model';
-import { SignOutRequest } from '@app/common/streams/auth/signout.model';
-import { RefreshTokensRequest } from '@app/common/streams/auth/refresh-tokens.model';
-import { SignInRequest } from '@app/common/streams/auth/signin.model';
+import { Signup } from '@app/common/streams/auth/signup.model';
+import { SignOut } from '@app/common/streams/auth/signout.model';
+import { RefreshTokens } from '@app/common/streams/auth/refresh-tokens.model';
+import { SignIn } from '@app/common/streams/auth/signin.model';
 
 @Controller()
 export class AuthNatsController {
   constructor(private readonly authService: AuthService) {}
 
-  @MessagePattern({ cmd: new SignupRequest().streamKey() })
+  @MessagePattern({ cmd: new Signup().streamKey() })
   async signup(
-    @Payload() signupDto: SignupRequest,
+    @Payload() signupDto: Signup,
   ): Promise<ApiResponse<AuthTokensDto>> {
     return await this.authService.signup(signupDto);
   }
 
-  @MessagePattern({ cmd: new SignInRequest().streamKey() })
-  async signin(
-    @Payload() dto: SignInRequest,
-  ): Promise<ApiResponse<AuthTokensDto>> {
+  @MessagePattern({ cmd: new SignIn().streamKey() })
+  async signin(@Payload() dto: SignIn): Promise<ApiResponse<AuthTokensDto>> {
     try {
       return await this.authService.signin(dto);
     } catch (error) {
@@ -43,18 +41,18 @@ export class AuthNatsController {
     }
   }
 
-  @EventPattern(new SignOutRequest().streamKey())
-  signout(
-    @Payload() { agentId }: SignOutRequest,
+  @EventPattern(new SignOut().streamKey())
+  async signout(
+    @Payload() { agentId }: SignOut,
     @Ctx() context: NatsJetStreamContext,
-  ): void {
-    this.authService.signout(agentId);
+  ): Promise<void> {
+    await this.authService.signout(agentId);
     context.message.ack();
   }
 
-  @MessagePattern({ cmd: new RefreshTokensRequest().streamKey() })
+  @MessagePattern({ cmd: new RefreshTokens().streamKey() })
   async refresh(
-    @Payload() { agentId, refreshToken }: RefreshTokensRequest,
+    @Payload() { agentId, refreshToken }: RefreshTokens,
   ): Promise<ApiResponse<AuthTokensDto>> {
     try {
       return await this.authService.refreshTokens(agentId, refreshToken);

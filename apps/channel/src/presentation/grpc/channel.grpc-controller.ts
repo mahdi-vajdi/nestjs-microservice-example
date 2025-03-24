@@ -1,6 +1,6 @@
 import { GrpcMethod } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
-import { ChannelService } from '../../Application/services/channel.service';
+import { ChannelService } from '../../application/services/channel.service';
 import { IChannelGrpcService } from '@app/common/grpc/interfaces/channel.interface';
 import {
   GetChannelByIdRequest,

@@ -1,21 +1,13 @@
 import { Model, MongooseError, Types } from 'mongoose';
-import { Channel } from '../../Domain/entities/channel.entity';
-import { ChannelEntityRepository } from '../../Domain/base-channel.repo';
+import { Channel } from '../../../../domain/entities/channel.entity';
 import { CHANNEL_DB_COLLECTION, ChannelModel } from '../models/channel.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { DatabaseError } from '@app/common/errors/database.error';
+import { IChannelDatabaseProvider } from '../../providers/channel.provider';
 
-/**
- * The implementation of repository class for abstract ChannelEntityRepository
- *
- * @export
- * @class ChannelEntityRepositoryImpl
- * @typedef {ChannelEntityRepositoryImpl}
- * @implements {ChannelEntityRepository}
- */
-export class ChannelEntityRepositoryImpl implements ChannelEntityRepository {
-  private readonly logger = new Logger(ChannelEntityRepositoryImpl.name);
+export class ChannelMongoService implements IChannelDatabaseProvider {
+  private readonly logger = new Logger(ChannelMongoService.name);
 
   constructor(
     @InjectModel(CHANNEL_DB_COLLECTION)
@@ -60,6 +52,37 @@ export class ChannelEntityRepositoryImpl implements ChannelEntityRepository {
         .exec();
       if (channel) return this.toEntity(channel);
       else return null;
+    } catch (error) {
+      this.logger.error(error);
+
+      if (error instanceof MongooseError)
+        throw new DatabaseError(error.message);
+      else throw new Error(error.message);
+    }
+  }
+
+  async findOneById(
+    accountId: string,
+    channelId: string,
+  ): Promise<ChannelModel | null> {
+    try {
+      return this.channelModel
+        .findOne({ _id: channelId, account: accountId }, {}, { lean: true })
+        .exec();
+    } catch (error) {
+      this.logger.error(error);
+
+      if (error instanceof MongooseError)
+        throw new DatabaseError(error.message);
+      else throw new Error(error.message);
+    }
+  }
+
+  async findByAccount(accountId: string): Promise<ChannelModel[]> {
+    try {
+      return await this.channelModel
+        .find({ account: accountId }, {}, { lean: true })
+        .exec();
     } catch (error) {
       this.logger.error(error);
 

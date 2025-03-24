@@ -1,14 +1,21 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateChannelCommand } from '../impl/create-channel.command';
 import { Types } from 'mongoose';
-import { ChannelEntityRepository } from 'apps/channel/src/Domain/base-channel.repo';
-import { Channel } from 'apps/channel/src/Domain/entities/channel.entity';
+import { Channel } from '../../../domain/entities/channel.entity';
+import { Inject } from '@nestjs/common';
+import {
+  CHANNEL_DATABASE_PROVIDER,
+  IChannelDatabaseProvider,
+} from '../../../infrastructure/database/providers/channel.provider';
 
 @CommandHandler(CreateChannelCommand)
 export class CreateChannelHandler
   implements ICommandHandler<CreateChannelCommand, void>
 {
-  constructor(private readonly channelRepo: ChannelEntityRepository) {}
+  constructor(
+    @Inject(CHANNEL_DATABASE_PROVIDER)
+    private readonly databaseProvider: IChannelDatabaseProvider,
+  ) {}
 
   async execute(command: CreateChannelCommand): Promise<void> {
     const channel = Channel.create(
@@ -20,7 +27,7 @@ export class CreateChannelHandler
       command.agents,
     );
 
-    await this.channelRepo.add(channel);
+    await this.databaseProvider.add(channel);
     channel.commit();
   }
 }

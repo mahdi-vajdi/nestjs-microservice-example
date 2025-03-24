@@ -1,8 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { ApiResponse } from '@app/common/dto-generic';
-import { ChannelService } from '../../Application/services/channel.service';
-import { ChannelModel } from '../../Infrastructure/models/channel.model';
+import { ChannelService } from '../../application/services/channel.service';
+import { ChannelModel } from '../../infrastructure/database/mongo/models/channel.model';
 import { CreateChannelRequest } from '@app/common/streams/channel/create-channel.model';
 import { UpdateChannelAgentsRequest } from '@app/common/streams/channel/update-channel-agents.model';
 

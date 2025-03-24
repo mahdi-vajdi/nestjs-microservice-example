@@ -1,15 +1,22 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateChannelAgentsCommand } from '../impl/update-channel-agents';
-import { ChannelEntityRepository } from 'apps/channel/src/Domain/base-channel.repo';
+import { Inject } from '@nestjs/common';
+import {
+  CHANNEL_DATABASE_PROVIDER,
+  IChannelDatabaseProvider,
+} from '../../../infrastructure/database/providers/channel.provider';
 
 @CommandHandler(UpdateChannelAgentsCommand)
 export class UpdateChannelAgentsHandler
   implements ICommandHandler<UpdateChannelAgentsCommand, void>
 {
-  constructor(private readonly channelRepo: ChannelEntityRepository) {}
+  constructor(
+    @Inject(CHANNEL_DATABASE_PROVIDER)
+    private readonly databaseProvider: IChannelDatabaseProvider,
+  ) {}
 
   async execute(command: UpdateChannelAgentsCommand): Promise<void> {
-    const channel = await this.channelRepo.findById(command.channelId);
+    const channel = await this.databaseProvider.findById(command.channelId);
 
     if (!channel || channel.account !== command.accountId)
       throw new Error('There is no channel or the channld Id does not match');
@@ -17,7 +24,7 @@ export class UpdateChannelAgentsHandler
     if (channel && channel.account === command.accountId)
       channel.updateAgents(command.agentIds);
 
-    await this.channelRepo.save(channel);
+    await this.databaseProvider.save(channel);
     channel.commit();
   }
 }

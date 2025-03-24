@@ -1,41 +1,30 @@
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateChannelDto } from '../dto/create-channel.dto';
 import { CreateChannelCommand } from '../commands/impl/create-channel.command';
-import { lastValueFrom } from 'rxjs';
 import { ApiResponse } from '@app/common/dto-generic';
-import { ClientGrpc } from '@nestjs/microservices';
 import { GetChannelByIdQuery } from '../queries/impl/get-by-id.query';
-import { ChannelModel } from '../../Infrastructure/models/channel.model';
+import { ChannelModel } from '../../infrastructure/database/mongo/models/channel.model';
 import { UpdateChannelAgentsDto } from '../dto/update-channel-agents.dto';
 import { UpdateChannelAgentsCommand } from '../commands/impl/update-channel-agents';
 import { GetAccountChannelsQuery } from '../queries/impl/get-account-cahnnels.query';
-import { IAgentGrpcService } from '@app/common/grpc/interfaces/agent.interface';
 import { ChannelMessage } from '@app/common/grpc/models/channel/channel-message.dto';
 import { GetChannelByIdResponse } from '@app/common/grpc/models/channel/get-channel-by-id.dto';
 import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
 import {
-  AGENT_GRPC_CLIENT_PROVIDER,
-  AGENT_GRPC_SERVICE_NAME,
-} from '@app/common/grpc/configs/agent-grpc.config';
+  AGENT_READER,
+  IAgentReader,
+} from '../../infrastructure/query-client/providers/agent.reader';
 
 @Injectable()
-export class ChannelService implements OnModuleInit {
+export class ChannelService {
   private readonly logger = new Logger(ChannelService.name);
-  private agentQueryService: IAgentGrpcService;
 
   constructor(
+    @Inject(AGENT_READER) private readonly agentReader: IAgentReader,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    @Inject(AGENT_GRPC_CLIENT_PROVIDER)
-    private readonly agentGrpcClient: ClientGrpc,
   ) {}
-
-  onModuleInit() {
-    this.agentQueryService = this.agentGrpcClient.getService<IAgentGrpcService>(
-      AGENT_GRPC_SERVICE_NAME,
-    );
-  }
 
   async create(
     dto: CreateChannelDto,
@@ -44,10 +33,9 @@ export class ChannelService implements OnModuleInit {
       // Get agents ids if caller wants
       const agents: string[] = [];
       if (dto.addAllAgents) {
-        const res = await this.agentQueryService.getAgentsIds({
-          accountId: dto.accountId,
-        });
-        const { agentsIds } = await lastValueFrom(res);
+        const agentsIds = await this.agentReader.getAccountAgentIds(
+          dto.accountId,
+        );
         if (agentsIds) agents.push(...agentsIds);
       }
 

@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import * as bcrypt from 'bcryptjs';
@@ -24,7 +24,7 @@ import {
 } from '../../infrastructure/query-client/providers/agent.reader';
 
 @Injectable()
-export class AuthService implements OnModuleInit {
+export class AuthService {
   constructor(
     @Inject(ACCOUNT_READER) private readonly accountReader: IAccountReader,
     @Inject(ACCOUNT_WRITER) private readonly accountWriter: IAccountWriter,
@@ -32,8 +32,6 @@ export class AuthService implements OnModuleInit {
     @Inject(AGENT_WRITER) private readonly agentWriter: IAgentWriter,
     private readonly jwtUtils: JwtHelperService,
   ) {}
-
-  onModuleInit() {}
 
   async signup(signupDto: SignupDto): Promise<ApiResponse<AuthTokensDto>> {
     // check if account exists

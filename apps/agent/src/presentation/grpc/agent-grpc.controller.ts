@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 
 import { GrpcMethod } from '@nestjs/microservices';
-import { AgentService } from '../../Application/services/agent.service';
+import { AgentService } from '../../application/services/agent.service';
 import {
   GetAgentByIdRequest,
   GetAgentByIdResponse,

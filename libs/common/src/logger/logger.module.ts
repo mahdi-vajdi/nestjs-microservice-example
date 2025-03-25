@@ -12,9 +12,8 @@ import { LOGGER_PROVIDER } from './provider/logger.provider';
 
 @Module({
   imports: [
-    ConfigModule.forFeature(winstonLoggerConfig),
     WinstonModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule.forFeature(winstonLoggerConfig)],
       useFactory: async (configService: ConfigService) => {
         const winstonConfig = configService.get<IWinstonLoggerConfig>(
           WINSTON_LOGGER_CONFIG_TOKEN,
@@ -68,5 +67,4 @@ import { LOGGER_PROVIDER } from './provider/logger.provider';
   ],
   exports: [LOGGER_PROVIDER],
 })
-export class LoggerModule {
-}
+export class LoggerModule {}

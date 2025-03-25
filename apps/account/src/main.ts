@@ -12,6 +12,7 @@ import {
   IAccountGrpcConfig,
 } from '@app/common/grpc/configs/account-grpc.config';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
+import { winstonLoggerConfig } from '@app/common/logger/winston/config/winston-logger.config';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -23,7 +24,7 @@ async function loadLogger(): Promise<LoggerService> {
 async function loadConfig(): Promise<ConfigService> {
   const appContext = await NestFactory.createApplicationContext(
     ConfigModule.forRoot({
-      load: [accountGrpcConfig],
+      load: [accountGrpcConfig, winstonLoggerConfig],
     }),
   );
   return appContext.get<ConfigService>(ConfigService);

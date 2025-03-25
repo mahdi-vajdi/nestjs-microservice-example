@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AgentDto, ApiResponse } from '@app/common/dto-generic';
-import { AccountService } from '../../Application/services/account.service';
+import { AccountService } from '../../application/services/account.service';
 import { CreateAccount } from '@app/common/streams/account/create-account.model';
 
 @Controller()

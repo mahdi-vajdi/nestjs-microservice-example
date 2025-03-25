@@ -4,5 +4,5 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm ci --loglevel verbose
+RUN npm ci
 RUN npm run build -- --all

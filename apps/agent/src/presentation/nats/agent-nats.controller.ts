@@ -1,15 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
-import { UpdateRefreshTokenDto } from '../../Application/dto/update-refresh-token.dto';
 import { AgentDto, ApiResponse } from '@app/common/dto-generic';
-import { AgentService } from '../../Application/services/agent.service';
+import { AgentService } from '../../application/services/agent.service';
 import { CreateOwnerAgent } from '@app/common/streams/agent/create-owner-agent.model';
 import { CreateAgent } from '@app/common/streams/agent/create-agent.model';
 import { UpdateRefreshToken } from '@app/common/streams/agent/update-refresh-token.model';
+import { UpdateRefreshTokenDto } from '../../application/services/dtos/update-refresh-token.dto';
 
-/**
- * The controller that handles commands via NATS
- */
 @Controller()
 export class AgentNatsController {
   constructor(private readonly agentService: AgentService) {}

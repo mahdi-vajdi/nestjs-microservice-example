@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { AccountService } from '../../Application/services/account.service';
+import { AccountService } from '../../application/services/account.service';
 import { IAccountGrpcService } from '@app/common/grpc/interfaces/account.interface';
 import {
   GetAccountByIdRequest,

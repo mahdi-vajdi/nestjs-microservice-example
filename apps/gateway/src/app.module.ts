@@ -8,6 +8,7 @@ import { PresentationModule } from './presentation/presentation.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
+      cache: true,
     }),
     LoggerModule,
     PresentationModule,

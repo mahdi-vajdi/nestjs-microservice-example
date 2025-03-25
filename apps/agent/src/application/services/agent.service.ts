@@ -5,7 +5,6 @@ import { CreateAgentCommand } from '../commands/impl/create-agent.command';
 import { AgentExistsQuery } from '../queries/impl/agent-exists-query';
 import { AgentDto, AgentRole, ApiResponse } from '@app/common/dto-generic';
 import { GetByEmailQuery } from '../queries/impl/get-by-email.query';
-import { AgentModel } from '../../infrastructure/models/agent.model';
 import { GetAccountAgentsQuery } from '../queries/impl/get-account-agents.query';
 import { GetAccountAgentsIdsQuery } from '../queries/impl/get-account-agents-ids.query';
 import { GetByIdQuery } from '../queries/impl/get-by-id.query';
@@ -17,6 +16,7 @@ import { GetAgentByEmailResponse } from '@app/common/grpc/models/agent/get-agent
 import { CreateOwnerAgentDto } from './dtos/create-owner-agent.dto';
 import { CreateAgentDto } from './dtos/create-agent.dto';
 import { UpdateRefreshTokenDto } from './dtos/update-refresh-token.dto';
+import { AgentModel } from '../../infrastructure/database/mongo/models/agent.model';
 
 @Injectable()
 export class AgentService {

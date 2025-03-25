@@ -1,15 +1,21 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateAgentCommand } from '../impl/create-agent.command';
-import { AgentEntityRepository } from '../../../domain/base-agent.entity-repo';
 import { Agent } from '../../../domain/entities/agent.entity';
 import { Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import {
+  AGENT_PROVIDER,
+  IAgentProvider,
+} from '../../../infrastructure/database/providers/agent.provider';
+import { Inject } from '@nestjs/common';
 
 @CommandHandler(CreateAgentCommand)
 export class CreateAgentHandler
   implements ICommandHandler<CreateAgentCommand, void>
 {
-  constructor(private readonly agentEntityRepo: AgentEntityRepository) {}
+  constructor(
+    @Inject(AGENT_PROVIDER) private readonly agentProvider: IAgentProvider,
+  ) {}
 
   async execute(command: CreateAgentCommand): Promise<void> {
     const agent = Agent.create(
@@ -26,7 +32,7 @@ export class CreateAgentHandler
       'default',
     );
 
-    await this.agentEntityRepo.add(agent);
+    await this.agentProvider.add(agent);
     agent.commit();
   }
 }

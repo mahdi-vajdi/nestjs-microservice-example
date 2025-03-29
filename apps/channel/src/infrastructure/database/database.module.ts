@@ -5,7 +5,7 @@ import {
   CHANNEL_DB_COLLECTION,
   ChannelSchema,
 } from './mongo/models/channel.model';
-import { CHANNEL_DATABASE_PROVIDER } from './providers/channel.provider';
+import { CHANNEL_PROVIDER } from './providers/channel.provider';
 import { ChannelMongoService } from './mongo/services/channel-mongo.service';
 
 @Module({
@@ -20,9 +20,7 @@ import { ChannelMongoService } from './mongo/services/channel-mongo.service';
       { name: CHANNEL_DB_COLLECTION, schema: ChannelSchema },
     ]),
   ],
-  providers: [
-    { provide: CHANNEL_DATABASE_PROVIDER, useClass: ChannelMongoService },
-  ],
-  exports: [CHANNEL_DATABASE_PROVIDER],
+  providers: [{ provide: CHANNEL_PROVIDER, useClass: ChannelMongoService }],
+  exports: [CHANNEL_PROVIDER],
 })
 export class DatabaseModule {}

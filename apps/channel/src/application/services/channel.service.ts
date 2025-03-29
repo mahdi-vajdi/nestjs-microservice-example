@@ -1,13 +1,8 @@
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateChannelDto } from '../dto/create-channel.dto';
-import { CreateChannelCommand } from '../commands/impl/create-channel.command';
 import { ApiResponse } from '@app/common/dto-generic';
-import { GetChannelByIdQuery } from '../queries/impl/get-by-id.query';
 import { ChannelModel } from '../../infrastructure/database/mongo/models/channel.model';
 import { UpdateChannelAgentsDto } from '../dto/update-channel-agents.dto';
-import { UpdateChannelAgentsCommand } from '../commands/impl/update-channel-agents';
-import { GetAccountChannelsQuery } from '../queries/impl/get-account-cahnnels.query';
 import { ChannelMessage } from '@app/common/grpc/models/channel/channel-message.dto';
 import { GetChannelByIdResponse } from '@app/common/grpc/models/channel/get-channel-by-id.dto';
 import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
@@ -15,15 +10,21 @@ import {
   AGENT_READER,
   IAgentReader,
 } from '../../infrastructure/query-client/providers/agent.reader';
+import { Channel } from '../../domain/entities/channel.entity';
+import { Types } from 'mongoose';
+import {
+  CHANNEL_PROVIDER,
+  IChannelProvider,
+} from '../../infrastructure/database/providers/channel.provider';
 
 @Injectable()
 export class ChannelService {
   private readonly logger = new Logger(ChannelService.name);
 
   constructor(
+    @Inject(CHANNEL_PROVIDER)
+    private readonly channelProvider: IChannelProvider,
     @Inject(AGENT_READER) private readonly agentReader: IAgentReader,
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
   ) {}
 
   async create(
@@ -39,27 +40,20 @@ export class ChannelService {
         if (agentsIds) agents.push(...agentsIds);
       }
 
-      const channelId = await this.commandBus.execute<
-        CreateChannelCommand,
-        string
-      >(
-        new CreateChannelCommand(
-          dto.accountId,
-          dto.title,
-          dto.url,
-          crypto.randomUUID(),
-          agents,
-        ),
+      const channel = Channel.create(
+        new Types.ObjectId().toHexString(),
+        dto.accountId,
+        dto.title,
+        dto.url,
+        crypto.randomUUID(),
+        agents,
       );
 
-      const channel = await this.queryBus.execute<
-        GetChannelByIdQuery,
-        ChannelModel | null
-      >(new GetChannelByIdQuery(dto.accountId, channelId));
+      const createdChannel = await this.channelProvider.add(channel);
 
       return {
         success: true,
-        data: channel,
+        data: createdChannel,
       };
     } catch (error) {
       this.logger.error(error.message, {
@@ -82,13 +76,15 @@ export class ChannelService {
     dto: UpdateChannelAgentsDto,
   ): Promise<ApiResponse<boolean>> {
     try {
-      await this.commandBus.execute<UpdateChannelAgentsCommand, boolean>(
-        new UpdateChannelAgentsCommand(
-          dto.requesterAccountId,
-          dto.channelId,
-          dto.agents,
-        ),
-      );
+      const channel = await this.channelProvider.findById(dto.channelId);
+
+      if (!channel || channel.account !== dto.requesterAccountId)
+        throw new Error('There is no channel or the channld Id does not match');
+
+      if (channel && channel.account === dto.requesterAccountId)
+        channel.updateAgents(dto.agents);
+
+      await this.channelProvider.save(channel);
 
       return {
         success: true,
@@ -114,10 +110,7 @@ export class ChannelService {
   async getAccountChannels(
     accountId: string,
   ): Promise<GetAccountChannelsResponse> {
-    const channels = await this.queryBus.execute<
-      GetAccountChannelsQuery,
-      ChannelModel[] | null
-    >(new GetAccountChannelsQuery(accountId));
+    const channels = await this.channelProvider.findByAccount(accountId);
 
     if (channels)
       return {
@@ -130,10 +123,10 @@ export class ChannelService {
     accountId: string,
     channelId: string,
   ): Promise<GetChannelByIdResponse> {
-    const channel = await this.queryBus.execute<
-      GetChannelByIdQuery,
-      ChannelModel
-    >(new GetChannelByIdQuery(accountId, channelId));
+    const channel = await this.channelProvider.findOneById(
+      accountId,
+      channelId,
+    );
 
     if (channel) this.toQueryModel(channel);
     else {

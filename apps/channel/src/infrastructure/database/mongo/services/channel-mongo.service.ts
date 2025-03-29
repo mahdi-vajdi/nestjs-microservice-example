@@ -4,9 +4,9 @@ import { CHANNEL_DB_COLLECTION, ChannelModel } from '../models/channel.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { DatabaseError } from '@app/common/errors/database.error';
-import { IChannelDatabaseProvider } from '../../providers/channel.provider';
+import { IChannelProvider } from '../../providers/channel.provider';
 
-export class ChannelMongoService implements IChannelDatabaseProvider {
+export class ChannelMongoService implements IChannelProvider {
   private readonly logger = new Logger(ChannelMongoService.name);
 
   constructor(
@@ -14,12 +14,9 @@ export class ChannelMongoService implements IChannelDatabaseProvider {
     private readonly channelModel: Model<ChannelModel>,
   ) {}
 
-  async add(entity: Channel): Promise<string> {
+  async add(entity: Channel): Promise<ChannelModel> {
     try {
-      const createdChannel = await this.channelModel.create(
-        this.fromEntity(entity),
-      );
-      return createdChannel._id.toHexString();
+      return await this.channelModel.create(this.fromEntity(entity));
     } catch (error) {
       this.logger.error(error);
 

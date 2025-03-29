@@ -1,13 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UpdateRefreshTokenCommand } from '../commands/impl/update-refresh-token.command';
-import { CreateAgentCommand } from '../commands/impl/create-agent.command';
-import { AgentExistsQuery } from '../queries/impl/agent-exists-query';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AgentDto, AgentRole, ApiResponse } from '@app/common/dto-generic';
-import { GetByEmailQuery } from '../queries/impl/get-by-email.query';
-import { GetAccountAgentsQuery } from '../queries/impl/get-account-agents.query';
-import { GetAccountAgentsIdsQuery } from '../queries/impl/get-account-agents-ids.query';
-import { GetByIdQuery } from '../queries/impl/get-by-id.query';
 import { GetAccountAgentsResponse } from '@app/common/grpc/models/agent/get-account-agents.model';
 import { AgentExistsResponse } from '@app/common/grpc/models/agent/agents.exists.model';
 import { GetAgentIdsResponse } from '@app/common/grpc/models/agent/get-agents-ids.model';
@@ -17,14 +9,20 @@ import { CreateOwnerAgentDto } from './dtos/create-owner-agent.dto';
 import { CreateAgentDto } from './dtos/create-agent.dto';
 import { UpdateRefreshTokenDto } from './dtos/update-refresh-token.dto';
 import { AgentModel } from '../../infrastructure/database/mongo/models/agent.model';
+import {
+  AGENT_PROVIDER,
+  IAgentProvider,
+} from '../../infrastructure/database/providers/agent.provider';
+import { Agent } from '../../domain/entities/agent.entity';
+import { Types } from 'mongoose';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AgentService {
   private readonly logger = new Logger(AgentService.name);
 
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
+    @Inject(AGENT_PROVIDER) private readonly agentProvider: IAgentProvider,
   ) {}
 
   async createOwnerAgent(
@@ -32,10 +30,10 @@ export class AgentService {
   ): Promise<ApiResponse<AgentDto | null>> {
     try {
       // Check if the agent already exists
-      const agentExists = await this.queryBus.execute<
-        AgentExistsQuery,
-        boolean
-      >(new AgentExistsQuery(dto.email, dto.phone));
+      const agentExists = await this.agentProvider.agentExists(
+        dto.email,
+        dto.phone,
+      );
       if (agentExists)
         return {
           success: false,
@@ -45,26 +43,23 @@ export class AgentService {
           },
         };
 
-      // Create the agent
-      await this.commandBus.execute<CreateAgentCommand, void>(
-        new CreateAgentCommand(
-          dto.accountId,
-          dto.email,
-          dto.phone,
-          dto.firstName,
-          dto.lastName,
-          'Admin',
-          [dto.channelId],
-          dto.password,
-          AgentRole.OWNER,
-        ),
+      const agent = Agent.create(
+        new Types.ObjectId().toHexString(),
+        dto.accountId,
+        dto.email,
+        dto.phone,
+        dto.firstName,
+        dto.lastName,
+        'Admin',
+        await bcrypt.hash(dto.password, 10),
+        null,
+        AgentRole.OWNER,
+        'default',
       );
+      await this.agentProvider.add(agent);
 
       // Get the created agent from db
-      const createdAgent = await this.queryBus.execute<
-        GetByEmailQuery,
-        AgentModel | null
-      >(new GetByEmailQuery(dto.email));
+      const createdAgent = await this.agentProvider.findByEmail(dto.email);
 
       return {
         success: true,
@@ -86,10 +81,10 @@ export class AgentService {
   ): Promise<ApiResponse<AgentDto | null>> {
     try {
       // Check if the agent already exists
-      const agentExists = await this.queryBus.execute<
-        AgentExistsQuery,
-        boolean
-      >(new AgentExistsQuery(dto.email, dto.phone));
+      const agentExists = await this.agentProvider.agentExists(
+        dto.email,
+        dto.phone,
+      );
       if (agentExists)
         return {
           success: false,
@@ -100,25 +95,22 @@ export class AgentService {
         };
 
       // Create the agent
-      await this.commandBus.execute<CreateAgentCommand, void>(
-        new CreateAgentCommand(
-          dto.accountId,
-          dto.email,
-          dto.phone,
-          dto.firstName,
-          dto.lastName,
-          dto.title,
-          dto.channelIds,
-          dto.password,
-          dto.role,
-        ),
+      const agent = Agent.create(
+        new Types.ObjectId().toHexString(),
+        dto.accountId,
+        dto.email,
+        dto.phone,
+        dto.firstName,
+        dto.lastName,
+        dto.title,
+        await bcrypt.hash(dto.password, 10),
+        null,
+        AgentRole.OWNER,
+        'default',
       );
+      await this.agentProvider.add(agent);
 
-      const createdAgent = await this.queryBus.execute<
-        GetByEmailQuery,
-        AgentModel | null
-      >(new GetByEmailQuery(dto.email));
-
+      const createdAgent = await this.agentProvider.findByEmail(dto.email);
       return {
         success: true,
         data: createdAgent ? this.toComamandDto(createdAgent) : null,
@@ -135,13 +127,15 @@ export class AgentService {
   }
 
   async updateRefreshToken({
-    agentId: id,
-    newToken: token,
+    agentId,
+    newToken,
   }: UpdateRefreshTokenDto): Promise<ApiResponse<null>> {
     try {
-      await this.commandBus.execute<UpdateRefreshTokenCommand, void>(
-        new UpdateRefreshTokenCommand(id, token),
-      );
+      const agent = await this.agentProvider.findById(agentId);
+      if (!agent) return;
+
+      agent.changeRefreshToken(newToken);
+      await this.agentProvider.save(agent);
 
       return {
         success: true,
@@ -159,10 +153,7 @@ export class AgentService {
   }
 
   async getAccountAgents(accountId: string): Promise<GetAccountAgentsResponse> {
-    const agents = await this.queryBus.execute<
-      GetAccountAgentsQuery,
-      AgentModel[]
-    >(new GetAccountAgentsQuery(accountId));
+    const agents = await this.agentProvider.findByAccount(accountId);
 
     if (agents && agents.length > 0) {
       return {
@@ -187,11 +178,7 @@ export class AgentService {
   }
 
   async getAgentsIds(accountId: string): Promise<GetAgentIdsResponse> {
-    const agentsIds = await this.queryBus.execute<
-      GetAccountAgentsIdsQuery,
-      string[]
-    >(new GetAccountAgentsIdsQuery(accountId));
-
+    const agentsIds = await this.agentProvider.findIdsByAccount(accountId);
     if (agentsIds && agentsIds.length > 0) {
       return {
         agentsIds,
@@ -200,16 +187,14 @@ export class AgentService {
   }
 
   async getById(agentId: string): Promise<GetAgentByIdResponse> {
-    const agent = await this.queryBus.execute<GetByIdQuery, AgentModel>(
-      new GetByIdQuery(agentId),
-    );
+    const agent = await this.agentProvider.findById(agentId);
 
     if (agent) {
       return {
-        id: agent._id.toHexString(),
+        id: agent.id,
         createdAt: agent.createdAt.toISOString(),
         updatedAt: agent.updatedAt.toISOString(),
-        account: agent.account.toHexString(),
+        account: agent.email,
         email: agent.email,
         phone: agent.phone,
         firstName: agent.firstName,
@@ -225,10 +210,7 @@ export class AgentService {
   }
 
   async getByEmail(agentEmail: string): Promise<GetAgentByEmailResponse> {
-    const agent = await this.queryBus.execute<
-      GetByEmailQuery,
-      AgentModel | null
-    >(new GetByEmailQuery(agentEmail));
+    const agent = await this.agentProvider.findByEmail(agentEmail);
 
     if (agent) {
       return {
@@ -254,13 +236,11 @@ export class AgentService {
     email: string,
     phone: string,
   ): Promise<AgentExistsResponse> {
-    const agentExists = await this.queryBus.execute<AgentExistsQuery, boolean>(
-      new AgentExistsQuery(email, phone),
-    );
+    const agentExists = await this.agentProvider.agentExists(email, phone);
 
     if (agentExists) {
       return {
-        agentExists,
+        agentExists: !!agentExists,
       };
     } else return { agentExists: undefined };
   }

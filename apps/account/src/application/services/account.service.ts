@@ -1,28 +1,28 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateAccountCommand } from '../commands/impl/create-account.command';
-import { GetByEmailQuery } from '../queries/impl/get-by-email.query';
 import { AgentDto, ApiResponse } from '@app/common/dto-generic';
-import { GetByIdQuery } from '../queries/impl/get-by-id.query';
-import { AccountExistsQuery } from '../queries/impl/account-exists.query';
 import { GetAccountByIdResponse } from '@app/common/grpc/models/account/get-account-by-id.model';
 import { GetAccountByEmailResponse } from '@app/common/grpc/models/account/get-account-by-email.model';
 import { AccountExistsResponse } from '@app/common/grpc/models/account/account-exists.model';
 import { CreateAccountDto } from './dtos/create-account.dto';
-import { AccountModel } from '../../infrastructure/database/mongo/models/account.model';
 import {
   AGENT_WRITER,
   IAgentWriter,
 } from '../../infrastructure/command-client/providers/agent.writer';
+import {
+  ACCOUNT_PROVIDER,
+  IAccountProvider,
+} from '../../infrastructure/database/providers/account.provider';
+import { Account } from '../../domain/entities/account.entity';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class AccountService {
   private readonly logger = new Logger(AccountService.name);
 
   constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
     @Inject(AGENT_WRITER) private readonly agentWriter: IAgentWriter,
+    @Inject(ACCOUNT_PROVIDER)
+    private readonly accountProvider: IAccountProvider,
   ) {}
 
   async createAccount(
@@ -30,16 +30,12 @@ export class AccountService {
   ): Promise<ApiResponse<AgentDto | null>> {
     try {
       // Create the account entity itself
-      await this.commandBus.execute<CreateAccountCommand, void>(
-        new CreateAccountCommand(dto.email),
+      await this.accountProvider.add(
+        Account.create(new Types.ObjectId().toHexString(), dto.email),
       );
 
       // Get the newly created account
-      const account = await this.queryBus.execute<
-        GetByEmailQuery,
-        AccountModel | null
-      >(new GetByEmailQuery(dto.email));
-
+      const account = await this.accountProvider.findOneByEmail(dto.email);
       if (!account) {
         this.logger.error('Could not find the newly created account', {
           function: 'createAccount',
@@ -81,7 +77,7 @@ export class AccountService {
         };
       }
 
-      // Return the created agent. the agent has account ID.
+      // Return the created agent. The agent has account ID.
       return {
         success: true,
         data: createAgentResult,
@@ -103,10 +99,7 @@ export class AccountService {
   }
 
   async getAccountById(accountId: string): Promise<GetAccountByIdResponse> {
-    const account = await this.queryBus.execute<
-      GetByIdQuery,
-      AccountModel | null
-    >(new GetByIdQuery(accountId));
+    const account = await this.accountProvider.findOneById(accountId);
 
     if (account)
       return {
@@ -119,10 +112,7 @@ export class AccountService {
   }
 
   async getAccountByEmail(email: string): Promise<GetAccountByEmailResponse> {
-    const account = await this.queryBus.execute<
-      GetByEmailQuery,
-      AccountModel | null
-    >(new GetByEmailQuery(email));
+    const account = await this.accountProvider.findOneByEmail(email);
 
     if (account)
       return {
@@ -135,10 +125,8 @@ export class AccountService {
   }
 
   async accountExists(email: string): Promise<AccountExistsResponse> {
-    const exists = await this.queryBus.execute<AccountExistsQuery, boolean>(
-      new AccountExistsQuery(email),
-    );
+    const account = await this.accountProvider.findOneByEmail(email);
 
-    return { exists };
+    return { exists: Boolean(account) };
   }
 }

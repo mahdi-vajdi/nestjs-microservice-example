@@ -2,14 +2,14 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateChannelDto } from '../dto/create-channel.dto';
 import { ApiResponse } from '@app/common/dto-generic';
 import { ChannelModel } from '../../infrastructure/database/mongo/models/channel.model';
-import { UpdateChannelAgentsDto } from '../dto/update-channel-agents.dto';
+import { UpdateChannelUsersDto } from '../dto/update-channel-users.dto';
 import { ChannelMessage } from '@app/common/grpc/models/channel/channel-message.dto';
 import { GetChannelByIdResponse } from '@app/common/grpc/models/channel/get-channel-by-id.dto';
 import { GetAccountChannelsResponse } from '@app/common/grpc/models/channel/get-account-channels-request.dto';
 import {
-  AGENT_READER,
-  IAgentReader,
-} from '../../infrastructure/query-client/providers/agent.reader';
+  IUserReader,
+  USER_READER,
+} from '../../infrastructure/query-client/providers/user.reader';
 import { Channel } from '../../domain/entities/channel.entity';
 import { Types } from 'mongoose';
 import {
@@ -24,20 +24,18 @@ export class ChannelService {
   constructor(
     @Inject(CHANNEL_PROVIDER)
     private readonly channelProvider: IChannelProvider,
-    @Inject(AGENT_READER) private readonly agentReader: IAgentReader,
+    @Inject(USER_READER) private readonly userReader: IUserReader,
   ) {}
 
   async create(
     dto: CreateChannelDto,
   ): Promise<ApiResponse<ChannelModel | null>> {
     try {
-      // Get agents ids if caller wants
-      const agents: string[] = [];
-      if (dto.addAllAgents) {
-        const agentsIds = await this.agentReader.getAccountAgentIds(
-          dto.accountId,
-        );
-        if (agentsIds) agents.push(...agentsIds);
+      // Get suers ids if caller wants
+      const users: string[] = [];
+      if (dto.addAllUsers) {
+        const userIds = await this.userReader.getAccountUserIds(dto.accountId);
+        if (userIds) users.push(...userIds);
       }
 
       const channel = Channel.create(
@@ -46,7 +44,7 @@ export class ChannelService {
         dto.title,
         dto.url,
         crypto.randomUUID(),
-        agents,
+        users,
       );
 
       const createdChannel = await this.channelProvider.add(channel);
@@ -72,8 +70,8 @@ export class ChannelService {
     }
   }
 
-  async updateAgentsList(
-    dto: UpdateChannelAgentsDto,
+  async updateUsersList(
+    dto: UpdateChannelUsersDto,
   ): Promise<ApiResponse<boolean>> {
     try {
       const channel = await this.channelProvider.findById(dto.channelId);
@@ -82,7 +80,7 @@ export class ChannelService {
         throw new Error('There is no channel or the channld Id does not match');
 
       if (channel && channel.account === dto.requesterAccountId)
-        channel.updateAgents(dto.agents);
+        channel.updateUsers(dto.users);
 
       await this.channelProvider.save(channel);
 
@@ -92,7 +90,7 @@ export class ChannelService {
       };
     } catch (error) {
       this.logger.error(error.message, {
-        function: 'updateAgentsList',
+        function: 'updateUsersList',
         date: new Date(),
         data: dto,
       });
@@ -146,7 +144,7 @@ export class ChannelService {
       url: channel.url,
       token: channel.token,
       isEnabled: channel.isEnabled,
-      agents: channel.agents.map((agent) => agent.toHexString()),
+      users: channel.users.map((user) => user.toHexString()),
       channelSettings: {
         Main: { ...settings.main, InfoForm: settings.main.infoForm },
         WidgetLandings: settings.widgetLandings,

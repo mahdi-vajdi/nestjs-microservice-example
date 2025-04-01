@@ -43,19 +43,19 @@ export class AuthNatsController {
 
   @EventPattern(new SignOut().streamKey())
   async signout(
-    @Payload() { agentId }: SignOut,
+    @Payload() { userId }: SignOut,
     @Ctx() context: NatsJetStreamContext,
   ): Promise<void> {
-    await this.authService.signout(agentId);
+    await this.authService.signout(userId);
     context.message.ack();
   }
 
   @MessagePattern({ cmd: new RefreshTokens().streamKey() })
   async refresh(
-    @Payload() { agentId, refreshToken }: RefreshTokens,
+    @Payload() { userId, refreshToken }: RefreshTokens,
   ): Promise<ApiResponse<AuthTokensDto>> {
     try {
-      return await this.authService.refreshTokens(agentId, refreshToken);
+      return await this.authService.refreshTokens(userId, refreshToken);
     } catch (error) {
       if (error instanceof ForbiddenAccessError)
         throw new RpcException({

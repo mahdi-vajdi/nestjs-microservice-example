@@ -1,4 +1,4 @@
-import { AgentRole } from '@app/common/dto-generic';
+import { UserRole } from '@app/common/dto-generic';
 import { ROLES_DECORATOR_KEY } from '@app/common/decorators';
 import {
   CanActivate,
@@ -26,7 +26,7 @@ export class AccessTokenGuard implements CanActivate {
       context.switchToHttp().getRequest().cookies?.access_token || null;
     if (!accessToken) return false;
 
-    const roles = this.reflector.get<AgentRole[]>(
+    const roles = this.reflector.get<UserRole[]>(
       ROLES_DECORATOR_KEY,
       context.getHandler(),
     );
@@ -39,9 +39,9 @@ export class AccessTokenGuard implements CanActivate {
       return false;
     }
 
-    if (roles && !roles.includes(AgentRole[verifyRes.role])) {
+    if (roles && !roles.includes(UserRole[verifyRes.role])) {
       throw new ForbiddenException(
-        'The agent does not have the authorization to perform this action',
+        'The user does not have the authorization to perform this action',
       );
     }
     context.switchToHttp().getRequest().user = verifyRes;

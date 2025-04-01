@@ -1,3 +1,3 @@
 export class SignoutRequest {
-  agentId: string;
+  userId: string;
 }

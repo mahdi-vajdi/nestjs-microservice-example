@@ -4,7 +4,7 @@ export class CreateChannel implements StreamMessage {
   accountId: string;
   title: string;
   url: string;
-  addAllAgents: boolean;
+  addAllUsers: boolean;
 
   constructor(init?: Partial<CreateChannel>) {
     Object.assign(this, init);

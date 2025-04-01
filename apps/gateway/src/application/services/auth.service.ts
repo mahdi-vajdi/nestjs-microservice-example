@@ -62,7 +62,7 @@ export class AuthService {
 
   async signout(jwtPayload: JwtPayloadDto, res: Response) {
     await this.authWriter.signout({
-      agentId: jwtPayload.sub,
+      userId: jwtPayload.sub,
     });
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
@@ -75,7 +75,7 @@ export class AuthService {
   ) {
     const res = await this.authWriter.refreshTokens({
       refreshToken: refreshToken,
-      agentId: jwtPaylaod.sub,
+      userId: jwtPaylaod.sub,
     });
 
     if (!res) {

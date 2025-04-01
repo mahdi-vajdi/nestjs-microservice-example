@@ -1,7 +1,7 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
 export class RefreshTokens implements StreamMessage {
-  agentId: string;
+  userId: string;
   refreshToken: string;
 
   constructor(init?: Partial<RefreshTokens>) {

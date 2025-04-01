@@ -8,15 +8,15 @@ import {
 } from '@app/common/grpc/configs/account-grpc.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
-  AGENT_GRPC_CLIENT_PROVIDER,
-  AGENT_GRPC_CONFIG_TOKEN,
-  agentGrpcConfig,
-  IAgentGrpcConfig,
-} from '@app/common/grpc/configs/agent-grpc.config';
+  IUserGrpcConfig,
+  USER_GRPC_CLIENT_PROVIDER,
+  USER_GRPC_CONFIG_TOKEN,
+  userGrpcConfig,
+} from '@app/common/grpc/configs/user-grpc.config';
 import { ACCOUNT_READER } from './providers/account.reader';
 import { AccountGrpcService } from './grpc/account-grpc.service';
-import { AgentGrpcService } from './grpc/agent-grpc.service';
-import { AGENT_READER } from './providers/agent.reader';
+import { UserGrpcService } from './grpc/user-grpc.service';
+import { USER_READER } from './providers/user.reader';
 
 @Module({
   imports: [
@@ -32,12 +32,12 @@ import { AGENT_READER } from './providers/agent.reader';
         imports: [ConfigModule.forFeature(accountGrpcConfig)],
       },
       {
-        name: AGENT_GRPC_CLIENT_PROVIDER,
+        name: USER_GRPC_CLIENT_PROVIDER,
         useFactory: (configService: ConfigService) => {
-          return configService.get<IAgentGrpcConfig>(AGENT_GRPC_CONFIG_TOKEN);
+          return configService.get<IUserGrpcConfig>(USER_GRPC_CONFIG_TOKEN);
         },
         inject: [ConfigService],
-        imports: [ConfigModule.forFeature(agentGrpcConfig)],
+        imports: [ConfigModule.forFeature(userGrpcConfig)],
       },
     ]),
   ],
@@ -47,10 +47,10 @@ import { AGENT_READER } from './providers/agent.reader';
       useClass: AccountGrpcService,
     },
     {
-      provide: AGENT_READER,
-      useClass: AgentGrpcService,
+      provide: USER_READER,
+      useClass: UserGrpcService,
     },
   ],
-  exports: [ACCOUNT_READER, AGENT_READER],
+  exports: [ACCOUNT_READER, USER_READER],
 })
 export class QueryClientModule {}

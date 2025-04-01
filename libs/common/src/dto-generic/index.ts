@@ -1,4 +1,4 @@
-export * from './agent-role.enum';
+export * from './user-role.enum';
 export * from './api.response.dto';
-export * from './agent.dto';
+export * from './user.dto';
 export * from './auth-tokens.dto';

@@ -4,12 +4,12 @@ import { SigninDto } from './dto/signin.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtHelperService } from './jwt-helper.service';
 import { AuthTokensDto } from './dto/auth-tokens.dto';
-import { AgentRole, ApiResponse } from '@app/common/dto-generic';
+import { ApiResponse, UserRole } from '@app/common/dto-generic';
 import { CreateAccountResponse } from '../../infrastructure/command-client/models/account/create-account.model';
 import {
-  AGENT_WRITER,
-  IAgentWriter,
-} from '../../infrastructure/command-client/providers/agent.writer';
+  IUserWriter,
+  USER_WRITER,
+} from '../../infrastructure/command-client/providers/user.writer';
 import {
   ACCOUNT_WRITER,
   IAccountWriter,
@@ -19,17 +19,17 @@ import {
   IAccountReader,
 } from '../../infrastructure/query-client/providers/account.reader';
 import {
-  AGENT_READER,
-  IAgentReader,
-} from '../../infrastructure/query-client/providers/agent.reader';
+  IUserReader,
+  USER_READER,
+} from '../../infrastructure/query-client/providers/user.reader';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(ACCOUNT_READER) private readonly accountReader: IAccountReader,
     @Inject(ACCOUNT_WRITER) private readonly accountWriter: IAccountWriter,
-    @Inject(AGENT_READER) private readonly agentReader: IAgentReader,
-    @Inject(AGENT_WRITER) private readonly agentWriter: IAgentWriter,
+    @Inject(USER_READER) private readonly userReader: IUserReader,
+    @Inject(USER_WRITER) private readonly userWriter: IUserWriter,
     private readonly jwtUtils: JwtHelperService,
   ) {}
 
@@ -48,9 +48,9 @@ export class AuthService {
       };
 
     // create an account for the new signup
-    let createAgent: CreateAccountResponse;
+    let createUser: CreateAccountResponse;
     try {
-      createAgent = await this.accountWriter.createAccount({
+      createUser = await this.accountWriter.createAccount({
         firstName: signupDto.firstName,
         lastName: signupDto.lastName,
         email: signupDto.email,
@@ -68,15 +68,15 @@ export class AuthService {
     }
 
     const authTokens = await this.jwtUtils.generateTokens(
-      createAgent.id,
-      createAgent.email,
-      createAgent.account,
-      createAgent.role,
+      createUser.id,
+      createUser.email,
+      createUser.account,
+      createUser.role,
     );
 
-    // update the refresh token for the agent
-    await this.agentWriter.updateRefreshToken({
-      id: createAgent.id,
+    // update the refresh token for the user
+    await this.userWriter.updateRefreshToken({
+      id: createUser.id,
       refreshToken: authTokens.refreshToken,
     });
 
@@ -90,35 +90,35 @@ export class AuthService {
     email,
     password,
   }: SigninDto): Promise<ApiResponse<AuthTokensDto>> {
-    const getAgent = await this.agentReader.getAgentByEmail(email);
-    if (!getAgent)
+    const user = await this.userReader.getUserByEmail(email);
+    if (!user)
       return {
         success: false,
         error: {
           code: 404,
-          message: 'Agent not found',
+          message: 'User not found',
         },
       };
 
-    const passwordValid = await bcrypt.compare(password, getAgent.password);
+    const passwordValid = await bcrypt.compare(password, user.password);
     if (
       !passwordValid ||
-      ![AgentRole[AgentRole.OWNER], AgentRole[AgentRole.ADMIN]].includes(
-        AgentRole[getAgent.role],
+      ![UserRole[UserRole.OWNER], UserRole[UserRole.ADMIN]].includes(
+        UserRole[user.role],
       )
     ) {
       return null;
     }
 
     const tokens = await this.jwtUtils.generateTokens(
-      getAgent.id,
-      getAgent.email,
-      getAgent.account,
-      AgentRole[getAgent.role],
+      user.id,
+      user.email,
+      user.account,
+      UserRole[user.role],
     );
 
-    await this.agentWriter.updateRefreshToken({
-      id: getAgent.id,
+    await this.userWriter.updateRefreshToken({
+      id: user.id,
       refreshToken: tokens.refreshToken,
     });
 
@@ -128,9 +128,9 @@ export class AuthService {
     };
   }
 
-  async signout(agentId: string): Promise<ApiResponse<null>> {
-    await this.agentWriter.updateRefreshToken({
-      id: agentId,
+  async signout(userId: string): Promise<ApiResponse<null>> {
+    await this.userWriter.updateRefreshToken({
+      id: userId,
       refreshToken: null,
     });
 
@@ -141,21 +141,21 @@ export class AuthService {
   }
 
   async refreshTokens(
-    agentId: string,
+    userId: string,
     refreshToken: string,
   ): Promise<ApiResponse<AuthTokensDto>> {
-    const agent = await this.agentReader.getAgentById(agentId);
+    const user = await this.userReader.getUserById(userId);
 
-    if (!agent || !agent.refreshToken)
+    if (!user || !user.refreshToken)
       return {
         success: false,
         error: {
           code: 404,
-          message: 'Could not retrieve Agent or its RefreshToken',
+          message: 'Could not retrieve User or its RefreshToken',
         },
       };
 
-    const tokenMatches = refreshToken === agent.refreshToken;
+    const tokenMatches = refreshToken === user.refreshToken;
 
     if (!tokenMatches)
       return {
@@ -167,14 +167,14 @@ export class AuthService {
       };
 
     const tokens = await this.jwtUtils.generateTokens(
-      agent.id,
-      agent.email,
-      agent.account,
-      AgentRole[agent.role],
+      user.id,
+      user.email,
+      user.account,
+      UserRole[user.role],
     );
 
-    await this.agentWriter.updateRefreshToken({
-      id: agent.id,
+    await this.userWriter.updateRefreshToken({
+      id: user.id,
       refreshToken: tokens.refreshToken,
     });
 

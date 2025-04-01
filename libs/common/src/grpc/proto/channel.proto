@@ -34,8 +34,8 @@ message ChannelMessage {
   string url = 6;
   string token = 7;
   bool isEnabled = 8;
-  repeated string agents = 9;
-  ChannelSettingsMessage chennelSettings = 10;
+  repeated string users = 9;
+  ChannelSettingsMessage channelSettings = 10;
 }
 
 message ChannelSettingsMessage {

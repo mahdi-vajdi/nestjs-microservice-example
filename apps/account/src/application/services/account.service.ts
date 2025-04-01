@@ -1,13 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { AgentDto, ApiResponse } from '@app/common/dto-generic';
+import { ApiResponse, UserDto } from '@app/common/dto-generic';
 import { GetAccountByIdResponse } from '@app/common/grpc/models/account/get-account-by-id.model';
 import { GetAccountByEmailResponse } from '@app/common/grpc/models/account/get-account-by-email.model';
 import { AccountExistsResponse } from '@app/common/grpc/models/account/account-exists.model';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import {
-  AGENT_WRITER,
-  IAgentWriter,
-} from '../../infrastructure/command-client/providers/agent.writer';
+  IUserWriter,
+  USER_WRITER,
+} from '../../infrastructure/command-client/providers/user.writer';
 import {
   ACCOUNT_PROVIDER,
   IAccountProvider,
@@ -20,14 +20,14 @@ export class AccountService {
   private readonly logger = new Logger(AccountService.name);
 
   constructor(
-    @Inject(AGENT_WRITER) private readonly agentWriter: IAgentWriter,
+    @Inject(USER_WRITER) private readonly userWriter: IUserWriter,
     @Inject(ACCOUNT_PROVIDER)
     private readonly accountProvider: IAccountProvider,
   ) {}
 
   async createAccount(
     dto: CreateAccountDto,
-  ): Promise<ApiResponse<AgentDto | null>> {
+  ): Promise<ApiResponse<UserDto | null>> {
     try {
       // Create the account entity itself
       await this.accountProvider.add(
@@ -46,13 +46,13 @@ export class AccountService {
           success: false,
           error: {
             code: 404,
-            message: 'Could not find the newly created agent',
+            message: 'Could not find the newly created user',
           },
         };
       }
 
-      // Create the default agent that owns the account
-      const createAgentResult = await this.agentWriter.createOwnerAgent({
+      // Create the default user that owns the account
+      const createUser = await this.userWriter.createOwnerUser({
         accountId: account._id.toHexString(),
         firstName: dto.firstName,
         lastName: dto.lastName,
@@ -62,8 +62,8 @@ export class AccountService {
         channelId: null, // FIXME: user real channel ID
       });
 
-      if (!createAgentResult) {
-        this.logger.error('Could not find the newly created agent', undefined, {
+      if (!createUser) {
+        this.logger.error('Could not find the newly created user', undefined, {
           function: 'createAccount',
           input: dto,
         });
@@ -72,15 +72,15 @@ export class AccountService {
           success: false,
           error: {
             code: 404,
-            message: 'Could not find the newly created agent',
+            message: 'Could not find the newly created user',
           },
         };
       }
 
-      // Return the created agent. The agent has account ID.
+      // Return the created user. The user has account ID.
       return {
         success: true,
-        data: createAgentResult,
+        data: createUser,
       };
     } catch (error) {
       this.logger.error(error.message, error.stack, {

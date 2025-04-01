@@ -79,7 +79,7 @@ export class AuthNatsService
     await this.emit<SignOut>(
       uuid.v4(),
       new SignOut({
-        agentId: req.agentId,
+        userId: req.userId,
       }),
     );
   }
@@ -91,7 +91,7 @@ export class AuthNatsService
       uuid.v4(),
       new RefreshTokens({
         refreshToken: req.refreshToken,
-        agentId: req.agentId,
+        userId: req.userId,
       }),
     );
     if (res.error) throw res.error;

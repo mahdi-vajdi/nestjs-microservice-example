@@ -1,5 +1,5 @@
 import { ParseMongoIdPipe } from '@app/common/pipes';
-import { AgentRole } from '@app/common/dto-generic';
+import { UserRole } from '@app/common/dto-generic';
 import { Roles } from '@app/common/decorators';
 import {
   Body,
@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CreateChannelDto } from '../../../dto/channel/create-channel.dto';
-import { UpdateChannelAgentsDto } from '../../../dto/channel/update-channel-agents.dto';
+import { UpdateChannelUserDto } from '../../../dto/channel/update-channel-user.dto';
 import { AccessTokenGuard } from '../guards/access-token.guard';
 import { JwtPayloadDto } from '../../../dto/auth/jwt-payload.dto';
 import { ChannelService } from '../../../application/services/channel.service';
@@ -24,7 +24,7 @@ export class ChannelHttpController {
   constructor(private readonly channelService: ChannelService) {}
 
   @UseGuards(AccessTokenGuard)
-  @Roles(AgentRole.OWNER)
+  @Roles(UserRole.OWNER)
   @Post()
   async create(
     @Req() req: Request,
@@ -35,7 +35,7 @@ export class ChannelHttpController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Roles(AgentRole.OWNER, AgentRole.ADMIN)
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
   @Get()
   async getAccountChannels(
     @Req() req: Request,
@@ -45,7 +45,7 @@ export class ChannelHttpController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Roles(AgentRole.OWNER, AgentRole.ADMIN)
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
   @Get(':id')
   async getChannelById(@Req() req: Request, @Param('id') channelId: string) {
     const jwtPayload = req['user'] as JwtPayloadDto;
@@ -53,14 +53,14 @@ export class ChannelHttpController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Roles(AgentRole.OWNER, AgentRole.ADMIN)
-  @Patch(':id/agents')
-  async updateChannelAgents(
+  @Roles(UserRole.OWNER, UserRole.ADMIN)
+  @Patch(':id/users')
+  async updateChannelUsers(
     @Req() req: Request,
     @Param('id', ParseMongoIdPipe) channelId: string,
-    @Body() dto: UpdateChannelAgentsDto,
+    @Body() dto: UpdateChannelUserDto,
   ) {
     const jwtPaylaod = req['user'] as JwtPayloadDto;
-    await this.channelService.updateAgents(jwtPaylaod, channelId, dto);
+    await this.channelService.updateUsers(jwtPaylaod, channelId, dto);
   }
 }

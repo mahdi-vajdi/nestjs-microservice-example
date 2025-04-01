@@ -1,7 +1,7 @@
 import { StreamMessage } from '@app/common/nats/stream-message.model';
 
 export class SignOut implements StreamMessage {
-  agentId: string;
+  userId: string;
 
   constructor(init?: Partial<SignOut>) {
     Object.assign(this, init);

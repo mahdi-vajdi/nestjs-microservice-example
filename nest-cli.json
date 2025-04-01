@@ -51,13 +51,13 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
-    "agent-service": {
+    "user-service": {
       "type": "application",
-      "root": "apps/agent",
+      "root": "apps/user",
       "entryFile": "main",
-      "sourceRoot": "apps/agent/src",
+      "sourceRoot": "apps/user/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/agent/tsconfig.app.json"
+        "tsConfigPath": "apps/user/tsconfig.app.json"
       }
     },
     "gateway-service": {

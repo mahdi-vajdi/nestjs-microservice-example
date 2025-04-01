@@ -6,8 +6,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import * as uuid from 'uuid';
 import { CreateChannel } from '@app/common/streams/channel/create-channel.model';
 import { CreateChannelRequest } from '../models/channel/create-channel.model';
-import { UpdateChannelAgents } from '@app/common/streams/channel/update-channel-agents.model';
-import { UpdateChannelAgentsRequest } from '../models/channel/update-channel-agents.model';
+import { UpdateChannelUsers } from '@app/common/streams/channel/update-channel-users.model';
+import { UpdateChannelUsersRequest } from '../models/channel/update-channel-users.model';
 
 @Injectable()
 export class ChannelNatsService
@@ -39,16 +39,16 @@ export class ChannelNatsService
         title: req.title,
         accountId: req.accountId,
         url: req.url,
-        addAllAgents: req.addAllAgents,
+        addAllUsers: req.addAllUsers,
       }),
     );
   }
 
-  async updateChannelAgents(req: UpdateChannelAgentsRequest): Promise<void> {
-    await this.emit<UpdateChannelAgents>(
+  async updateChannelUsers(req: UpdateChannelUsersRequest): Promise<void> {
+    await this.emit<UpdateChannelUsers>(
       uuid.v4(),
-      new UpdateChannelAgents({
-        agents: req.agents,
+      new UpdateChannelUsers({
+        users: req.users,
         channelId: req.channelId,
         requesterAccountId: req.requesterAccountId,
       }),

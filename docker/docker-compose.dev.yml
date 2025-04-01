@@ -20,15 +20,15 @@ services:
       - nats
       - mongo
 
-  agent:
-    container_name: agent-service
+  user:
+    container_name: user-service
     build:
       context: ../
-      dockerfile: docker/agent-service.dockerfile
+      dockerfile: docker/user-service.dockerfile
       target: release
-    command: [ "npm", "run", "start:dev", "agent-service" ]
+    command: [ "npm", "run", "start:dev", "user-service" ]
     env_file:
-      - ../apps/agent/.env
+      - ../apps/user/.env
     volumes:
       - ../.:/usr/src/app
     depends_on:
@@ -84,7 +84,7 @@ services:
       - account
       - auth
       - channel
-      - agent
+      - user
 
   mongo:
     image: mongo

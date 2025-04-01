@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { CreateChannelDto } from '../../dto/channel/create-channel.dto';
-import { UpdateChannelAgentsDto } from '../../dto/channel/update-channel-agents.dto';
+import { UpdateChannelUserDto } from '../../dto/channel/update-channel-user.dto';
 import {
   CHANNEL_WRITER,
   IChannelWriter,
@@ -23,17 +23,17 @@ export class ChannelService {
       accountId: user.account,
       url: dto.url,
       title: dto.title,
-      addAllAgents: dto.addAllAgents,
+      addAllUsers: dto.addAllUsers,
     });
   }
 
-  async updateAgents(
+  async updateUsers(
     user: JwtPayloadDto,
     channelId: string,
-    dto: UpdateChannelAgentsDto,
+    dto: UpdateChannelUserDto,
   ) {
-    await this.channelWriter.updateChannelAgents({
-      agents: dto.agents,
+    await this.channelWriter.updateChannelUsers({
+      users: dto.users,
       channelId: channelId,
       requesterAccountId: user.account,
     });

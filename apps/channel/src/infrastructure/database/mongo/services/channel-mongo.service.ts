@@ -99,7 +99,7 @@ export class ChannelMongoService implements IChannelProvider {
       url: channel.url,
       token: channel.token,
       isEnabled: channel.isEnabled,
-      agents: channel.agents.map((agent) => new Types.ObjectId(agent)),
+      users: channel.users.map((user) => new Types.ObjectId(user)),
       settings: channel.settings,
     };
   }
@@ -114,7 +114,7 @@ export class ChannelMongoService implements IChannelProvider {
       model.url,
       model.token,
       model.isEnabled,
-      model.agents.map((agent) => agent.toHexString()),
+      model.users.map((user) => user.toHexString()),
       model.settings,
     );
   }

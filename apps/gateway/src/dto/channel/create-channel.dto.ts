@@ -13,5 +13,5 @@ export class CreateChannelDto {
 
   @IsNotEmpty()
   @IsBoolean()
-  addAllAgents: boolean;
+  addAllUsers: boolean;
 }

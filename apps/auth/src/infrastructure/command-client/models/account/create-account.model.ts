@@ -1,4 +1,4 @@
-import { AgentRole } from '@app/common/dto-generic';
+import { UserRole } from '@app/common/dto-generic';
 
 export class CreateAccountRequest {
   firstName: string;
@@ -19,7 +19,7 @@ export class CreateAccountResponse {
   lastName: string;
   title: string;
   refreshToken: string | null;
-  role: AgentRole;
+  role: UserRole;
   avatar: string;
   online: boolean;
 }

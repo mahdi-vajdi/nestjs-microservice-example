@@ -4,9 +4,9 @@ import { CHANNEL_DB_COLLECTION, ChannelModel } from '../models/channel.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Logger } from '@nestjs/common';
 import { DatabaseError } from '@app/common/errors/database.error';
-import { IChannelDatabaseProvider } from '../../providers/channel.provider';
+import { IChannelProvider } from '../../providers/channel.provider';
 
-export class ChannelMongoService implements IChannelDatabaseProvider {
+export class ChannelMongoService implements IChannelProvider {
   private readonly logger = new Logger(ChannelMongoService.name);
 
   constructor(
@@ -14,12 +14,9 @@ export class ChannelMongoService implements IChannelDatabaseProvider {
     private readonly channelModel: Model<ChannelModel>,
   ) {}
 
-  async add(entity: Channel): Promise<string> {
+  async add(entity: Channel): Promise<ChannelModel> {
     try {
-      const createdChannel = await this.channelModel.create(
-        this.fromEntity(entity),
-      );
-      return createdChannel._id.toHexString();
+      return await this.channelModel.create(this.fromEntity(entity));
     } catch (error) {
       this.logger.error(error);
 
@@ -102,7 +99,7 @@ export class ChannelMongoService implements IChannelDatabaseProvider {
       url: channel.url,
       token: channel.token,
       isEnabled: channel.isEnabled,
-      agents: channel.agents.map((agent) => new Types.ObjectId(agent)),
+      users: channel.users.map((user) => new Types.ObjectId(user)),
       settings: channel.settings,
     };
   }
@@ -117,7 +114,7 @@ export class ChannelMongoService implements IChannelDatabaseProvider {
       model.url,
       model.token,
       model.isEnabled,
-      model.agents.map((agent) => agent.toHexString()),
+      model.users.map((user) => user.toHexString()),
       model.settings,
     );
   }

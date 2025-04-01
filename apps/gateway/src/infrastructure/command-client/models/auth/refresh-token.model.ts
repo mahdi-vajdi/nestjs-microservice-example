@@ -1,6 +1,6 @@
 export class RefreshTokenRequest {
   refreshToken: string;
-  agentId: string;
+  userId: string;
 }
 
 export class RefreshTokensResponse {

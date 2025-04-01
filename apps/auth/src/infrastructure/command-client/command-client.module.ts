@@ -7,8 +7,8 @@ import {
   natsConfig,
 } from '@app/common/nats/nats.config';
 import { AccountNatsService } from './nats/account-nats.service';
-import { AGENT_WRITER } from './providers/agent.writer';
-import { AgentNatsService } from './nats/agent.nats.service';
+import { USER_WRITER } from './providers/user.writer';
+import { UserNatsService } from './nats/user.nats.service';
 import { ACCOUNT_WRITER } from './providers/account.writer';
 
 @Module({
@@ -34,10 +34,10 @@ import { ACCOUNT_WRITER } from './providers/account.writer';
       useClass: AccountNatsService,
     },
     {
-      provide: AGENT_WRITER,
-      useClass: AgentNatsService,
+      provide: USER_WRITER,
+      useClass: UserNatsService,
     },
   ],
-  exports: [ACCOUNT_WRITER, AGENT_WRITER],
+  exports: [ACCOUNT_WRITER, USER_WRITER],
 })
 export class CommandClientModule {}

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { ConfigService } from '@nestjs/config';
-import { AGENT_WRITER } from './providers/agent.writer';
-import { AgentNatsService } from './nats/agent-nats.service';
+import { USER_WRITER } from './providers/user.writer';
+import { UserNatsService } from './nats/user-nats.service';
 
 @Module({
   imports: [
@@ -20,10 +20,10 @@ import { AgentNatsService } from './nats/agent-nats.service';
   ],
   providers: [
     {
-      provide: AGENT_WRITER,
-      useClass: AgentNatsService,
+      provide: USER_WRITER,
+      useClass: UserNatsService,
     },
   ],
-  exports: [AGENT_WRITER],
+  exports: [USER_WRITER],
 })
 export class CommandClientModule {}

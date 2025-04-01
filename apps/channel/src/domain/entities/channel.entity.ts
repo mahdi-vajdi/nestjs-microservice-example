@@ -13,7 +13,7 @@ export class Channel extends AggregateRoot {
     private _url: string,
     private readonly _token: string,
     private _isEnabled: boolean,
-    private _agents: string[],
+    private _users: string[],
     private readonly _settings: ChannelSettings,
   ) {
     super();
@@ -51,8 +51,8 @@ export class Channel extends AggregateRoot {
     return this._isEnabled;
   }
 
-  get agents() {
-    return this._agents;
+  get users() {
+    return this._users;
   }
 
   get settings() {
@@ -66,7 +66,7 @@ export class Channel extends AggregateRoot {
     title: string,
     url: string,
     token: string,
-    agents: string[],
+    users: string[],
   ) {
     const channel = new Channel(
       id,
@@ -77,7 +77,7 @@ export class Channel extends AggregateRoot {
       url,
       token,
       true,
-      agents,
+      users,
       DefaultChannelSettings,
     );
 
@@ -86,8 +86,8 @@ export class Channel extends AggregateRoot {
     return channel;
   }
 
-  updateAgents(agentIds: string[]): void {
-    this._agents = agentIds;
+  updateUsers(userIds: string[]): void {
+    this._users = userIds;
     this._updatedAt = new Date();
     return;
   }

@@ -11,15 +11,13 @@ export interface IChannelReader {
 }
 
 export interface IChannelWriter {
-  add(entity: Channel): Promise<string>;
+  add(entity: Channel): Promise<ChannelModel>;
 
   save(entity: Channel): Promise<void>;
 
   findById(id: string): Promise<Channel | null>;
 }
 
-export interface IChannelDatabaseProvider
-  extends IChannelReader,
-    IChannelWriter {}
+export interface IChannelProvider extends IChannelReader, IChannelWriter {}
 
-export const CHANNEL_DATABASE_PROVIDER = 'channel-database-provider';
+export const CHANNEL_PROVIDER = 'channel-provider';

@@ -4,7 +4,7 @@ import { ApiResponse } from '@app/common/dto-generic';
 import { ChannelService } from '../../application/services/channel.service';
 import { ChannelModel } from '../../infrastructure/database/mongo/models/channel.model';
 import { CreateChannel } from '@app/common/streams/channel/create-channel.model';
-import { UpdateChannelAgents } from '@app/common/streams/channel/update-channel-agents.model';
+import { UpdateChannelUsers } from '@app/common/streams/channel/update-channel-users.model';
 
 @Controller()
 export class ChannelNatsController {
@@ -17,10 +17,10 @@ export class ChannelNatsController {
     return await this.channelService.create(dto);
   }
 
-  @EventPattern(new UpdateChannelAgents().streamKey())
-  async updateChannelAgents(
-    @Payload() dto: UpdateChannelAgents,
+  @EventPattern(new UpdateChannelUsers().streamKey())
+  async updateChannelUsers(
+    @Payload() dto: UpdateChannelUsers,
   ): Promise<ApiResponse<boolean>> {
-    return await this.channelService.updateAgentsList(dto);
+    return await this.channelService.updateUsersList(dto);
   }
 }

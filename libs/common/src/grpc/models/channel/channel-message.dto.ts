@@ -7,7 +7,7 @@ export interface ChannelMessage {
   url: string;
   token: string;
   isEnabled: boolean;
-  agents: string[];
+  users: string[];
   channelSettings: ChannelSettingsMessage;
 }
 

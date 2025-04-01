@@ -39,7 +39,7 @@ export class ChannelModel {
     type: [{ type: SchemaTypes.ObjectId }],
     required: true,
   })
-  agents: Types.ObjectId[];
+  users: Types.ObjectId[];
 
   @Prop({ type: ChannelSettingsSchema, required: true })
   settings: ChannelSettingsModel;

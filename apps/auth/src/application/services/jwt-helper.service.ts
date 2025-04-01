@@ -1,4 +1,4 @@
-import { AgentRole } from '@app/common/dto-generic';
+import { UserRole } from '@app/common/dto-generic';
 import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { AuthTokensDto } from './dto/auth-tokens.dto';
 import { Injectable } from '@nestjs/common';
@@ -16,7 +16,7 @@ export class JwtHelperService {
     id: string,
     email: string,
     account: string,
-    role: AgentRole,
+    role: UserRole,
   ): Promise<AuthTokensDto> {
     const payload: JwtPayloadDto = {
       sub: id,

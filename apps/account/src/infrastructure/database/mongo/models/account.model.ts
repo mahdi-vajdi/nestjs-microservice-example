@@ -3,9 +3,7 @@ import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 export type AccountDocument = HydratedDocument<AccountModel>;
 
-export const ACCOUNT_DB_COLLECTION = 'accounts';
-
-@Schema({ collection: ACCOUNT_DB_COLLECTION, versionKey: false })
+@Schema({ collection: 'accounts', timestamps: true, versionKey: false })
 export class AccountModel {
   @Prop({ type: SchemaTypes.ObjectId })
   _id: Types.ObjectId;

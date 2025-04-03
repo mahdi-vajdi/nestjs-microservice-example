@@ -2,7 +2,7 @@ import { ErrorCode } from './error-code.enum';
 
 export class BaseError extends Error {
   code: ErrorCode;
-  data: unknown;
+  data: any;
 
   constructor(code: ErrorCode, message: string, data: Record<string, any>) {
     super(message);

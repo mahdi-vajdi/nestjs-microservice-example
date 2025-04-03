@@ -5,7 +5,7 @@ import {
   USER_GRPC_SERVICE_NAME,
 } from '@app/common/grpc/configs/user-grpc.config';
 import { ClientGrpc } from '@nestjs/microservices';
-import { GetUserUsersResponse } from '@app/common/grpc/models/user/get-account-users.model';
+import { GetAccountUsersResponse } from '@app/common/grpc/models/user/get-account-users.model';
 import { lastValueFrom } from 'rxjs';
 import { IUserReader } from '../providers/user.reader';
 
@@ -24,7 +24,7 @@ export class UserGrpcService implements OnModuleInit, IUserReader {
     );
   }
 
-  async getAccountUsers(accountId: string): Promise<GetUserUsersResponse> {
+  async getAccountUsers(accountId: string): Promise<GetAccountUsersResponse> {
     return lastValueFrom(
       await this.userGrpcService.getAccountUsers({
         accountId: accountId,

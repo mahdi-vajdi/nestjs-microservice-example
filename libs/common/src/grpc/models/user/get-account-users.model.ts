@@ -1,12 +1,14 @@
-export interface GetUserUsersRequest {
+import { UserRole } from '@app/common';
+
+export interface GetAccountUsersRequest {
   accountId: string;
 }
 
-export interface GetUserUsersResponse {
-  users: GetUserUsersItem[];
+export interface GetAccountUsersResponse {
+  users: GetAccountUsersItem[];
 }
 
-export interface GetUserUsersItem {
+export interface GetAccountUsersItem {
   id: string;
   createdAt: string;
   updatedAt: string;
@@ -16,7 +18,7 @@ export interface GetUserUsersItem {
   firstName: string;
   lastName: string;
   title: string;
-  role: string;
+  role: UserRole;
   password: string;
   refreshToken: string | null;
 }

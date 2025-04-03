@@ -103,14 +103,9 @@ export class User {
       avatar,
       false,
     );
-
-    // TODO: you can publish an event here
   }
 
-  // entity state operations
-  changeRefreshToken(refreshToken: string | null) {
-    if (this.refreshToken === undefined) refreshToken = null;
-
+  changeRefreshToken(refreshToken: string) {
     this._refreshToken = refreshToken;
     this._updatedAt = new Date();
   }

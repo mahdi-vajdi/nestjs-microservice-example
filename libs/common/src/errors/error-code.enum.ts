@@ -4,5 +4,6 @@ export enum ErrorCode {
   UNAUTHORIZED = 3,
   FORBIDDEN = 3,
   NOT_FOUND = 4,
+  DUPLICATE = 5,
   INTERNAL_ERROR = 7
 }

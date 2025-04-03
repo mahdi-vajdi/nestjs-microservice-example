@@ -1,3 +1,5 @@
+import { UserRole } from '@app/common';
+
 export interface GetUserByIdRequest {
   userId: string;
 }
@@ -12,7 +14,7 @@ export interface GetUserByIdResponse {
   firstName: string;
   lastName: string;
   title: string;
-  role: string;
+  role: UserRole;
   password: string;
   refreshToken: string | null;
 }

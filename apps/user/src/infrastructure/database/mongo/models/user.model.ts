@@ -4,7 +4,7 @@ import { HydratedDocument, SchemaTypes, Types } from 'mongoose';
 
 export type UserDocument = HydratedDocument<UserModel>;
 
-@Schema({ collection: 'users', versionKey: false })
+@Schema({ collection: 'users', timestamps: true, versionKey: false })
 export class UserModel {
   @Prop({ type: SchemaTypes.ObjectId })
   _id: Types.ObjectId;

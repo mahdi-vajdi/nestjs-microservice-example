@@ -43,10 +43,8 @@
       "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1"
     }
-  },
-  "dependencies": {
-    "joi": "^17.13.3"
   }
 }

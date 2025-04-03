@@ -1,10 +1,11 @@
-import { IUserProvider } from '../../providers/user.provider';
+import { IUserProvider } from '../../../../domain/repositories/user.provider';
 import { Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, MongooseError, Types } from 'mongoose';
 import { User } from '../../../../domain/entities/user.entity';
 import { UserModel } from '../models/user.model';
-import { DatabaseError } from '@app/common/errors';
+import { DatabaseError, NotFoundError } from '@app/common/errors';
+import { UpdateUserQueryable } from '../../../../domain/repositories/queryables/update-user.queryable';
 
 export class UserMongoService implements IUserProvider {
   private readonly logger = new Logger(UserMongoService.name);
@@ -14,13 +15,14 @@ export class UserMongoService implements IUserProvider {
     private readonly userModel: Model<UserModel>,
   ) {}
 
-  async findById(userId: string): Promise<User> {
+  async getUserById(userId: string): Promise<User> {
     try {
-      const user = await this.userModel.findById(userId, {}, { lean: true });
-      if (user) return this.toEntity(user);
-      else return null;
+      const user = await this.userModel.findById(userId).lean().exec();
+
+      if (!user) throw new NotFoundError('User not found');
+      return this.toDomain(user);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(`error in ${this.getUserById}: ${error.message}`);
 
       if (error instanceof MongooseError)
         throw new DatabaseError(error.message);
@@ -28,47 +30,50 @@ export class UserMongoService implements IUserProvider {
     }
   }
 
-  async findByEmail(email: string): Promise<UserModel | null> {
+  async getUserByEmail(email: string): Promise<User> {
     try {
-      const user = await this.userModel
-        .findOne({ email }, {}, { lean: true })
+      const user = await this.userModel.findOne({ email: email }).lean().exec();
+      return this.toDomain(user);
+    } catch (error) {
+      this.logger.error(`error in ${this.getUserByEmail}: ${error.message}`);
+
+      if (error instanceof MongooseError)
+        throw new DatabaseError(error.message);
+      else throw new Error(error.message);
+    }
+  }
+
+  async getUsersByAccountId(accountId: string): Promise<User[]> {
+    try {
+      const res = await this.userModel
+        .find({ account: accountId })
+        .lean()
         .exec();
-      if (user) return user;
-      else return null;
+
+      return res.map((user) => this.toDomain(user));
     } catch (error) {
-      this.logger.error(error);
-
-      if (error instanceof MongooseError)
-        throw new DatabaseError(error.message);
-      else throw new Error(error.message);
-    }
-  }
-
-  async findByAccount(accountId: string): Promise<UserModel[]> {
-    try {
-      return await this.userModel
-        .find({ account: accountId }, {}, { lean: true })
-        .exec();
-    } catch (error) {
-      this.logger.error(error);
-
-      if (error instanceof MongooseError)
-        throw new DatabaseError(error.message);
-      else throw new Error(error.message);
-    }
-  }
-
-  async findIdsByAccount(accountId: string): Promise<string[]> {
-    try {
-      const models = await this.userModel.find(
-        { account: accountId },
-        { _id: 1 },
-        { lean: true },
+      this.logger.error(
+        `error in ${this.getUsersByAccountId}: ${error.message}`,
       );
 
-      return models.map((model) => model._id.toHexString());
+      if (error instanceof MongooseError)
+        throw new DatabaseError(error.message);
+      else throw new Error(error.message);
+    }
+  }
+
+  async getUsersIdsByAccountId(accountId: string): Promise<string[]> {
+    try {
+      const res = await this.userModel
+        .find({ account: accountId }, { _id: 1 })
+        .lean()
+        .exec();
+
+      return res.map((model) => model._id.toHexString());
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(
+        `error in ${this.getUsersIdsByAccountId}: ${error.message}`,
+      );
 
       if (error instanceof MongooseError)
         throw new DatabaseError(error.message);
@@ -76,18 +81,15 @@ export class UserMongoService implements IUserProvider {
     }
   }
 
-  async userExists(
-    email: string,
-    phone: string,
-  ): Promise<{
-    _id: Types.ObjectId;
-  } | null> {
+  async userExists(email: string, phone: string): Promise<boolean> {
     try {
-      return await this.userModel
+      const res = await this.userModel
         .exists({ $or: [{ email }, { phone }] })
         .exec();
+
+      return Boolean(res);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(`error in ${this.userExists}: ${error.message}`);
 
       if (error instanceof MongooseError)
         throw new DatabaseError(error.message);
@@ -95,11 +97,12 @@ export class UserMongoService implements IUserProvider {
     }
   }
 
-  async add(entity: User): Promise<void> {
+  async createUser(entity: User): Promise<User> {
     try {
-      await this.userModel.create(this.fromEntity(entity));
+      const res = await this.userModel.create(this.fromDomain(entity));
+      return this.toDomain(res);
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(`error in ${this.createUser}: ${error.message}`);
 
       if (error instanceof MongooseError)
         throw new DatabaseError(error.message);
@@ -107,15 +110,26 @@ export class UserMongoService implements IUserProvider {
     }
   }
 
-  async save(entity: User): Promise<void> {
+  async updateUser(
+    id: string,
+    queryable: UpdateUserQueryable,
+  ): Promise<boolean> {
     try {
-      const updatedUser = await this.userModel
-        .findByIdAndUpdate(entity.id, this.fromEntity(entity))
+      const res = await this.userModel
+        .updateOne(
+          { _id: id },
+          { $set: { refreshToken: queryable.refreshToken } },
+        )
+        .lean()
         .exec();
 
-      if (!updatedUser) throw new Error('User not found');
+      if (res.matchedCount == 0) {
+        throw new NotFoundError('User not found');
+      }
+
+      return res.modifiedCount != 0;
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(`error in ${this.updateUser.name}: ${error.message}`);
 
       if (error instanceof MongooseError)
         throw new DatabaseError(error.message);
@@ -123,41 +137,45 @@ export class UserMongoService implements IUserProvider {
     }
   }
 
-  private fromEntity(entity: User): UserModel {
+  private fromDomain(user: User): UserModel {
+    if (!user) return null;
+
     return {
-      _id: new Types.ObjectId(entity.id),
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-      email: entity.email,
-      phone: entity.phone,
-      title: entity.title,
-      firstName: entity.firstName,
-      lastName: entity.lastName,
-      password: entity.password,
-      avatar: entity.avatar,
-      online: entity.online,
-      account: new Types.ObjectId(entity.admin),
-      role: entity.role,
-      refreshToken: entity.refreshToken,
+      _id: new Types.ObjectId(user.id),
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      email: user.email,
+      phone: user.phone,
+      title: user.title,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      password: user.password,
+      avatar: user.avatar,
+      online: user.online,
+      account: new Types.ObjectId(user.admin),
+      role: user.role,
+      refreshToken: user.refreshToken,
     };
   }
 
-  private toEntity(model: UserModel): User {
+  private toDomain(userModel: UserModel): User {
+    if (!userModel) return null;
+
     return new User(
-      model._id.toHexString(),
-      model.createdAt,
-      model.updatedAt,
-      model.account.toHexString(),
-      model.email,
-      model.phone,
-      model.firstName,
-      model.lastName,
-      model.title,
-      model.password,
-      model.refreshToken,
-      model.role,
-      model.avatar,
-      model.online,
+      userModel._id.toHexString(),
+      userModel.createdAt,
+      userModel.updatedAt,
+      userModel.account.toHexString(),
+      userModel.email,
+      userModel.phone,
+      userModel.firstName,
+      userModel.lastName,
+      userModel.title,
+      userModel.password,
+      userModel.refreshToken,
+      userModel.role,
+      userModel.avatar,
+      userModel.online,
     );
   }
 }

@@ -1,8 +1,9 @@
-export class DatabaseError extends Error {
-  constructor(message: string) {
-    super(message);
-    Object.setPrototypeOf(this, DatabaseError.prototype);
+import { BaseError } from '@app/common/errors/base.error';
+import { ErrorCode } from '@app/common/errors/error-code.enum';
 
-    // TODO:  add custom initialization logic here.
+export class DatabaseError extends BaseError {
+  constructor(message: string, data: Record<string, any> = null) {
+    super(ErrorCode.INTERNAL_ERROR, message, data);
+    Object.setPrototypeOf(this, DatabaseError.prototype);
   }
 }

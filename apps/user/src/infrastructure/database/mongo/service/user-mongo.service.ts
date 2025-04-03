@@ -2,9 +2,9 @@ import { IUserProvider } from '../../providers/user.provider';
 import { Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, MongooseError, Types } from 'mongoose';
-import { DatabaseError } from '@app/common/errors/database.error';
 import { User } from '../../../../domain/entities/user.entity';
 import { UserModel } from '../models/user.model';
+import { DatabaseError } from '@app/common/errors';
 
 export class UserMongoService implements IUserProvider {
   private readonly logger = new Logger(UserMongoService.name);

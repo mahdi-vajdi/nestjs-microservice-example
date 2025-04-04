@@ -34,20 +34,7 @@ export class AuthService {
   ) {}
 
   async signup(signupDto: SignupDto): Promise<ApiResponse<AuthTokensDto>> {
-    // check if account exists
-    const accountExists = await this.accountReader.accountExists(
-      signupDto.email,
-    );
-    if (accountExists)
-      return {
-        success: false,
-        error: {
-          code: 404,
-          message: 'Account already exists',
-        },
-      };
-
-    // create an account for the new signup
+    // Create an account for the new signup
     let createUser: CreateAccountResponse;
     try {
       createUser = await this.accountWriter.createAccount({
@@ -114,7 +101,7 @@ export class AuthService {
       user.id,
       user.email,
       user.account,
-      UserRole[user.role],
+      user.role,
     );
 
     await this.userWriter.updateRefreshToken({
@@ -170,7 +157,7 @@ export class AuthService {
       user.id,
       user.email,
       user.account,
-      UserRole[user.role],
+      user.role,
     );
 
     await this.userWriter.updateRefreshToken({

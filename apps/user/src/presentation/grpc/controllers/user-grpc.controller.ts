@@ -1,7 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 
-import { GrpcMethod, RpcException } from '@nestjs/microservices';
-import { UserService } from '../../application/services/user.service';
+import { GrpcMethod, Payload, RpcException } from '@nestjs/microservices';
 import {
   GetUserByIdRequest,
   GetUserByIdResponse,
@@ -12,15 +11,6 @@ import {
 } from '@app/common/grpc/models/user/user-exists.model';
 import { IUserGrpcService } from '@app/common/grpc/interfaces/user.interface';
 import {
-  GetAccountUsersItem,
-  GetAccountUsersRequest,
-  GetAccountUsersResponse,
-} from '@app/common/grpc/models/user/get-account-users.model';
-import {
-  GetUserIdsRequest,
-  GetUserIdsResponse,
-} from '@app/common/grpc/models/user/get-user-ids.model';
-import {
   GetUserByEmailRequest,
   GetUserByEmailResponse,
 } from '@app/common/grpc/models/user/get-user-by-email.model';
@@ -28,6 +18,11 @@ import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs';
 import { USER_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/user-grpc.config';
 import { Result } from '@app/common/result';
+import { UserService } from '../../../application/services/user.service';
+import {
+  CreateUserRequest,
+  CreateUserResponse,
+} from '@app/common/grpc/models/user/create-user.model';
 
 @Controller()
 export class UserGrpcController implements IUserGrpcService {
@@ -35,47 +30,27 @@ export class UserGrpcController implements IUserGrpcService {
 
   constructor(private readonly userService: UserService) {}
 
-  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'GetAccountUsers')
-  async getAccountUsers(
-    req: GetAccountUsersRequest,
-  ): Promise<Observable<GetAccountUsersResponse>> {
+  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'CreateUser')
+  async createUser(
+    @Payload() dto: CreateUserRequest,
+  ): Promise<Observable<CreateUserResponse>> {
     try {
-      const users = await this.userService.getAccountUsers(req.accountId);
-      return of<GetAccountUsersResponse>({
-        users: users.map(
-          (user): GetAccountUsersItem => ({
-            id: user.id,
-            createdAt: user.createdAt.toISOString(),
-            updatedAt: user.updatedAt.toISOString(),
-            account: user.admin,
-            email: user.email,
-            phone: user.phone,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            title: user.title,
-            role: user.role,
-            password: user.password,
-            refreshToken: user.refreshToken,
-          }),
-        ),
+      const user = await this.userService.createUser({
+        email: dto.email,
+        mobile: dto.phone,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        password: dto.password,
+        avatar: dto.avatar,
+      });
+
+      return of({
+        id: user.id,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
       });
     } catch (error) {
-      this.logger.error(
-        `error in ${this.getAccountUsers.name}: ${error.message}`,
-      );
-      throw new RpcException(Result.error(error));
-    }
-  }
-
-  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'GetUsersIds')
-  async getUserIds(
-    req: GetUserIdsRequest,
-  ): Promise<Observable<GetUserIdsResponse>> {
-    try {
-      const userIds = await this.userService.getAccountUsersIds(req.accountId);
-      return of<GetUserIdsResponse>({ userIds: userIds });
-    } catch (error) {
-      this.logger.error(`error in ${this.getUserIds.name}: ${error.message}`);
+      this.logger.error(`error in ${this.createUser.name}: ${error.message}`);
       throw new RpcException(Result.error(error));
     }
   }
@@ -90,15 +65,11 @@ export class UserGrpcController implements IUserGrpcService {
         id: user.id,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
-        account: user.admin,
         email: user.email,
-        phone: user.phone,
+        phone: user.mobile,
         firstName: user.firstName,
         lastName: user.lastName,
-        title: user.title,
-        role: user.role,
         password: user.password,
-        refreshToken: user.refreshToken,
       });
     } catch (error) {
       this.logger.error(`error in ${this.getUserById.name}: ${error.message}`);
@@ -116,15 +87,11 @@ export class UserGrpcController implements IUserGrpcService {
         id: user.id,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
-        account: user.admin,
         email: user.email,
-        phone: user.phone,
+        phone: user.mobile,
         firstName: user.firstName,
         lastName: user.lastName,
-        title: user.title,
-        role: user.role,
         password: user.password,
-        refreshToken: user.refreshToken,
       });
     } catch (error) {
       this.logger.error(

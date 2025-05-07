@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseNatsJetstreamService } from '@app/common/nats/base-nats-jetstream.service';
+import { NatsJetstreamService } from '@app/common/nats/nats-jetstream.service';
 import { IChannelWriter } from '../providers/channel.writer';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { ClientProxy } from '@nestjs/microservices';
@@ -11,7 +11,7 @@ import { UpdateChannelUsersRequest } from '../models/channel/update-channel-user
 
 @Injectable()
 export class ChannelNatsService
-  extends BaseNatsJetstreamService
+  extends NatsJetstreamService
   implements IChannelWriter
 {
   private readonly _logger = new Logger(ChannelNatsService.name);

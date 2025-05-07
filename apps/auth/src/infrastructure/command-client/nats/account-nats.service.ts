@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseNatsJetstreamService } from '@app/common/nats/base-nats-jetstream.service';
+import { NatsJetstreamService } from '@app/common/nats/nats-jetstream.service';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   CreateAccountRequest,
@@ -13,7 +13,7 @@ import { IAccountWriter } from '../providers/account.writer';
 
 @Injectable()
 export class AccountNatsService
-  extends BaseNatsJetstreamService
+  extends NatsJetstreamService
   implements IAccountWriter
 {
   private readonly _logger = new Logger(AccountNatsService.name);
@@ -31,7 +31,7 @@ export class AccountNatsService
   }
 
   get module(): string {
-    return 'auth-service';
+    return 'auth-repository';
   }
 
   async createAccount(

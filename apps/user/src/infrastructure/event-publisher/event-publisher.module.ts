@@ -6,10 +6,8 @@ import {
   NATS_CONFIG_TOKEN,
   natsConfig,
 } from '@app/common/nats/nats.config';
-import { AccountNatsService } from './nats/account-nats.service';
-import { USER_WRITER } from './providers/user.writer';
-import { UserNatsService } from './nats/user.nats.service';
-import { ACCOUNT_WRITER } from './providers/account.writer';
+import { NatsEventPublisher } from './nats/nats-event.publisher';
+import { EVENT_PUBLISHER } from '../../domain/event-publisher/event-publisher.interface';
 
 @Module({
   imports: [
@@ -20,24 +18,20 @@ import { ACCOUNT_WRITER } from './providers/account.writer';
         return {
           connectionOptions: {
             servers: natsConfig.server,
-            name: 'auth-publisher',
+            name: 'gateway-publisher',
           },
         };
       },
-      imports: [ConfigModule.forFeature(natsConfig)],
       inject: [ConfigService],
+      imports: [ConfigModule.forFeature(natsConfig)],
     }),
   ],
   providers: [
     {
-      provide: ACCOUNT_WRITER,
-      useClass: AccountNatsService,
-    },
-    {
-      provide: USER_WRITER,
-      useClass: UserNatsService,
+      provide: EVENT_PUBLISHER,
+      useClass: NatsEventPublisher,
     },
   ],
-  exports: [ACCOUNT_WRITER, USER_WRITER],
+  exports: [EVENT_PUBLISHER],
 })
-export class CommandClientModule {}
+export class EventPublisherModule {}

@@ -2,7 +2,7 @@ import { ConfigFactory, registerAs } from '@nestjs/config';
 import { env } from 'node:process';
 
 export interface INatsConfig {
-  url: string;
+  server: string;
 }
 
 export const NATS_CONFIG_TOKEN = 'nats-config-token';
@@ -11,6 +11,6 @@ export const NATS_CONFIG_TOKEN = 'nats-config-token';
 
 export const natsConfig = registerAs<INatsConfig, ConfigFactory<INatsConfig>>(NATS_CONFIG_TOKEN, () => {
   return {
-    url: env.NATS_URI,
+    server: env.NATS_URI,
   };
 });

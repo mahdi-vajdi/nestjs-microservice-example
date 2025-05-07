@@ -7,6 +7,10 @@ export class RefreshToken {
   updatedAt: Date;
   deletedAt: Date;
 
+  constructor(init?: Partial<RefreshToken>) {
+    Object.assign(this, init);
+  }
+
   static create(
     userId: string,
     identifier: string,

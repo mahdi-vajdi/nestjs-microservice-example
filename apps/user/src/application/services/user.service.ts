@@ -1,129 +1,59 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { UserRole } from '@app/common/dto-generic';
-import { CreateOwnerUserDto } from './dtos/create-owner-user.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
-import { UpdateRefreshTokenDto } from './dtos/update-refresh-token.dto';
 import {
-  IUserProvider,
-  USER_PROVIDER,
-} from '../../domain/repositories/user.provider';
+  USER_REPOSITORY,
+  UserRepository,
+} from '../../domain/repositories/user-repository.interface';
 import { User } from '../../domain/entities/user.entity';
-import { Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { DuplicateError } from '@app/common/errors';
+import {
+  EVENT_PUBLISHER,
+  EventPublisher,
+} from '../../domain/event-publisher/event-publisher.interface';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
   constructor(
-    @Inject(USER_PROVIDER) private readonly userProvider: IUserProvider,
+    @Inject(USER_REPOSITORY) private readonly userProvider: UserRepository,
+    @Inject(EVENT_PUBLISHER)
+    private readonly userEventClient: EventPublisher,
   ) {}
-
-  async createOwnerUser(dto: CreateOwnerUserDto): Promise<User> {
-    try {
-      // Check if the user already exists
-      const userExists = await this.userProvider.userExists(
-        dto.email,
-        dto.phone,
-      );
-      if (userExists) {
-        throw new DuplicateError(
-          `User with email ${dto.email} or phone ${dto.phone} exists`,
-        );
-      }
-
-      return await this.userProvider.createUser(
-        User.create(
-          new Types.ObjectId().toHexString(),
-          dto.accountId,
-          dto.email,
-          dto.phone,
-          dto.firstName,
-          dto.lastName,
-          'Admin',
-          await bcrypt.hash(dto.password, 10),
-          null,
-          UserRole.OWNER,
-          'default',
-        ),
-      );
-    } catch (error) {
-      this.logger.error(
-        `error in ${this.createOwnerUser.name}: ${error.message}`,
-      );
-      throw error;
-    }
-  }
 
   async createUser(dto: CreateUserDto): Promise<User> {
     try {
       // Check if the user already exists
       const userExists = await this.userProvider.userExists(
         dto.email,
-        dto.phone,
+        dto.mobile,
       );
       if (userExists) {
         throw new DuplicateError(
-          `User with email ${dto.email} or phone ${dto.phone} exists`,
+          `User with email ${dto.email} or phone ${dto.mobile} exists`,
         );
       }
 
-      return await this.userProvider.createUser(
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+      const user = await this.userProvider.createUser(
         User.create(
-          new Types.ObjectId().toHexString(),
-          dto.accountId,
           dto.email,
-          dto.phone,
+          dto.mobile,
           dto.firstName,
           dto.lastName,
-          dto.title,
-          await bcrypt.hash(dto.password, 10),
-          null,
-          UserRole.OWNER,
-          'default',
+          hashedPassword,
+          dto.avatar,
         ),
       );
+
+      // Publish the user created event
+      await this.userEventClient.userCreated(user);
+
+      return user;
     } catch (error) {
       this.logger.error(`error in ${this.createUser.name}: ${error.message}`);
-      throw error;
-    }
-  }
-
-  async updateRefreshToken({
-    userId,
-    newToken,
-  }: UpdateRefreshTokenDto): Promise<boolean> {
-    try {
-      return await this.userProvider.updateUser(userId, {
-        refreshToken: newToken,
-      });
-    } catch (error) {
-      this.logger.error(
-        `error in ${this.updateRefreshToken.name}: ${error.message}`,
-      );
-      throw error;
-    }
-  }
-
-  async getAccountUsers(accountId: string): Promise<User[]> {
-    try {
-      return await this.userProvider.getUsersByAccountId(accountId);
-    } catch (error) {
-      this.logger.error(
-        `error in ${this.getAccountUsers.name}: ${error.message}`,
-      );
-      throw error;
-    }
-  }
-
-  async getAccountUsersIds(accountId: string): Promise<string[]> {
-    try {
-      return await this.userProvider.getUsersIdsByAccountId(accountId);
-    } catch (error) {
-      this.logger.error(
-        `error in ${this.getAccountUsersIds.name}: ${error.message}`,
-      );
       throw error;
     }
   }

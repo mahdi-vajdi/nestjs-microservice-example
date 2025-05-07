@@ -3,19 +3,25 @@ syntax = "proto3";
 package grpc_user;
 
 service UserService {
-  rpc GetAccountUsers(GetAccountUsersRequest) returns (UsersResponse) {}
-  rpc GetUsersIds(GetUserIdsRequest) returns (UsersIdsResponse) {}
-  rpc GetUserById(GetUserByIdRequest) returns (UserResponse) {}
-  rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse) {}
-  rpc UserExists(UserExistsRequest) returns (UserExistsResponse) {}
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUserById(GetUserByIdRequest) returns (UserResponse);
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse);
+  rpc UserExists(UserExistsRequest) returns (UserExistsResponse);
 }
 
-message GetAccountUsersRequest {
-  string accountId = 1;
+message CreateUserRequest {
+  string email = 1;
+  string phone = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string password = 5;
+  string avatar = 6;
 }
 
-message GetUserIdsRequest {
-  string accountId = 1;
+message CreateUserResponse {
+  string id = 1;
+  string createdAt = 2;
+  string updatedAt = 3;
 }
 
 message GetUserByIdRequest {
@@ -50,14 +56,6 @@ message UserMessage {
     ADMIN = 1;
     AGENT = 2;
   }
-}
-
-message UsersResponse {
-  repeated UserMessage users = 1;
-}
-
-message UsersIdsResponse {
-  repeated string usersIds = 1;
 }
 
 message UserResponse {

@@ -1,14 +1,14 @@
-import { IUserProvider } from '../../../../domain/repositories/user.provider';
+import { UserRepository } from '../../../../domain/repositories/user-repository.interface';
 import { Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, MongooseError, Types } from 'mongoose';
+import { Model, MongooseError } from 'mongoose';
 import { User } from '../../../../domain/entities/user.entity';
-import { UserModel } from '../models/user.model';
+import { UserModel } from '../schemas/user.schema';
 import { DatabaseError, NotFoundError } from '@app/common/errors';
-import { UpdateUserQueryable } from '../../../../domain/repositories/queryables/update-user.queryable';
+import { UpdateUserOptions } from '../../../../domain/repositories/options/update-user.options';
 
-export class UserMongoService implements IUserProvider {
-  private readonly logger = new Logger(UserMongoService.name);
+export class UserMongoRepository implements UserRepository {
+  private readonly logger = new Logger(UserMongoRepository.name);
 
   constructor(
     @InjectModel(UserModel.name)
@@ -84,7 +84,7 @@ export class UserMongoService implements IUserProvider {
   async userExists(email: string, phone: string): Promise<boolean> {
     try {
       const res = await this.userModel
-        .exists({ $or: [{ email }, { phone }] })
+        .exists({ $or: [{ email }, { mobile: phone }] })
         .exec();
 
       return Boolean(res);
@@ -110,10 +110,7 @@ export class UserMongoService implements IUserProvider {
     }
   }
 
-  async updateUser(
-    id: string,
-    queryable: UpdateUserQueryable,
-  ): Promise<boolean> {
+  async updateUser(id: string, queryable: UpdateUserOptions): Promise<boolean> {
     try {
       const res = await this.userModel
         .updateOne(
@@ -140,42 +137,33 @@ export class UserMongoService implements IUserProvider {
   private fromDomain(user: User): UserModel {
     if (!user) return null;
 
-    return {
-      _id: new Types.ObjectId(user.id),
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      email: user.email,
-      phone: user.phone,
-      title: user.title,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      password: user.password,
-      avatar: user.avatar,
-      online: user.online,
-      account: new Types.ObjectId(user.admin),
-      role: user.role,
-      refreshToken: user.refreshToken,
-    };
+    const userModel = new UserModel();
+
+    userModel.email = user.email;
+    userModel.mobile = user.mobile;
+    userModel.firstName = user.firstName;
+    userModel.lastName = user.lastName;
+    userModel.password = user.password;
+    userModel.avatar = user.avatar;
+    userModel.deletedAt = user.deletedAt;
+
+    return userModel;
   }
 
   private toDomain(userModel: UserModel): User {
     if (!userModel) return null;
 
-    return new User(
-      userModel._id.toHexString(),
-      userModel.createdAt,
-      userModel.updatedAt,
-      userModel.account.toHexString(),
-      userModel.email,
-      userModel.phone,
-      userModel.firstName,
-      userModel.lastName,
-      userModel.title,
-      userModel.password,
-      userModel.refreshToken,
-      userModel.role,
-      userModel.avatar,
-      userModel.online,
-    );
+    return new User({
+      id: userModel._id.toHexString(),
+      email: userModel.email,
+      mobile: userModel.mobile,
+      firstName: userModel.firstName,
+      lastName: userModel.lastName,
+      password: userModel.password,
+      avatar: userModel.avatar,
+      createdAt: userModel.createdAt,
+      updatedAt: userModel.updatedAt,
+      deletedAt: userModel.deletedAt,
+    });
   }
 }

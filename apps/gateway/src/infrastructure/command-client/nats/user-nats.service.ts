@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BaseNatsJetstreamService } from '@app/common/nats/base-nats-jetstream.service';
+import { NatsJetstreamService } from '@app/common/nats/nats-jetstream.service';
 import { IUserWriter } from '../providers/user.writer';
 import { ClientProxy } from '@nestjs/microservices';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
@@ -10,7 +10,7 @@ import * as uuid from 'uuid';
 
 @Injectable()
 export class UserNatsService
-  extends BaseNatsJetstreamService
+  extends NatsJetstreamService
   implements IUserWriter
 {
   private readonly _logger = new Logger(UserNatsService.name);

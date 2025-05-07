@@ -4,7 +4,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { EventMessage } from '@app/common/nats/event-message.model';
 import { lastValueFrom } from 'rxjs';
 
-export abstract class BaseNatsJetstreamService {
+export abstract class NatsJetstreamService {
 
   abstract get client(): ClientProxy
 

@@ -8,7 +8,7 @@ import {
 import { ClientGrpc } from '@nestjs/microservices';
 import { VerifyAccessTokenResponse } from '@app/common/grpc/models/auth/auth-access.dto';
 import { lastValueFrom } from 'rxjs';
-import { VerifyRefreshTokenResponse } from '@app/common/grpc/models/auth/auth-refresh.dto';
+import { VerifyRefreshTokenResponse } from '@app/common/grpc/models/auth/verify-refresh-token.model';
 
 @Injectable()
 export class AuthGrpcService implements OnModuleInit, IAuthReader {

@@ -4,7 +4,7 @@ import { IAuthWriter } from '../providers/auth.writer';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { ClientProxy } from '@nestjs/microservices';
 import { Signup } from '@app/common/streams/auth/signup.model';
-import { ApiResponse, AuthTokensDto } from '@app/common/dto-generic';
+import { ApiResponse, RefreshTokensModel } from '@app/common/dto-generic';
 import * as uuid from 'uuid';
 import { SignupRequest, SignupResponse } from '../models/auth/signup.model';
 import { SigninRequest, SigninResponse } from '../models/auth/signin.model';
@@ -41,7 +41,7 @@ export class AuthNatsService
   }
 
   async signup(req: SignupRequest): Promise<SignupResponse> {
-    const res = await this.send<Signup, ApiResponse<AuthTokensDto>>(
+    const res = await this.send<Signup, ApiResponse<RefreshTokensModel>>(
       uuid.v4(),
       new Signup({
         firstName: req.firstName,
@@ -60,7 +60,7 @@ export class AuthNatsService
   }
 
   async signin(req: SigninRequest): Promise<SigninResponse> {
-    const res = await this.send<SignIn, ApiResponse<AuthTokensDto>>(
+    const res = await this.send<SignIn, ApiResponse<RefreshTokensModel>>(
       uuid.v4(),
       new SignIn({
         email: req.email,
@@ -87,7 +87,7 @@ export class AuthNatsService
   async refreshTokens(
     req: RefreshTokenRequest,
   ): Promise<RefreshTokensResponse> {
-    const res = await this.send<RefreshTokens, ApiResponse<AuthTokensDto>>(
+    const res = await this.send<RefreshTokens, ApiResponse<RefreshTokensModel>>(
       uuid.v4(),
       new RefreshTokens({
         refreshToken: req.refreshToken,

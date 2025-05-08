@@ -1,7 +1,7 @@
 import { BaseError, ErrorCode } from '@app/common/errors';
 
 export class Result<T> {
-  private constructor(status: number, message: string, data: T) {
+  private constructor(public status: number, public message: string, public data: T) {
   }
 
   static ok<T>(data: T, message: string = null): Result<T> {

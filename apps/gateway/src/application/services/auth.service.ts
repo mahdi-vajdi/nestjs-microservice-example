@@ -1,4 +1,4 @@
-import { AuthTokensDto } from '@app/common/dto-generic';
+import { RefreshTokensModel } from '@app/common/dto-generic';
 import {
   Inject,
   Injectable,
@@ -13,7 +13,7 @@ import {
   IAuthWriter,
 } from '../../infrastructure/command-client/providers/auth.writer';
 import { VerifyAccessTokenResponse } from '@app/common/grpc/models/auth/auth-access.dto';
-import { VerifyRefreshTokenResponse } from '@app/common/grpc/models/auth/auth-refresh.dto';
+import { VerifyRefreshTokenResponse } from '@app/common/grpc/models/auth/verify-refresh-token.model';
 import {
   AUTH_READER,
   IAuthReader,
@@ -96,7 +96,7 @@ export class AuthService {
     return this.authReader.verifyRefreshToken(token);
   }
 
-  private setTokensToCookies(res: Response, tokens: AuthTokensDto) {
+  private setTokensToCookies(res: Response, tokens: RefreshTokensModel) {
     res.cookie('access_token', tokens.accessToken, {
       maxAge: 1000 * 60 * 60,
       httpOnly: true,

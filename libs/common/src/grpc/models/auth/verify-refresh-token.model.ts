@@ -3,8 +3,5 @@ export interface VerifyRefreshTokenRequest {
 }
 
 export interface VerifyRefreshTokenResponse {
-  sub: string;
-  email: string;
-  account: string;
-  role: string;
+  verified: boolean;
 }

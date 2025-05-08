@@ -5,23 +5,28 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   RefreshTokenModel,
   RefreshTokenSchema,
-} from './mongo/models/refresh-token.model';
-import { AUTH_PROVIDER } from '../../domain/repositories/auth.provider';
-import { AuthMongoService } from './mongo/service/auth-mongo.service';
+} from './mongo/schemas/refresh-token.schema';
+import { AUTH_REPOSITORY } from '../../domain/repositories/auth.repository';
+import { AuthMongoRepository } from './mongo/repository/auth-mongo.repository';
+import {
+  CredentialModel,
+  CredentialSchema,
+} from './mongo/schemas/credential.schema';
 
 @Module({
   imports: [
     CoreDatabaseModule.register(DatabaseType.MONGO),
     MongooseModule.forFeature([
       { name: RefreshTokenModel.name, schema: RefreshTokenSchema },
+      { name: CredentialModel.name, schema: CredentialSchema },
     ]),
   ],
   providers: [
     {
-      provide: AUTH_PROVIDER,
-      useClass: AuthMongoService,
+      provide: AUTH_REPOSITORY,
+      useClass: AuthMongoRepository,
     },
   ],
-  exports: [AUTH_PROVIDER],
+  exports: [AUTH_REPOSITORY],
 })
 export class DatabaseModule {}

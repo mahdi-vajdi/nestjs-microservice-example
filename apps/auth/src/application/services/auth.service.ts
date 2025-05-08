@@ -1,173 +1,161 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { SignupDto } from './dto/signup.dto';
-import { SigninDto } from './dto/signin.dto';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { JwtHelperService } from './jwt-helper.service';
-import { AuthTokensDto } from './dto/auth-tokens.dto';
-import { ApiResponse, UserRole } from '@app/common/dto-generic';
-import { CreateAccountResponse } from '../../infrastructure/command-client/models/account/create-account.model';
+import { RefreshTokensDto } from './dto/refresh-tokens.dto';
 import {
-  IUserWriter,
-  USER_WRITER,
-} from '../../infrastructure/command-client/providers/user.writer';
-import {
-  ACCOUNT_WRITER,
-  IAccountWriter,
-} from '../../infrastructure/command-client/providers/account.writer';
-import {
-  ACCOUNT_READER,
-  IAccountReader,
-} from '../../infrastructure/query-client/providers/account.reader';
-import {
-  IUserReader,
-  USER_READER,
-} from '../../infrastructure/query-client/providers/user.reader';
+  AUTH_REPOSITORY,
+  AuthRepository,
+} from '../../domain/repositories/auth.repository';
+import { Credential } from '../../domain/entities/credential.entity';
+import { DuplicateError } from '@app/common/errors';
+import { AUTH_CONFIG_TOKEN, AuthConfig } from '../configs/auth.config';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { RefreshToken } from '../../domain/entities/refresh-token.entity';
+import * as crypto from 'node:crypto';
+import { JwtPayload } from '../../domain/types/jwt-payload.type';
 
 @Injectable()
 export class AuthService {
+  private readonly HASH_SALT_ROUNDS = 10;
+  private readonly logger = new Logger(AuthService.name);
+  private readonly authConfig: AuthConfig;
+
   constructor(
-    @Inject(ACCOUNT_READER) private readonly accountReader: IAccountReader,
-    @Inject(ACCOUNT_WRITER) private readonly accountWriter: IAccountWriter,
-    @Inject(USER_READER) private readonly userReader: IUserReader,
-    @Inject(USER_WRITER) private readonly userWriter: IUserWriter,
-    private readonly jwtUtils: JwtHelperService,
-  ) {}
+    configService: ConfigService,
+    @Inject(AUTH_REPOSITORY)
+    private readonly authRepository: AuthRepository,
+    private readonly jwtService: JwtService,
+  ) {
+    this.authConfig = configService.get<AuthConfig>(AUTH_CONFIG_TOKEN);
+  }
 
-  async signup(signupDto: SignupDto): Promise<ApiResponse<AuthTokensDto>> {
-    // Create an account for the new signup
-    let createUser: CreateAccountResponse;
+  async createPasswordCredential(
+    userId: string,
+    password: string,
+  ): Promise<Credential> {
     try {
-      createUser = await this.accountWriter.createAccount({
-        firstName: signupDto.firstName,
-        lastName: signupDto.lastName,
-        email: signupDto.email,
-        phone: signupDto.phone,
-        password: signupDto.password,
-      });
+      const existingCredential =
+        await this.authRepository.getCredential(userId);
+      if (existingCredential) {
+        throw new DuplicateError(
+          'Credential already exists for the user. try updating.',
+        );
+      }
+
+      const passwordHash = await bcrypt.hash(password, this.HASH_SALT_ROUNDS);
+
+      return await this.authRepository.createCredential(
+        Credential.create(userId, passwordHash),
+      );
     } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 404,
-          message: 'Could not create Account',
-        },
-      };
+      this.logger.error(
+        `error creating password credential for user ${userId}: ${error.message}`,
+      );
+      throw error;
     }
-
-    const authTokens = await this.jwtUtils.generateTokens(
-      createUser.id,
-      createUser.email,
-      createUser.account,
-      createUser.role,
-    );
-
-    // update the refresh token for the user
-    await this.userWriter.updateRefreshToken({
-      id: createUser.id,
-      refreshToken: authTokens.refreshToken,
-    });
-
-    return {
-      success: true,
-      data: authTokens,
-    };
   }
 
-  async signin({
-    email,
-    password,
-  }: SigninDto): Promise<ApiResponse<AuthTokensDto>> {
-    const user = await this.userReader.getUserByEmail(email);
-    if (!user)
-      return {
-        success: false,
-        error: {
-          code: 404,
-          message: 'User not found',
-        },
-      };
+  async verifyUserPassword(userId: string, password: string): Promise<boolean> {
+    try {
+      const credential = await this.authRepository.getCredential(userId);
 
-    const passwordValid = await bcrypt.compare(password, user.password);
-    if (
-      !passwordValid ||
-      ![UserRole[UserRole.OWNER], UserRole[UserRole.ADMIN]].includes(
-        UserRole[user.role],
-      )
-    ) {
-      return null;
+      return await bcrypt.compare(password, credential.passwordHash);
+    } catch (error) {
+      this.logger.error(
+        `error verifying password for user ${userId}: ${error.message}`,
+      );
+      throw error;
     }
-
-    const tokens = await this.jwtUtils.generateTokens(
-      user.id,
-      user.email,
-      user.account,
-      user.role,
-    );
-
-    await this.userWriter.updateRefreshToken({
-      id: user.id,
-      refreshToken: tokens.refreshToken,
-    });
-
-    return {
-      success: true,
-      data: tokens,
-    };
   }
 
-  async signout(userId: string): Promise<ApiResponse<null>> {
-    await this.userWriter.updateRefreshToken({
-      id: userId,
-      refreshToken: null,
-    });
+  async signoutUser(userId: string, identifier: string): Promise<boolean> {
+    try {
+      const refreshToken = await this.authRepository.getRefreshToken(
+        userId,
+        identifier,
+      );
 
-    return {
-      success: true,
-      data: null,
-    };
+      return await this.authRepository.softDeleteRefreshToken(refreshToken.id);
+    } catch (error) {
+      this.logger.error(`error signing out user ${userId}: ${error.message}`);
+      throw error;
+    }
   }
 
   async refreshTokens(
     userId: string,
-    refreshToken: string,
-  ): Promise<ApiResponse<AuthTokensDto>> {
-    const user = await this.userReader.getUserById(userId);
+    identifier: string,
+  ): Promise<RefreshTokensDto> {
+    try {
+      const refreshToken = await this.authRepository.getRefreshToken(
+        userId,
+        identifier,
+      );
 
-    if (!user || !user.refreshToken)
-      return {
-        success: false,
-        error: {
-          code: 404,
-          message: 'Could not retrieve User or its RefreshToken',
-        },
+      const payload: JwtPayload = {
+        sub: userId,
       };
 
-    const tokenMatches = refreshToken === user.refreshToken;
+      const refreshJwtId = crypto.randomUUID();
+      const [accessJWT, refreshJWT] = await Promise.all([
+        this.jwtService.signAsync(payload, {
+          secret: this.authConfig.accessJWTSecret,
+          expiresIn: '1d',
+        }),
+        this.jwtService.signAsync(payload, {
+          secret: this.authConfig.refreshJWTSecret,
+          expiresIn: '7d',
+          jwtid: refreshJwtId,
+        }),
+      ]);
 
-    if (!tokenMatches)
+      // Delete the old refresh token
+      await this.authRepository.softDeleteRefreshToken(refreshToken.id);
+
+      try {
+        // Save the new refresh token
+        await this.authRepository.createRefreshToken(
+          RefreshToken.create(userId, refreshJWT),
+        );
+      } catch (error) {
+        this.logger.error(
+          `error deleting old refresh token for user ${userId}: ${error.message}`,
+        );
+
+        // Restore the deleted refresh token
+        await this.authRepository.restoreRefreshToken(refreshToken.id);
+
+        throw error;
+      }
+
       return {
-        success: false,
-        error: {
-          code: 403,
-          message: 'Refresh Token is Invalid',
-        },
+        refreshToken: refreshJWT,
+        accessToken: accessJWT,
       };
+    } catch (error) {
+      this.logger.error(
+        `error refreshing tokens for user ${userId}: ${error.message}`,
+      );
+      throw error;
+    }
+  }
 
-    const tokens = await this.jwtUtils.generateTokens(
-      user.id,
-      user.email,
-      user.account,
-      user.role,
-    );
+  async verifyRefreshToken(token: string): Promise<boolean> {
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.authConfig.refreshJWTSecret,
+        complete: true,
+      });
 
-    await this.userWriter.updateRefreshToken({
-      id: user.id,
-      refreshToken: tokens.refreshToken,
-    });
+      const getToken = await this.authRepository.getRefreshToken(
+        payload.sub,
+        payload.jti,
+      );
 
-    return {
-      success: true,
-      data: tokens,
-    };
+      return Boolean(getToken);
+    } catch (error) {
+      this.logger.error(`error verifying refresh token: ${error}`);
+      throw error;
+    }
   }
 }

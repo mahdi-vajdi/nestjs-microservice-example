@@ -1,27 +1,31 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IAuthProvider } from '../../../../domain/repositories/auth.provider';
+import { AuthRepository } from '../../../../domain/repositories/auth.repository';
 import { InjectModel } from '@nestjs/mongoose';
-import { RefreshTokenModel } from '../models/refresh-token.model';
+import { RefreshTokenModel } from '../schemas/refresh-token.schema';
 import { Model, MongooseError } from 'mongoose';
 import { RefreshToken } from '../../../../domain/entities/refresh-token.entity';
 import { DatabaseError, NotFoundError } from '@app/common/errors';
+import { CredentialModel } from '../schemas/credential.schema';
+import { Credential } from '../../../../domain/entities/credential.entity';
 
 @Injectable()
-export class AuthMongoService implements IAuthProvider {
-  private readonly logger = new Logger(AuthMongoService.name);
+export class AuthMongoRepository implements AuthRepository {
+  private readonly logger = new Logger(AuthMongoRepository.name);
 
   constructor(
     @InjectModel(RefreshTokenModel.name)
     private readonly refreshTokenModel: Model<RefreshTokenModel>,
+    @InjectModel(CredentialModel.name)
+    private readonly credentialModel: Model<CredentialModel>,
   ) {}
 
   async createRefreshToken(refreshToken: RefreshToken): Promise<RefreshToken> {
     try {
       const res = await this.refreshTokenModel.create(
-        this.fromDomain(refreshToken),
+        RefreshTokenModel.fromDomain(refreshToken),
       );
 
-      return this.toDomain(res);
+      return RefreshTokenModel.toDomain(res);
     } catch (error) {
       this.logger.error(
         `error in ${this.createRefreshToken.name}: ${error.message}`,
@@ -44,7 +48,7 @@ export class AuthMongoService implements IAuthProvider {
 
       if (!res) throw new NotFoundError('Refresh token not found.');
 
-      return this.toDomain(res);
+      return RefreshTokenModel.toDomain(res);
     } catch (error) {
       this.logger.error(
         `error in ${this.createRefreshToken.name}: ${error.message}`,
@@ -95,27 +99,40 @@ export class AuthMongoService implements IAuthProvider {
     }
   }
 
-  private fromDomain(refreshToken: RefreshToken): RefreshTokenModel {
-    const refreshTokenModel = new RefreshTokenModel();
+  async createCredential(credential: Credential): Promise<Credential> {
+    try {
+      const res = await this.credentialModel.create(
+        CredentialModel.fromDomain(credential),
+      );
 
-    refreshTokenModel.userId = refreshToken.userId;
-    refreshTokenModel.identifier = refreshToken.identifier;
-    refreshTokenModel.expiresAt = refreshToken.expiresAt;
-
-    return refreshTokenModel;
+      return CredentialModel.toDomain(res);
+    } catch (error) {
+      this.logger.error(
+        `error in ${this.createCredential.name}: ${error.message}`,
+      );
+      if (error instanceof MongooseError)
+        throw new DatabaseError(error.message);
+      else throw new Error(error.message);
+    }
   }
 
-  private toDomain(refreshTokenModel: RefreshTokenModel): RefreshToken {
-    const refreshToken = new RefreshToken();
+  async getCredential(userId: string): Promise<Credential> {
+    try {
+      const res = await this.credentialModel
+        .findOne({ userId: userId })
+        .lean()
+        .exec();
 
-    refreshToken.id = refreshTokenModel._id.toHexString();
-    refreshToken.userId = refreshTokenModel.userId;
-    refreshToken.identifier = refreshTokenModel.identifier;
-    refreshToken.createdAt = refreshTokenModel.createdAt;
-    refreshToken.expiresAt = refreshTokenModel.expiresAt;
-    refreshToken.updatedAt = refreshTokenModel.updatedAt;
-    refreshToken.deletedAt = refreshTokenModel.deletedAt;
+      if (!res) throw new NotFoundError('Credential not found');
 
-    return refreshToken;
+      return CredentialModel.toDomain(res);
+    } catch (error) {
+      this.logger.error(
+        `error in ${this.getCredential.name}: ${error.message}`,
+      );
+      if (error instanceof MongooseError)
+        throw new DatabaseError(error.message);
+      else throw new Error(error.message);
+    }
   }
 }

@@ -9,7 +9,7 @@ import {
 } from '@app/common/grpc/models/account/get-account-by-email.model';
 import { AccountExistsRequest, AccountExistsResponse } from '@app/common/grpc/models/account/account-exists.model';
 
-export interface IAccountGrpcService {
+export interface IProjectGrpcService {
   getAccountById(
     req: GetAccountByIdRequest,
   ): Promise<Observable<GetAccountByIdResponse>>;

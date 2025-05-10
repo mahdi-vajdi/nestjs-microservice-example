@@ -1,7 +1,7 @@
 {
-  "name": "admin-backend",
+  "name": "nestjs-project-manager",
   "author": "Mahdi Vajdi",
-  "description": "A sample microservice admin panel backend",
+  "description": "",
   "private": false,
   "license": "UNLICENSED",
   "workspaces": [

@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package grpc_account;
+
+service ProjectService {
+  rpc GetProjectById(GetProjectByIdRequest) returns (ProjectMessageResponse) {}
+  rpc GetProjectByEmail(GetProjectByEmailRequest)
+      returns (ProjectMessageResponse) {}
+  rpc ProjectExists(ProjectExistsRequest) returns (ProjectExistsResponse) {}
+}
+
+message GetProjectByIdRequest {
+  string id = 1;
+}
+
+message GetProjectByEmailRequest {
+  string email = 1;
+}
+
+message ProjectMessageResponse {
+  ProjectMessage project = 1;
+}
+
+message ProjectMessage {
+  string id = 2;
+  string createdAt = 3;
+  string updatedAt = 4;
+  string email = 5;
+}
+
+message ProjectExistsRequest {
+  string email = 1;
+}
+
+message ProjectExistsResponse {
+  bool exists = 1;
+}

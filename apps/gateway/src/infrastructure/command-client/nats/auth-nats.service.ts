@@ -4,7 +4,7 @@ import { IAuthWriter } from '../providers/auth.writer';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { ClientProxy } from '@nestjs/microservices';
 import { Signup } from '@app/common/streams/auth/signup.model';
-import { ApiResponse, RefreshTokensModel } from '@app/common/dto-generic';
+reimport { ApiResponse } from '@app/common/dto-generic';
 import * as uuid from 'uuid';
 import { SignupRequest, SignupResponse } from '../models/auth/signup.model';
 import { SigninRequest, SigninResponse } from '../models/auth/signin.model';

@@ -1,4 +1,3 @@
-import { RefreshTokensModel } from '@app/common/dto-generic';
 import {
   Inject,
   Injectable,
@@ -41,7 +40,6 @@ export class AuthService {
       );
     }
 
-    this.setTokensToCookies(response, res);
     return response;
   }
 
@@ -56,7 +54,6 @@ export class AuthService {
       );
     }
 
-    this.setTokensToCookies(response, res);
     return res;
   }
 
@@ -84,7 +81,6 @@ export class AuthService {
       );
     }
 
-    this.setTokensToCookies(response, res);
     return response;
   }
 
@@ -94,17 +90,5 @@ export class AuthService {
 
   async verifyRefreshToken(token: string): Promise<VerifyRefreshTokenResponse> {
     return this.authReader.verifyRefreshToken(token);
-  }
-
-  private setTokensToCookies(res: Response, tokens: RefreshTokensModel) {
-    res.cookie('access_token', tokens.accessToken, {
-      maxAge: 1000 * 60 * 60,
-      httpOnly: true,
-    });
-
-    res.cookie('refresh_token', tokens.refreshToken, {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-    });
   }
 }

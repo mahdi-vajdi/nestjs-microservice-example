@@ -5,7 +5,7 @@ package grpc_auth;
 service AuthService {
   rpc CreateCredential(CreateCredentialRequest) returns (CreateCredentialResponse);
   rpc VerifyPassword(VerifyPasswordRequest) returns (VerifyPasswordResponse);
-  rpc Signout(SignoutRequest) returns (SignoutRequest);
+  rpc Signout(SignoutRequest) returns (SignoutResponse);
   rpc RefreshTokens(RefreshTokensRequest) returns (RefreshTokensResponse);
   rpc VerifyRefreshToken(VerifyRefreshTokenRequest) returns (VerifyRefreshTokenResponse);
 }
@@ -25,7 +25,7 @@ message VerifyPasswordRequest {
 }
 
 message VerifyPasswordResponse {
-  string verified = 1;
+  bool verified = 1;
 }
 
 message SignoutRequest {
@@ -34,7 +34,7 @@ message SignoutRequest {
 }
 
 message SignoutResponse {
-  string signedOut = 1;
+  bool signedOut = 1;
 }
 
 message RefreshTokensRequest {
@@ -53,6 +53,6 @@ message VerifyRefreshTokenRequest {
 }
 
 message VerifyRefreshTokenResponse {
-  string verified = 1;
+  bool verified = 1;
 }
 

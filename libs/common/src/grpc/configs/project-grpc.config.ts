@@ -4,14 +4,12 @@ import { env } from 'node:process';
 import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { join } from 'node:path';
+import { GRPC_ACCOUNT_PACKAGE_NAME } from '@app/common/grpc/models/project';
 
 export interface ProjectGrpcConfig extends GrpcOptions {
 }
 
 export const PROJECT_GRPC_CONFIG_TOKEN = 'project-grpc-config-token';
-export const PROJECT_GRPC_CLIENT_PROVIDER = 'project-grpc-client-provider';
-export const PROJECT_GRPC_PACKAGE_NAME = 'grpc_project';
-export const PROJECT_GRPC_SERVICE_NAME = 'ProjectService';
 
 
 const projectGrpcConfigSchema = Joi.object<{ url: string }>({
@@ -39,7 +37,7 @@ export const projectGrpcConfig = registerAs<ProjectGrpcConfig, ConfigFactory<Pro
       transport: Transport.GRPC,
       options: {
         url: env.PROJECT_GRPC_URL,
-        package: PROJECT_GRPC_PACKAGE_NAME,
+        package: GRPC_ACCOUNT_PACKAGE_NAME,
         protoPath: [join(__dirname, '../../libs/common/grpc/proto/project.proto')],
         loader: { keepCase: true },
       },

@@ -1,39 +1,30 @@
 import { Controller, Logger } from '@nestjs/common';
-
-import { GrpcMethod, Payload, RpcException } from '@nestjs/microservices';
-import {
-  GetUserByIdRequest,
-  GetUserByIdResponse,
-} from '@app/common/grpc/models/user/get-user-by-id.model';
-import {
-  UserExistsRequest,
-  UserExistsResponse,
-} from '@app/common/grpc/models/user/user-exists.model';
-import { UserGrpcService } from '@app/common/grpc/interfaces/user.interface';
-import {
-  GetUserByEmailRequest,
-  GetUserByEmailResponse,
-} from '@app/common/grpc/models/user/get-user-by-email.model';
-import { Observable } from 'rxjs/internal/Observable';
-import { of } from 'rxjs';
-import { USER_GRPC_SERVICE_NAME } from '@app/common/grpc/configs/user-grpc.config';
+import { Payload, RpcException } from '@nestjs/microservices';
 import { Result } from '@app/common/result';
 import { UserService } from '../../../application/services/user.service';
 import {
   CreateUserRequest,
   CreateUserResponse,
-} from '@app/common/grpc/models/user/create-user.model';
+  GetUserByEmailRequest,
+  GetUserByEmailResponse,
+  GetUserByIdRequest,
+  GetUserByIdResponse,
+  UserExistsRequest,
+  UserExistsResponse,
+  UserServiceController,
+  UserServiceControllerMethods,
+} from '@app/common/grpc/models/user';
 
 @Controller()
-export class UserGrpcController implements UserGrpcService {
+@UserServiceControllerMethods()
+export class UserGrpcController implements UserServiceController {
   private readonly logger = new Logger(UserGrpcController.name);
 
   constructor(private readonly userService: UserService) {}
 
-  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'CreateUser')
   async createUser(
     @Payload() dto: CreateUserRequest,
-  ): Promise<Observable<CreateUserResponse>> {
+  ): Promise<CreateUserResponse> {
     try {
       const user = await this.userService.createUser({
         email: dto.email,
@@ -44,24 +35,21 @@ export class UserGrpcController implements UserGrpcService {
         avatar: dto.avatar,
       });
 
-      return of({
+      return {
         id: user.id,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
-      });
+      };
     } catch (error) {
       this.logger.error(`error in ${this.createUser.name}: ${error.message}`);
       throw new RpcException(Result.error(error));
     }
   }
 
-  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'GetUserById')
-  async getUserById(
-    req: GetUserByIdRequest,
-  ): Promise<Observable<GetUserByIdResponse>> {
+  async getUserById(req: GetUserByIdRequest): Promise<GetUserByIdResponse> {
     try {
       const user = await this.userService.getUserById(req.userId);
-      return of<GetUserByIdResponse>({
+      return {
         id: user.id,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
@@ -70,20 +58,19 @@ export class UserGrpcController implements UserGrpcService {
         firstName: user.firstName,
         lastName: user.lastName,
         password: user.password,
-      });
+      };
     } catch (error) {
       this.logger.error(`error in ${this.getUserById.name}: ${error.message}`);
       throw new RpcException(Result.error(error));
     }
   }
 
-  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'GetUserByEmail')
   async getUserByEmail(
     req: GetUserByEmailRequest,
-  ): Promise<Observable<GetUserByEmailResponse>> {
+  ): Promise<GetUserByEmailResponse> {
     try {
       const user = await this.userService.getUserByEmail(req.userEmail);
-      return of<GetUserByEmailResponse>({
+      return {
         id: user.id,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
@@ -92,7 +79,7 @@ export class UserGrpcController implements UserGrpcService {
         firstName: user.firstName,
         lastName: user.lastName,
         password: user.password,
-      });
+      };
     } catch (error) {
       this.logger.error(
         `error in ${this.getUserByEmail.name}: ${error.message}`,
@@ -101,13 +88,10 @@ export class UserGrpcController implements UserGrpcService {
     }
   }
 
-  @GrpcMethod(USER_GRPC_SERVICE_NAME, 'UserExists')
-  async userExists(
-    req: UserExistsRequest,
-  ): Promise<Observable<UserExistsResponse>> {
+  async userExists(req: UserExistsRequest): Promise<UserExistsResponse> {
     try {
       const res = await this.userService.userExists(req.email, req.phone);
-      return of({ userExists: res });
+      return { userExists: res };
     } catch (error) {
       this.logger.error(`error in ${this.userExists.name}: ${error.message}`);
       throw new RpcException(Result.error(error));

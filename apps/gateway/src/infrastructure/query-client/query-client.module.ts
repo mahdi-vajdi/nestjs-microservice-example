@@ -2,13 +2,11 @@ import { Module } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
-  USER_GRPC_CLIENT_PROVIDER,
   USER_GRPC_CONFIG_TOKEN,
   UserGrpcConfig,
   userGrpcConfig,
 } from '@app/common/grpc/configs/user-grpc.config';
 import {
-  AUTH_GRPC_CLIENT_PROVIDER,
   AUTH_GRPC_CONFIG_TOKEN,
   authGrpcConfig,
   AuthGrpcConfig,
@@ -17,12 +15,14 @@ import { USER_READER } from './providers/user.reader';
 import { UserGrpcService } from './grpc/user-grpc.service';
 import { AUTH_READER } from './providers/auth.reader';
 import { AuthGrpcService } from './grpc/auth-grpc.service';
+import { GRPC_AUTH_PACKAGE_NAME } from '@app/common/grpc/models/auth';
+import { GRPC_USER_PACKAGE_NAME } from '@app/common/grpc/models/user';
 
 @Module({
   imports: [
     ClientsModule.registerAsync([
       {
-        name: USER_GRPC_CLIENT_PROVIDER,
+        name: GRPC_USER_PACKAGE_NAME,
         useFactory: (configService: ConfigService) => {
           return configService.get<UserGrpcConfig>(USER_GRPC_CONFIG_TOKEN);
         },
@@ -30,7 +30,7 @@ import { AuthGrpcService } from './grpc/auth-grpc.service';
         imports: [ConfigModule.forFeature(userGrpcConfig)],
       },
       {
-        name: AUTH_GRPC_CLIENT_PROVIDER,
+        name: GRPC_AUTH_PACKAGE_NAME,
         useFactory: (configService: ConfigService) => {
           return configService.get<AuthGrpcConfig>(AUTH_GRPC_CONFIG_TOKEN);
         },

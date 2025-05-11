@@ -1,33 +1,20 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import {
-  USER_GRPC_CLIENT_PROVIDER,
-  USER_GRPC_SERVICE_NAME,
-} from '@app/common/grpc/configs/user-grpc.config';
 import { ClientGrpc } from '@nestjs/microservices';
-import { GetAccountUsersResponse } from '@app/common/grpc/models/user/get-account-users.model';
-import { lastValueFrom } from 'rxjs';
 import { UserReader } from '../providers/user.reader';
+import { GRPC_AUTH_PACKAGE_NAME } from '@app/common/grpc/models/auth';
+import { USER_SERVICE_NAME } from '@app/common/grpc/models/user';
 
 @Injectable()
 export class UserGrpcService implements OnModuleInit, UserReader {
   private userGrpcService: UserGrpcService;
 
   constructor(
-    @Inject(USER_GRPC_CLIENT_PROVIDER)
+    @Inject(GRPC_AUTH_PACKAGE_NAME)
     private readonly userGrpcClient: ClientGrpc,
   ) {}
 
   onModuleInit() {
-    this.userGrpcService = this.userGrpcClient.getService<UserGrpcService>(
-      USER_GRPC_SERVICE_NAME,
-    );
-  }
-
-  async getAccountUsers(accountId: string): Promise<GetAccountUsersResponse> {
-    return lastValueFrom(
-      await this.userGrpcService.getAccountUsers({
-        accountId: accountId,
-      }),
-    );
+    this.userGrpcService =
+      this.userGrpcClient.getService<UserGrpcService>(USER_SERVICE_NAME);
   }
 }

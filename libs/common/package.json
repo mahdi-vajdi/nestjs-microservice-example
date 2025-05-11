@@ -20,5 +20,8 @@
     "rxjs": "^7.8.2",
     "typeorm": "^0.3.21",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "ts-proto": "^2.7.0"
   }
 }

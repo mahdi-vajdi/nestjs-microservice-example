@@ -9,20 +9,20 @@ import { SigninDto } from '../../dto/auth/signin.dto';
 import { SignupDto } from '../../dto/auth/signup.dto';
 import {
   AUTH_WRITER,
-  IAuthWriter,
+  AuthWriter,
 } from '../../infrastructure/command-client/providers/auth.writer';
 import { VerifyAccessTokenResponse } from '@app/common/grpc/models/auth/auth-access.dto';
 import { VerifyRefreshTokenResponse } from '@app/common/grpc/models/auth/verify-refresh-token.model';
 import {
   AUTH_READER,
-  IAuthReader,
+  AuthReader,
 } from '../../infrastructure/query-client/providers/auth.reader';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(AUTH_READER) private readonly authReader: IAuthReader,
-    @Inject(AUTH_WRITER) private readonly authWriter: IAuthWriter,
+    @Inject(AUTH_READER) private readonly authReader: AuthReader,
+    @Inject(AUTH_WRITER) private readonly authWriter: AuthWriter,
   ) {}
 
   async signup(dto: SignupDto, response: Response) {

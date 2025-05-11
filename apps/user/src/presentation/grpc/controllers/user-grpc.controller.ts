@@ -9,7 +9,7 @@ import {
   UserExistsRequest,
   UserExistsResponse,
 } from '@app/common/grpc/models/user/user-exists.model';
-import { IUserGrpcService } from '@app/common/grpc/interfaces/user.interface';
+import { UserGrpcService } from '@app/common/grpc/interfaces/user.interface';
 import {
   GetUserByEmailRequest,
   GetUserByEmailResponse,
@@ -25,7 +25,7 @@ import {
 } from '@app/common/grpc/models/user/create-user.model';
 
 @Controller()
-export class UserGrpcController implements IUserGrpcService {
+export class UserGrpcController implements UserGrpcService {
   private readonly logger = new Logger(UserGrpcController.name);
 
   constructor(private readonly userService: UserService) {}

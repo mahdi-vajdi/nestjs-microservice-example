@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
-  INatsConfig,
   NATS_CONFIG_TOKEN,
+  NatsConfig,
   natsConfig,
 } from '@app/common/nats/nats.config';
 import { NatsEventPublisher } from './nats/nats-event.publisher';
@@ -13,7 +13,7 @@ import { EVENT_PUBLISHER } from '../../domain/event-publisher/event-publisher.in
   imports: [
     NatsJetStreamTransport.registerAsync({
       useFactory: (configService: ConfigService) => {
-        const natsConfig = configService.get<INatsConfig>(NATS_CONFIG_TOKEN);
+        const natsConfig = configService.get<NatsConfig>(NATS_CONFIG_TOKEN);
 
         return {
           connectionOptions: {

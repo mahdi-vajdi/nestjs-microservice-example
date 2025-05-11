@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
-import { IAuthGrpcService } from '@app/common/grpc/interfaces/auth.interface';
+import { AuthGrpcService } from '@app/common/grpc/interfaces/auth.interface';
 import {
   VerifyRefreshTokenRequest,
   VerifyRefreshTokenResponse,
@@ -28,7 +28,7 @@ import {
 } from '@app/common/grpc/models/auth/refresh-tokens.model';
 
 @Controller()
-export class AuthGrpcController implements IAuthGrpcService {
+export class AuthGrpcController implements AuthGrpcService {
   constructor(private readonly authService: AuthService) {}
 
   @GrpcMethod(AUTH_GRPC_SERVICE_NAME, 'CreateCredential')

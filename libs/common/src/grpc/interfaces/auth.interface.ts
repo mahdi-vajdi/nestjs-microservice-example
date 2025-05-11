@@ -11,7 +11,7 @@ import { VerifyPasswordRequest, VerifyPasswordResponse } from '@app/common/grpc/
 import { SignoutRequest, SignoutResponse } from '@app/common/grpc/models/auth/signout.model';
 import { RefreshTokensRequest, RefreshTokensResponse } from '@app/common/grpc/models/auth/refresh-tokens.model';
 
-export interface IAuthGrpcService {
+export interface AuthGrpcService {
   createCredential(
     req: CreateCredentialsRequest,
   ): Promise<Observable<CreateCredentialsResponse>>;

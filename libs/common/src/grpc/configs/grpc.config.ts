@@ -2,17 +2,17 @@ import { ConfigFactory, registerAs } from '@nestjs/config';
 import * as Joi from 'joi';
 import { env } from 'node:process';
 
-export interface IGrpcConfig {
+export interface GrpcConfig {
   url: string;
 }
 
 export const GRPC_CONFIG_TOKEN = 'grpc-config-token';
 
-const grpcConfigSchema = Joi.object<IGrpcConfig>({
+const grpcConfigSchema = Joi.object<GrpcConfig>({
   url: Joi.string().uri().required(),
 });
 
-export const grpcConfig = registerAs<IGrpcConfig, ConfigFactory<IGrpcConfig>>(
+export const grpcConfig = registerAs<GrpcConfig, ConfigFactory<GrpcConfig>>(
   GRPC_CONFIG_TOKEN,
   () => {
     const { error, value } = grpcConfigSchema.validate(

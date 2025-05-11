@@ -6,7 +6,7 @@ import {
   RefreshTokensResponse,
 } from '../models/auth/refresh-token.model';
 
-export interface IAuthWriter {
+export interface AuthWriter {
   signup(req: SignupRequest): Promise<SignupResponse>;
 
   signin(req: SigninRequest): Promise<SigninResponse>;

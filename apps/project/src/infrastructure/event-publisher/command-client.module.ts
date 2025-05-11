@@ -4,8 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProjectNatsService } from './nats/project-nats.service';
 import { PROJECT_EVENT_PUBLISHER } from '../../domain/events/project-event.publisher';
 import {
-  INatsConfig,
   NATS_CONFIG_TOKEN,
+  NatsConfig,
   natsConfig,
 } from '@app/common/nats/nats.config';
 
@@ -13,7 +13,7 @@ import {
   imports: [
     NatsJetStreamTransport.registerAsync({
       useFactory: (configService: ConfigService) => {
-        const config = configService.get<INatsConfig>(NATS_CONFIG_TOKEN);
+        const config = configService.get<NatsConfig>(NATS_CONFIG_TOKEN);
         return {
           connectionOptions: {
             servers: config.server,

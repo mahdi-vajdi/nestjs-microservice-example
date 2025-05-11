@@ -9,7 +9,7 @@ import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.
 import {
   AUTH_GRPC_CONFIG_TOKEN,
   authGrpcConfig,
-  IAuthGrpcConfig,
+  AuthGrpcConfig,
 } from '@app/common/grpc/configs/auth-grpc.config';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 
@@ -41,7 +41,7 @@ async function bootstrap() {
     logger: logger,
   });
 
-  const grpcConfig = configService.get<IAuthGrpcConfig>(AUTH_GRPC_CONFIG_TOKEN);
+  const grpcConfig = configService.get<AuthGrpcConfig>(AUTH_GRPC_CONFIG_TOKEN);
   app.connectMicroservice<MicroserviceOptions>(grpcConfig);
 
   app.connectMicroservice<CustomStrategy>({

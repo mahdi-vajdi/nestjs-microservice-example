@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { Roles } from '@app/common/decorators';
 import { Request } from 'express';
 import { CreateUserDto } from '../../../dto/user/create-user.dto';
@@ -6,7 +6,6 @@ import { AccessTokenGuard } from '../guards/access-token.guard';
 import { JwtPayloadDto } from '../../../dto/auth/jwt-payload.dto';
 import { UserService } from '../../../application/services/user.service';
 import { ApiResponse, UserDto, UserRole } from '@app/common/dto-generic';
-import { GetAccountUsersResponse } from '@app/common/grpc/models/user/get-account-users.model';
 
 @Controller('users')
 export class UserHttpController {
@@ -28,13 +27,5 @@ export class UserHttpController {
       error: null,
       success: true,
     };
-  }
-
-  @UseGuards(AccessTokenGuard)
-  @Roles(UserRole.OWNER, UserRole.ADMIN)
-  @Get()
-  async getAccountUsers(@Req() req: Request): Promise<GetAccountUsersResponse> {
-    const jwtPaylaod = req['user'] as JwtPayloadDto;
-    return await this.userService.getAccountUsers(jwtPaylaod);
   }
 }

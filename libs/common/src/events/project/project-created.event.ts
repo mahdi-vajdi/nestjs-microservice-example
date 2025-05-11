@@ -1,6 +1,6 @@
-import { StreamMessage } from '@app/common/nats/stream-message.model';
+import { EventMessage } from '@app/common/nats/event.model';
 
-export class ProjectCreatedEvent implements StreamMessage {
+export class ProjectCreatedEvent implements EventMessage {
   id: string;
   private: boolean;
   title: string;
@@ -9,11 +9,11 @@ export class ProjectCreatedEvent implements StreamMessage {
   createdAt: Date;
   owner: string;
 
-  constructor(init?: Omit<ProjectCreatedEvent, 'streamKey'>) {
+  constructor(init?: Omit<ProjectCreatedEvent, 'getKey'>) {
     Object.assign(this, init);
   }
 
-  streamKey(): string {
+  getKey(): string {
     return 'project.project.created';
   }
 

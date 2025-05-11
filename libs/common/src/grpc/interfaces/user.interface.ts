@@ -4,7 +4,7 @@ import { GetUserByEmailRequest, GetUserByEmailResponse } from '@app/common/grpc/
 import { UserExistsRequest, UserExistsResponse } from '@app/common/grpc/models/user/user-exists.model';
 import { CreateUserRequest, CreateUserResponse } from '@app/common/grpc/models/user/create-user.model';
 
-export interface IUserGrpcService {
+export interface UserGrpcService {
   createUser(req: CreateUserRequest): Promise<Observable<CreateUserResponse>>;
 
   getUserById(

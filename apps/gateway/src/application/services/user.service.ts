@@ -2,20 +2,20 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtPayloadDto } from '../../dto/auth/jwt-payload.dto';
 import { CreateUserDto } from '../../dto/user/create-user.dto';
 import {
-  IUserWriter,
   USER_WRITER,
+  UserWriter,
 } from '../../infrastructure/command-client/providers/user.writer';
 import {
-  IUserReader,
   USER_READER,
+  UserReader,
 } from '../../infrastructure/query-client/providers/user.reader';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(USER_WRITER) private readonly userWriter: IUserWriter,
+    @Inject(USER_WRITER) private readonly userWriter: UserWriter,
     @Inject(USER_READER)
-    private readonly userReader: IUserReader,
+    private readonly userReader: UserReader,
   ) {}
 
   createUser(user: JwtPayloadDto, dto: CreateUserDto) {

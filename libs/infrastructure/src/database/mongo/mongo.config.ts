@@ -14,7 +14,7 @@ const mongoConfigValidator = Joi.object<MongoConfig>({
 
 export const mongoConfig = registerAs<MongoConfig, ConfigFactory<MongoConfig>>(MONGO_CONFIG_TOKEN, () => {
   const { error, value } = mongoConfigValidator.validate({
-    uri: env.MONGODB_URI,
+    uri: env.MONGO_URI,
   });
 
   if (error) {

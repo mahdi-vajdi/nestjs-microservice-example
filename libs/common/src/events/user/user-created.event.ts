@@ -1,6 +1,6 @@
-import { StreamMessage } from '@app/common/nats/stream-message.model';
+import { EventMessage } from '@app/common/nats/event.model';
 
-export class UserCreated implements StreamMessage {
+export class UserCreated implements EventMessage {
   id: string;
   email: string;
   mobile: string;
@@ -11,11 +11,11 @@ export class UserCreated implements StreamMessage {
   updatedAt: Date;
   deletedAt: Date;
 
-  constructor(init?: Omit<UserCreated, 'streamKey'>) {
+  constructor(init?: Omit<UserCreated, 'getKey'>) {
     Object.assign(this, init);
   }
 
-  streamKey(): string {
+  getKey(): string {
     return 'user.user.created';
   }
 }

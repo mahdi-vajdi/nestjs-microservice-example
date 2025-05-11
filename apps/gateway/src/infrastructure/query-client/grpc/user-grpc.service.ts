@@ -1,5 +1,4 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { IUserGrpcService } from '@app/common/grpc/interfaces/user.interface';
 import {
   USER_GRPC_CLIENT_PROVIDER,
   USER_GRPC_SERVICE_NAME,
@@ -7,11 +6,11 @@ import {
 import { ClientGrpc } from '@nestjs/microservices';
 import { GetAccountUsersResponse } from '@app/common/grpc/models/user/get-account-users.model';
 import { lastValueFrom } from 'rxjs';
-import { IUserReader } from '../providers/user.reader';
+import { UserReader } from '../providers/user.reader';
 
 @Injectable()
-export class UserGrpcService implements OnModuleInit, IUserReader {
-  private userGrpcService: IUserGrpcService;
+export class UserGrpcService implements OnModuleInit, UserReader {
+  private userGrpcService: UserGrpcService;
 
   constructor(
     @Inject(USER_GRPC_CLIENT_PROVIDER)
@@ -19,7 +18,7 @@ export class UserGrpcService implements OnModuleInit, IUserReader {
   ) {}
 
   onModuleInit() {
-    this.userGrpcService = this.userGrpcClient.getService<IUserGrpcService>(
+    this.userGrpcService = this.userGrpcClient.getService<UserGrpcService>(
       USER_GRPC_SERVICE_NAME,
     );
   }

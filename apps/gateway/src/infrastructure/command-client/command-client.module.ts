@@ -5,8 +5,6 @@ import { USER_WRITER } from './providers/user.writer';
 import { UserNatsService } from './nats/user-nats.service';
 import { AUTH_WRITER } from './providers/auth.writer';
 import { AuthNatsService } from './nats/auth-nats.service';
-import { CHANNEL_WRITER } from './providers/channel.writer';
-import { ChannelNatsService } from './nats/channel-nats.service';
 
 @Module({
   imports: [
@@ -29,11 +27,7 @@ import { ChannelNatsService } from './nats/channel-nats.service';
       provide: AUTH_WRITER,
       useClass: AuthNatsService,
     },
-    {
-      provide: CHANNEL_WRITER,
-      useClass: ChannelNatsService,
-    },
   ],
-  exports: [USER_WRITER, AUTH_WRITER, CHANNEL_WRITER],
+  exports: [USER_WRITER, AUTH_WRITER],
 })
 export class CommandClientModule {}

@@ -42,15 +42,6 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
-    "channel-service": {
-      "type": "application",
-      "root": "apps/channel",
-      "entryFile": "main",
-      "sourceRoot": "apps/channel/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/channel/tsconfig.app.json"
-      }
-    },
     "gateway-service": {
       "type": "application",
       "root": "apps/gateway",

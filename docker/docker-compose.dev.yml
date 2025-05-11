@@ -51,21 +51,6 @@ services:
       - base
       - nats
 
-  channel-service:
-    container_name: channel-service
-    build:
-      context: ../
-      dockerfile: docker/channel-service.dockerfile
-      target: release
-    command: [ "npm", "run", "start:dev", "channel-service" ]
-    env_file:
-      - ../apps/channel/.env
-    volumes:
-      - ../.:/usr/src/app
-    depends_on:
-      - base
-      - nats
-
   gateway-service:
     container_name: gateway-service
     build:
@@ -84,7 +69,6 @@ services:
       - nats
       - project-service
       - auth-service
-      - channel-service
       - user-service
 
   mongo:

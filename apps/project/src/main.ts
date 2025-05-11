@@ -7,8 +7,8 @@ import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
 import { LoggerService } from '@nestjs/common';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import {
-  IProjectGrpcConfig,
   PROJECT_GRPC_CONFIG_TOKEN,
+  ProjectGrpcConfig,
   projectGrpcConfig,
 } from '@app/common/grpc/configs/project-grpc.config';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
@@ -38,7 +38,7 @@ async function bootstrap() {
     logger: logger,
   });
 
-  const grpcConfig = configService.get<IProjectGrpcConfig>(
+  const grpcConfig = configService.get<ProjectGrpcConfig>(
     PROJECT_GRPC_CONFIG_TOKEN,
   );
   app.connectMicroservice<MicroserviceOptions>(grpcConfig);

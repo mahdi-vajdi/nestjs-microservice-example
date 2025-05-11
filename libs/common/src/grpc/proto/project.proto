@@ -3,35 +3,36 @@ syntax = "proto3";
 package grpc_account;
 
 service ProjectService {
-  rpc GetProjectById(GetProjectByIdRequest) returns (ProjectMessageResponse) {}
-  rpc GetProjectByEmail(GetProjectByEmailRequest)
-      returns (ProjectMessageResponse) {}
-  rpc ProjectExists(ProjectExistsRequest) returns (ProjectExistsResponse) {}
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+  rpc GetProjectById(GetProjectByIdRequest) returns (GetProjectByIdResponse);
+}
+
+message CreateProjectRequest {
+  string title = 1;
+  bool private = 2;
+  string description = 3;
+  string picture = 4;
+  string ownerId = 5;
+  string ownerTitle = 6;
+}
+
+message CreateProjectResponse {
+  string id = 1;
+  string ownerId = 2;
+  string createdAt = 3;
 }
 
 message GetProjectByIdRequest {
   string id = 1;
 }
 
-message GetProjectByEmailRequest {
-  string email = 1;
+message GetProjectByIdResponse {
+  string title = 1;
+  string description = 2;
+  bool private = 3 ;
+  string ownerId = 4;
+  string picture = 5;
+  string createdAt = 6;
+  string updatedAt = 7;
 }
 
-message ProjectMessageResponse {
-  ProjectMessage project = 1;
-}
-
-message ProjectMessage {
-  string id = 2;
-  string createdAt = 3;
-  string updatedAt = 4;
-  string email = 5;
-}
-
-message ProjectExistsRequest {
-  string email = 1;
-}
-
-message ProjectExistsResponse {
-  bool exists = 1;
-}

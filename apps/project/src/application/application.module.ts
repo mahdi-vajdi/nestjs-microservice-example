@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../infrastructure/database/database.module';
 import { ProjectService } from './services/project.service';
-import { CommandClientModule } from '../infrastructure/command-client/command-client.module';
+import { CommandClientModule } from '../infrastructure/event-publisher/command-client.module';
 
 @Module({
   imports: [DatabaseModule, CommandClientModule],

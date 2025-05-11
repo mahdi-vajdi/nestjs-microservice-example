@@ -5,7 +5,7 @@ import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { join } from 'node:path';
 
-export interface IProjectGrpcConfig extends GrpcOptions {
+export interface ProjectGrpcConfig extends GrpcOptions {
 }
 
 export const PROJECT_GRPC_CONFIG_TOKEN = 'project-grpc-config-token';
@@ -18,7 +18,7 @@ const projectGrpcConfigSchema = Joi.object<{ url: string }>({
   url: Joi.string().uri().required(),
 });
 
-export const projectGrpcConfig = registerAs<IProjectGrpcConfig, ConfigFactory<IProjectGrpcConfig>>(
+export const projectGrpcConfig = registerAs<ProjectGrpcConfig, ConfigFactory<ProjectGrpcConfig>>(
   PROJECT_GRPC_CONFIG_TOKEN,
   () => {
     const { error } = projectGrpcConfigSchema.validate(

@@ -8,8 +8,6 @@ export class UserCreated implements EventMessage {
   lastName: string;
   avatar: string;
   createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
 
   constructor(init?: Omit<UserCreated, 'getKey'>) {
     Object.assign(this, init);

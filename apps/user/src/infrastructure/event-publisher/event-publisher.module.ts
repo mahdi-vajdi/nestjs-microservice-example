@@ -6,8 +6,8 @@ import {
   NatsConfig,
   natsConfig,
 } from '@app/common/nats/nats.config';
-import { NatsEventPublisher } from './nats/nats-event.publisher';
-import { EVENT_PUBLISHER } from '../../domain/event-publisher/event-publisher.interface';
+import { UserNatsPublisher } from './nats/user-nats.publisher';
+import { USER_EVENT_PUBLISHER } from '../../domain/event-publisher/user-event.publisher';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { EVENT_PUBLISHER } from '../../domain/event-publisher/event-publisher.in
         return {
           connectionOptions: {
             servers: natsConfig.server,
-            name: 'gateway-publisher',
+            name: 'user-publisher',
           },
         };
       },
@@ -28,10 +28,10 @@ import { EVENT_PUBLISHER } from '../../domain/event-publisher/event-publisher.in
   ],
   providers: [
     {
-      provide: EVENT_PUBLISHER,
-      useClass: NatsEventPublisher,
+      provide: USER_EVENT_PUBLISHER,
+      useClass: UserNatsPublisher,
     },
   ],
-  exports: [EVENT_PUBLISHER],
+  exports: [USER_EVENT_PUBLISHER],
 })
 export class EventPublisherModule {}

@@ -8,9 +8,9 @@ import { User } from '../../domain/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { DuplicateError } from '@app/common/errors';
 import {
-  EVENT_PUBLISHER,
-  EventPublisher,
-} from '../../domain/event-publisher/event-publisher.interface';
+  USER_EVENT_PUBLISHER,
+  UserEventPublisher,
+} from '../../domain/event-publisher/user-event.publisher';
 
 @Injectable()
 export class UserService {
@@ -18,8 +18,8 @@ export class UserService {
 
   constructor(
     @Inject(USER_REPOSITORY) private readonly userProvider: UserRepository,
-    @Inject(EVENT_PUBLISHER)
-    private readonly userEventClient: EventPublisher,
+    @Inject(USER_EVENT_PUBLISHER)
+    private readonly userEventClient: UserEventPublisher,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<User> {

@@ -15,7 +15,7 @@ import {
   VerifyPasswordResponse,
   VerifyRefreshTokenRequest,
   VerifyRefreshTokenResponse,
-} from '@app/common/grpc/models/auth';
+} from '@app/common/grpc/models/auth.proto';
 
 @Controller()
 @AuthServiceControllerMethods()

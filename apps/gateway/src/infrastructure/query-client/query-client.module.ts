@@ -15,8 +15,8 @@ import { USER_READER } from './providers/user.reader';
 import { UserGrpcService } from './grpc/user-grpc.service';
 import { AUTH_READER } from './providers/auth.reader';
 import { AuthGrpcService } from './grpc/auth-grpc.service';
-import { GRPC_AUTH_PACKAGE_NAME } from '@app/common/grpc/models/auth';
-import { GRPC_USER_PACKAGE_NAME } from '@app/common/grpc/models/user';
+import { GRPC_AUTH_PACKAGE_NAME } from '@app/common/grpc/models/auth.proto';
+import { GRPC_USER_PACKAGE_NAME } from '@app/common/grpc/models/user.proto';
 
 @Module({
   imports: [

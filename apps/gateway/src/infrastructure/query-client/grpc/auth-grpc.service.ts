@@ -5,7 +5,7 @@ import {
   AUTH_SERVICE_NAME,
   AuthServiceClient,
   GRPC_AUTH_PACKAGE_NAME,
-} from '@app/common/grpc/models/auth';
+} from '@app/common/grpc/models/auth.proto';
 
 @Injectable()
 export class AuthGrpcService implements OnModuleInit, AuthReader {

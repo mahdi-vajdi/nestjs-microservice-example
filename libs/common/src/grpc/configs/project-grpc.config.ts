@@ -4,7 +4,7 @@ import { env } from 'node:process';
 import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { join } from 'node:path';
-import { GRPC_ACCOUNT_PACKAGE_NAME } from '@app/common/grpc/models/project';
+import { GRPC_ACCOUNT_PACKAGE_NAME } from '@app/common/grpc/models/project.proto';
 
 export interface ProjectGrpcConfig extends GrpcOptions {
 }
@@ -19,7 +19,7 @@ const projectGrpcConfigSchema = Joi.object<{ url: string }>({
 export const projectGrpcConfig = registerAs<ProjectGrpcConfig, ConfigFactory<ProjectGrpcConfig>>(
   PROJECT_GRPC_CONFIG_TOKEN,
   () => {
-    const { error } = projectGrpcConfigSchema.validate(
+    const { error, value } = projectGrpcConfigSchema.validate(
       {
         url: env.PROJECT_GRPC_URL,
       },
@@ -36,7 +36,7 @@ export const projectGrpcConfig = registerAs<ProjectGrpcConfig, ConfigFactory<Pro
     return {
       transport: Transport.GRPC,
       options: {
-        url: env.PROJECT_GRPC_URL,
+        url: value.url,
         package: GRPC_ACCOUNT_PACKAGE_NAME,
         protoPath: [join(__dirname, '../../libs/common/grpc/proto/project.proto')],
         loader: { keepCase: true },

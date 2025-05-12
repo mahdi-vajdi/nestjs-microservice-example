@@ -4,7 +4,7 @@ import { env } from 'node:process';
 import { Transport } from '@nestjs/microservices';
 import { GrpcOptions } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { join } from 'node:path';
-import { GRPC_USER_PACKAGE_NAME } from '@app/common/grpc/models/user';
+import { GRPC_USER_PACKAGE_NAME } from '@app/common/grpc/models/user.proto';
 
 export interface UserGrpcConfig extends GrpcOptions {
 }

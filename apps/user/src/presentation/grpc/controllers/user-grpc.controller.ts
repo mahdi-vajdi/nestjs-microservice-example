@@ -13,7 +13,7 @@ import {
   UserExistsResponse,
   UserServiceController,
   UserServiceControllerMethods,
-} from '@app/common/grpc/models/user';
+} from '@app/common/grpc/models/user.proto';
 
 @Controller()
 @UserServiceControllerMethods()

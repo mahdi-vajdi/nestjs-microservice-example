@@ -10,7 +10,7 @@ import {
   GetProjectByIdResponse,
   ProjectServiceController,
   ProjectServiceControllerMethods,
-} from '@app/common/grpc/models/project';
+} from '@app/common/grpc/models/project.proto';
 
 @Controller()
 @ProjectServiceControllerMethods()

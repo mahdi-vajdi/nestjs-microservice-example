@@ -17,7 +17,6 @@
     "mongoose": "^8.12.1",
     "nats": "^2.29.3",
     "nest-winston": "^1.10.2",
-    "nestjs-pino": "^4.3.1",
     "rxjs": "^7.8.2",
     "typeorm": "^0.3.21",
     "winston": "^3.17.0"

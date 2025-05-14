@@ -17,22 +17,6 @@
         "tsConfigPath": "apps/project/tsconfig.app.json"
       }
     },
-    "admin-common": {
-      "type": "library",
-      "root": "libs/common",
-      "entryFile": "index",
-      "sourceRoot": "libs/common/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/common/tsconfig.lib.json",
-        "assets": [
-          {
-            "include": "**/*.proto",
-            "watchAssets": true,
-            "outDir": "dist/libs/common"
-          }
-        ]
-      }
-    },
     "auth-service": {
       "type": "application",
       "root": "apps/auth",
@@ -51,15 +35,6 @@
         "tsConfigPath": "apps/gateway/tsconfig.app.json"
       }
     },
-    "infrastructure": {
-      "type": "library",
-      "root": "libs/infrastructure",
-      "entryFile": "index",
-      "sourceRoot": "libs/infrastructure/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/infrastructure/tsconfig.lib.json"
-      }
-    },
     "user-service": {
       "type": "application",
       "root": "apps/user",
@@ -67,6 +42,31 @@
       "sourceRoot": "apps/user/src",
       "compilerOptions": {
         "tsConfigPath": "apps/user/tsconfig.app.json"
+      }
+    },
+    "common-lib": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json",
+        "assets": [
+          {
+            "include": "**/*.proto",
+            "watchAssets": true,
+            "outDir": "dist/libs/common"
+          }
+        ]
+      }
+    },
+    "infrastructure-lib": {
+      "type": "library",
+      "root": "libs/infrastructure",
+      "entryFile": "index",
+      "sourceRoot": "libs/infrastructure/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/infrastructure/tsconfig.lib.json"
       }
     }
   },

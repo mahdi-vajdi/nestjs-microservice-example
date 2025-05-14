@@ -1,0 +1,18 @@
+{
+  "name": "infrastrucure-lib",
+  "version": "1.0.0",
+  "description": "The shared infrastructure for the apps",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.1",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/mongoose": "^11.0.3",
+    "joi": "^17.13.3"
+  }
+}

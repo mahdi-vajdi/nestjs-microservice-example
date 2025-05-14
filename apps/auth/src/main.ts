@@ -12,6 +12,11 @@ import {
   AuthGrpcConfig,
 } from '@app/common/grpc/configs/auth-grpc.config';
 import { NatsJetStreamServer } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
+import {
+  NATS_CONFIG_TOKEN,
+  natsConfig,
+  NatsConfig,
+} from '@app/common/nats/nats.config';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -23,7 +28,7 @@ async function loadLogger(): Promise<LoggerService> {
 async function loadConfig(): Promise<ConfigService> {
   const appContext = await NestFactory.createApplicationContext(
     ConfigModule.forRoot({
-      load: [authGrpcConfig],
+      load: [authGrpcConfig, natsConfig],
     }),
     {
       bufferLogs: true,
@@ -44,10 +49,11 @@ async function bootstrap() {
   const grpcConfig = configService.get<AuthGrpcConfig>(AUTH_GRPC_CONFIG_TOKEN);
   app.connectMicroservice<MicroserviceOptions>(grpcConfig);
 
+  const natsConfig = configService.get<NatsConfig>(NATS_CONFIG_TOKEN);
   app.connectMicroservice<CustomStrategy>({
     strategy: new NatsJetStreamServer({
       connectionOptions: {
-        servers: configService.getOrThrow<string>('NATS_URI'),
+        servers: natsConfig.server,
         name: 'auth-listener',
       },
       consumerOptions: {

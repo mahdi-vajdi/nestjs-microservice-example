@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "proto:generate": "protoc --plugin=./../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=. ./src/grpc/proto/*.proto --ts_proto_opt=outputClientImpl=grpc-js --ts_proto_opt=fileSuffix=.proto --ts_proto_opt=nestJs=true --ts_proto_opt=esModuleInterop=true"
   },
   "keywords": [],
   "author": "",
@@ -20,5 +21,8 @@
     "rxjs": "^7.8.2",
     "typeorm": "^0.3.21",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "ts-proto": "^2.7.0"
   }
 }

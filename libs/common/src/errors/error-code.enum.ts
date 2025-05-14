@@ -1,0 +1,9 @@
+export enum ErrorCode {
+  BAD_REQUEST = 1,
+  VALIDATION_FAILURE = 2,
+  UNAUTHORIZED = 3,
+  FORBIDDEN = 3,
+  NOT_FOUND = 4,
+  DUPLICATE = 5,
+  INTERNAL_ERROR = 7
+}

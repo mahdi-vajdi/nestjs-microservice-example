@@ -1,7 +1,7 @@
 {
-  "name": "admin-backend",
+  "name": "nestjs-project-manager",
   "author": "Mahdi Vajdi",
-  "description": "A sample microservice admin panel backend",
+  "description": "",
   "private": false,
   "license": "UNLICENSED",
   "workspaces": [
@@ -9,7 +9,7 @@
     "libs/*"
   ],
   "scripts": {
-    "build": "nest build",
+    "build": "nest build --all",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -43,10 +43,8 @@
       "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1"
     }
-  },
-  "dependencies": {
-    "joi": "^17.13.3"
   }
 }

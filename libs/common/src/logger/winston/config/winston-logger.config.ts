@@ -1,7 +1,7 @@
 import { ConfigFactory, registerAs } from '@nestjs/config';
 import * as Joi from 'joi';
 
-export interface IWinstonLoggerConfig {
+export interface WinstonLoggerConfig {
   useFile: boolean;
   filePath: string;
   level: string;
@@ -9,7 +9,7 @@ export interface IWinstonLoggerConfig {
 
 export const WINSTON_LOGGER_CONFIG_TOKEN = 'winston-logger-config-token';
 
-const winstonLoggerConfigSchema = Joi.object<IWinstonLoggerConfig>({
+const winstonLoggerConfigSchema = Joi.object<WinstonLoggerConfig>({
   useFile: Joi.boolean().default(false),
   filePath: Joi.string().required(),
   level: Joi.string()
@@ -18,8 +18,8 @@ const winstonLoggerConfigSchema = Joi.object<IWinstonLoggerConfig>({
 });
 
 export const winstonLoggerConfig = registerAs<
-  IWinstonLoggerConfig,
-  ConfigFactory<IWinstonLoggerConfig>
+  WinstonLoggerConfig,
+  ConfigFactory<WinstonLoggerConfig>
 >(WINSTON_LOGGER_CONFIG_TOKEN, () => {
   const { error, value } = winstonLoggerConfigSchema.validate(
     {

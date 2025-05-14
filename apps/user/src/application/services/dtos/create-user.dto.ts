@@ -1,13 +1,7 @@
-import { UserRole } from '@app/common/dto-generic';
-
 export interface CreateUserDto {
-  accountId: string;
   email: string;
-  phone: string;
+  mobile: string;
   firstName: string;
   lastName: string;
-  title: string;
-  channelIds: string[];
-  password: string;
-  role: UserRole;
+  avatar: string;
 }

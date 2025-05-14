@@ -4,15 +4,16 @@ services:
       context: ../
       dockerfile: docker/base-build.Dockerfile
     image: base-build
-  account:
-    container_name: account-service
+
+  project-service:
+    container_name: project-service
     build:
       context: ../
-      dockerfile: docker/account-service.dockerfile
+      dockerfile: project-service.dockerfile
       target: release
-    command: [ "npm", "run", "start:dev", "account-service" ]
+    command: [ "npm", "run", "start:dev", "project-service" ]
     env_file:
-      - ../apps/account/.env
+      - ../apps/project/.env
     volumes:
       - ../.:/usr/src/app
     depends_on:
@@ -20,7 +21,7 @@ services:
       - nats
       - mongo
 
-  user:
+  user-service:
     container_name: user-service
     build:
       context: ../
@@ -35,7 +36,7 @@ services:
       - base
       - nats
 
-  auth:
+  auth-service:
     container_name: auth-service
     build:
       context: ../
@@ -50,22 +51,7 @@ services:
       - base
       - nats
 
-  channel:
-    container_name: channel-service
-    build:
-      context: ../
-      dockerfile: docker/channel-service.dockerfile
-      target: release
-    command: [ "npm", "run", "start:dev", "channel-service" ]
-    env_file:
-      - ../apps/channel/.env
-    volumes:
-      - ../.:/usr/src/app
-    depends_on:
-      - base
-      - nats
-
-  gateway:
+  gateway-service:
     container_name: gateway-service
     build:
       context: ../
@@ -81,10 +67,9 @@ services:
     depends_on:
       - base
       - nats
-      - account
-      - auth
-      - channel
-      - user
+      - project-service
+      - auth-service
+      - user-service
 
   mongo:
     image: mongo

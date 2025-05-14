@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AuthNatsController } from './nats/auth-nats.controller';
-import { AuthGrpcController } from './grpc/auth-grpc.controller';
+import { AuthNatsController } from './nats/controllers/auth-nats.controller';
+import { AuthGrpcController } from './grpc/controllers/auth-grpc.controller';
 import { ApplicationModule } from '../application/application.module';
 
 @Module({

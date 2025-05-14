@@ -1,19 +1,19 @@
 services:
-  account:
-    container_name: account-service
+  project-service:
+    container_name: project-service
     build:
       tags:
-        - account-service
+        - project-service
       context: ../
-      dockerfile: docker/account-service.dockerfile
+      dockerfile: project-service.dockerfile
       target: release
     env_file:
-      - ../apps/account/.env
+      - ../apps/project/.env
     depends_on:
       - nats
       - mongo
 
-  user:
+  user-service:
     container_name: user-service
     build:
       context: ../
@@ -24,7 +24,7 @@ services:
     depends_on:
       - nats
 
-  auth:
+  auth-service:
     container_name: auth-service
     build:
       context: ../
@@ -34,19 +34,8 @@ services:
       - ../apps/auth/.env
     depends_on:
       - nats
-
-  channel:
-    container_name: channel-service
-    build:
-      context: ../
-      dockerfile: docker/channel-service.dockerfile
-      target: release
-    env_file:
-      - ../apps/channel/.env
-    depends_on:
-      - nats
-
-  gateway:
+      -
+  gateway-service:
     container_name: gateway-service
     build:
       context: ../
@@ -58,10 +47,9 @@ services:
       - '3000:3000'
     depends_on:
       - nats
-      - account
-      - auth
-      - channel
-      - user
+      - project-service
+      - auth-service
+      - user-service
 
   mongo:
     image: mongo

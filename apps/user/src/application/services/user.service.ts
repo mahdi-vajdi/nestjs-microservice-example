@@ -1,260 +1,85 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ApiResponse, UserDto, UserRole } from '@app/common/dto-generic';
-import { GetUserUsersResponse } from '@app/common/grpc/models/user/get-account-users.model';
-import { UserExistsResponse } from '@app/common/grpc/models/user/user-exists.model';
-import { GetUserIdsResponse } from '@app/common/grpc/models/user/get-user-ids.model';
-import { GetUserByIdResponse } from '@app/common/grpc/models/user/get-user-by-id.model';
-import { GetUserByEmailResponse } from '@app/common/grpc/models/user/get-user-by-email.model';
-import { CreateOwnerUserDto } from './dtos/create-owner-user.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
-import { UpdateRefreshTokenDto } from './dtos/update-refresh-token.dto';
-import { UserModel } from '../../infrastructure/database/mongo/models/user.model';
 import {
-  IUserProvider,
-  USER_PROVIDER,
-} from '../../infrastructure/database/providers/user.provider';
+  USER_REPOSITORY,
+  UserRepository,
+} from '../../domain/repositories/user-repository.interface';
 import { User } from '../../domain/entities/user.entity';
-import { Types } from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import { DuplicateError } from '@app/common/errors';
+import {
+  USER_EVENT_PUBLISHER,
+  UserEventPublisher,
+} from '../../domain/event-publisher/user-event.publisher';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
   constructor(
-    @Inject(USER_PROVIDER) private readonly userProvider: IUserProvider,
+    @Inject(USER_REPOSITORY) private readonly userProvider: UserRepository,
+    @Inject(USER_EVENT_PUBLISHER)
+    private readonly userEventClient: UserEventPublisher,
   ) {}
 
-  async createOwnerUser(
-    dto: CreateOwnerUserDto,
-  ): Promise<ApiResponse<UserDto | null>> {
+  async createUser(dto: CreateUserDto): Promise<User> {
     try {
       // Check if the user already exists
       const userExists = await this.userProvider.userExists(
         dto.email,
-        dto.phone,
+        dto.mobile,
       );
-      if (userExists)
-        return {
-          success: false,
-          error: {
-            code: 409,
-            message: 'The user already exists',
-          },
-        };
+      if (userExists) {
+        throw new DuplicateError(
+          `User with email ${dto.email} or phone ${dto.mobile} exists`,
+        );
+      }
 
-      const user = User.create(
-        new Types.ObjectId().toHexString(),
-        dto.accountId,
-        dto.email,
-        dto.phone,
-        dto.firstName,
-        dto.lastName,
-        'Admin',
-        await bcrypt.hash(dto.password, 10),
-        null,
-        UserRole.OWNER,
-        'default',
+      const user = await this.userProvider.createUser(
+        User.create(
+          dto.email,
+          dto.mobile,
+          dto.firstName,
+          dto.lastName,
+          dto.avatar,
+        ),
       );
-      await this.userProvider.add(user);
 
-      // Get the created user from db
-      const createdUser = await this.userProvider.findByEmail(dto.email);
+      // Publish the user created event
+      await this.userEventClient.userCreated(user);
 
-      return {
-        success: true,
-        data: createdUser ? this.toCommandDto(createdUser) : null,
-      };
+      return user;
     } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 500,
-          message: error.message,
-        },
-      };
+      this.logger.error(`error in ${this.createUser.name}: ${error.message}`);
+      throw error;
     }
   }
 
-  async createUser(dto: CreateUserDto): Promise<ApiResponse<UserDto | null>> {
+  async getUserById(id: string): Promise<User> {
     try {
-      // Check if the user already exists
-      const userExists = await this.userProvider.userExists(
-        dto.email,
-        dto.phone,
-      );
-      if (userExists)
-        return {
-          success: false,
-          error: {
-            code: 409,
-            message: 'The user already exists',
-          },
-        };
-
-      // Create the user
-      const user = User.create(
-        new Types.ObjectId().toHexString(),
-        dto.accountId,
-        dto.email,
-        dto.phone,
-        dto.firstName,
-        dto.lastName,
-        dto.title,
-        await bcrypt.hash(dto.password, 10),
-        null,
-        UserRole.OWNER,
-        'default',
-      );
-      await this.userProvider.add(user);
-
-      const createdUser = await this.userProvider.findByEmail(dto.email);
-      return {
-        success: true,
-        data: createdUser ? this.toCommandDto(createdUser) : null,
-      };
+      return await this.userProvider.getUserById(id);
     } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 500,
-          message: error.message,
-        },
-      };
+      this.logger.error(`error in ${this.getUserById.name}: ${error.message}`);
+      throw error;
     }
   }
 
-  async updateRefreshToken({
-    userId,
-    newToken,
-  }: UpdateRefreshTokenDto): Promise<ApiResponse<null>> {
+  async getUserByEmail(email: string): Promise<User> {
     try {
-      const user = await this.userProvider.findById(userId);
-      if (!user) return;
-
-      user.changeRefreshToken(newToken);
-      await this.userProvider.save(user);
-
-      return {
-        success: true,
-        data: null,
-      };
+      return await this.userProvider.getUserByEmail(email);
     } catch (error) {
-      return {
-        success: false,
-        error: {
-          code: 500,
-          message: error.message,
-        },
-      };
+      this.logger.error(
+        `error in ${this.getUserByEmail.name}: ${error.message}`,
+      );
+      throw error;
     }
   }
 
-  async getAccountUsers(accountId: string): Promise<GetUserUsersResponse> {
-    const users = await this.userProvider.findByAccount(accountId);
-
-    if (users && users.length > 0) {
-      return {
-        users: users.map((user) => ({
-          id: user._id.toHexString(),
-          createdAt: user.createdAt.toISOString(),
-          updatedAt: user.updatedAt.toISOString(),
-          account: user.account.toHexString(),
-          email: user.email,
-          phone: user.phone,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          title: user.title,
-          role: UserRole[user.role],
-          password: user.password,
-          refreshToken: user.refreshToken,
-        })),
-      };
-    } else {
-      return undefined;
+  async userExists(email: string, phone: string): Promise<boolean> {
+    try {
+      return await this.userProvider.userExists(email, phone);
+    } catch (error) {
+      this.logger.error(`error in ${this.userExists.name}: ${error.message}`);
+      throw error;
     }
-  }
-
-  async getUserIds(accountId: string): Promise<GetUserIdsResponse> {
-    const userIds = await this.userProvider.findIdsByAccount(accountId);
-    if (userIds && userIds.length > 0) {
-      return {
-        userIds: userIds,
-      };
-    } else return { userIds: undefined };
-  }
-
-  async getById(id: string): Promise<GetUserByIdResponse> {
-    const user = await this.userProvider.findById(id);
-
-    if (user) {
-      return {
-        id: user.id,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-        account: user.email,
-        email: user.email,
-        phone: user.phone,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        title: user.title,
-        role: UserRole[user.role],
-        password: user.password,
-        refreshToken: user.refreshToken,
-      };
-    } else {
-      return undefined;
-    }
-  }
-
-  async getByEmail(email: string): Promise<GetUserByEmailResponse> {
-    const user = await this.userProvider.findByEmail(email);
-
-    if (user) {
-      return {
-        id: user._id.toHexString(),
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-        account: user.account.toHexString(),
-        email: user.email,
-        phone: user.phone,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        title: user.title,
-        role: UserRole[user.role],
-        password: user.password,
-        refreshToken: user.refreshToken,
-      };
-    } else {
-      return undefined;
-    }
-  }
-
-  async userExists(email: string, phone: string): Promise<UserExistsResponse> {
-    const userExists = await this.userProvider.userExists(email, phone);
-
-    if (userExists) {
-      return {
-        userExists: !!userExists,
-      };
-    } else return { userExists: undefined };
-  }
-
-  private toCommandDto(user: UserModel): UserDto {
-    return {
-      id: user._id.toHexString(),
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      account: user.account.toHexString(),
-      email: user.email,
-      phone: user.phone,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      title: user.title,
-      refreshToken: user.refreshToken,
-      role: user.role,
-      avatar: user.avatar,
-      online: user.online,
-    };
   }
 }

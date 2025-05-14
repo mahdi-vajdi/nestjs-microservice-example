@@ -3,19 +3,24 @@ syntax = "proto3";
 package grpc_user;
 
 service UserService {
-  rpc GetAccountUsers(GetAccountUsersRequest) returns (UsersResponse) {}
-  rpc GetUsersIds(GetUserIdsRequest) returns (UsersIdsResponse) {}
-  rpc GetUserById(GetUserByIdRequest) returns (UserResponse) {}
-  rpc GetUserByEmail(GetUserByEmailRequest) returns (UserResponse) {}
-  rpc UserExists(UserExistsRequest) returns (UserExistsResponse) {}
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
+  rpc UserExists(UserExistsRequest) returns (UserExistsResponse);
 }
 
-message GetAccountUsersRequest {
-  string accountId = 1;
+message CreateUserRequest {
+  string email = 1;
+  string phone = 2;
+  string firstName = 3;
+  string lastName = 4;
+  string avatar = 6;
 }
 
-message GetUserIdsRequest {
-  string accountId = 1;
+message CreateUserResponse {
+  string id = 1;
+  string createdAt = 2;
+  string updatedAt = 3;
 }
 
 message GetUserByIdRequest {
@@ -26,42 +31,29 @@ message GetUserByEmailRequest {
   string userEmail = 1;
 }
 
-message UserExistsRequest {
-  string email = 1;
-  string phone = 2;
-}
-
-message UserMessage {
+message GetUserByIdResponse {
   string id = 1;
   string createdAt = 2;
   string updatedAt = 3;
-  string account = 4;
   string email = 5;
   string phone = 6;
   string firstName = 7;
   string lastName = 8;
-  string title = 9;
-  UserRole role = 10;
-  string password = 11;
-  string refreshToken = 12;
-
-  enum UserRole {
-    OWNER = 0;
-    ADMIN = 1;
-    AGENT = 2;
-  }
 }
 
-message UsersResponse {
-  repeated UserMessage users = 1;
+message GetUserByEmailResponse {
+  string id = 1;
+  string createdAt = 2;
+  string updatedAt = 3;
+  string email = 5;
+  string phone = 6;
+  string firstName = 7;
+  string lastName = 8;
 }
 
-message UsersIdsResponse {
-  repeated string usersIds = 1;
-}
-
-message UserResponse {
-  UserMessage user = 1;
+message UserExistsRequest {
+  string email = 1;
+  string phone = 2;
 }
 
 message UserExistsResponse {

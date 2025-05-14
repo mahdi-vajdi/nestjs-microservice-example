@@ -1,13 +1,22 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/account/src",
+  "sourceRoot": "apps/gateway/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/account/tsconfig.app.json"
+    "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {
+    "project-service": {
+      "type": "application",
+      "root": "apps/project",
+      "entryFile": "main",
+      "sourceRoot": "apps/project/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/project/tsconfig.app.json"
+      }
+    },
     "admin-common": {
       "type": "library",
       "root": "libs/common",
@@ -24,24 +33,6 @@
         ]
       }
     },
-    "channel-service": {
-      "type": "application",
-      "root": "apps/channel",
-      "entryFile": "main",
-      "sourceRoot": "apps/channel/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/channel/tsconfig.app.json"
-      }
-    },
-    "account-service": {
-      "type": "application",
-      "root": "apps/account",
-      "entryFile": "main",
-      "sourceRoot": "apps/account/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/account/tsconfig.app.json"
-      }
-    },
     "auth-service": {
       "type": "application",
       "root": "apps/auth",
@@ -51,15 +42,6 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
-    "user-service": {
-      "type": "application",
-      "root": "apps/user",
-      "entryFile": "main",
-      "sourceRoot": "apps/user/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/user/tsconfig.app.json"
-      }
-    },
     "gateway-service": {
       "type": "application",
       "root": "apps/gateway",
@@ -67,6 +49,24 @@
       "sourceRoot": "apps/gateway/src",
       "compilerOptions": {
         "tsConfigPath": "apps/gateway/tsconfig.app.json"
+      }
+    },
+    "infrastructure": {
+      "type": "library",
+      "root": "libs/infrastructure",
+      "entryFile": "index",
+      "sourceRoot": "libs/infrastructure/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/infrastructure/tsconfig.lib.json"
+      }
+    },
+    "user-service": {
+      "type": "application",
+      "root": "apps/user",
+      "entryFile": "main",
+      "sourceRoot": "apps/user/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/user/tsconfig.app.json"
       }
     }
   },

@@ -3,23 +3,57 @@ syntax = "proto3";
 package grpc_auth;
 
 service AuthService {
-  rpc VerifyAccessToken(VerifyAccessTokenMessage)
-      returns (JwtPayloadMessage) {}
-  rpc VerifyRefreshToken(VerifyRefreshTokenMessage)
-      returns (JwtPayloadMessage) {}
+  rpc CreateCredential(CreateCredentialRequest) returns (CreateCredentialResponse);
+  rpc Signin(SigninRequest) returns (SigninResponse);
+  rpc Signout(SignoutRequest) returns (SignoutResponse);
+  rpc RefreshTokens(RefreshTokensRequest) returns (RefreshTokensResponse);
+  rpc VerifyRefreshToken(VerifyRefreshTokenRequest) returns (VerifyRefreshTokenResponse);
 }
 
-message VerifyAccessTokenMessage {
-  string accessToken = 1;
+message CreateCredentialRequest {
+  string userId = 1;
+  string password = 2;
 }
 
-message VerifyRefreshTokenMessage {
+message CreateCredentialResponse {
+  string createdAt = 1;
+}
+
+message SigninRequest {
+  string userId = 1;
+  string password = 2;
+}
+
+message SigninResponse {
+  string refreshToken = 1;
+  string accessToken = 2;
+}
+
+message SignoutRequest {
+  string userId = 1;
+  string tokenIdentifier = 2;
+}
+
+message SignoutResponse {
+  bool signedOut = 1;
+}
+
+message RefreshTokensRequest {
+  string userId = 1;
+  string refreshToken = 2;
+}
+
+message RefreshTokensResponse {
+  string refreshToken = 1;
+  string accessToken = 2;
+}
+
+
+message VerifyRefreshTokenRequest {
   string refreshToken = 1;
 }
 
-message JwtPayloadMessage {
-  string sub = 1;
-  string email = 2;
-  string account = 3;
-  string role = 4;
+message VerifyRefreshTokenResponse {
+  bool verified = 1;
 }
+

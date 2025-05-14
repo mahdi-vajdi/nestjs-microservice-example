@@ -3,6 +3,5 @@ export interface CreateUserDto {
   mobile: string;
   firstName: string;
   lastName: string;
-  password: string;
   avatar: string;
 }

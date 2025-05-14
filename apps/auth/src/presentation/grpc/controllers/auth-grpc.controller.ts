@@ -9,10 +9,10 @@ import {
   CreateCredentialResponse,
   RefreshTokensRequest,
   RefreshTokensResponse,
+  SigninRequest,
+  SigninResponse,
   SignoutRequest,
   SignoutResponse,
-  VerifyPasswordRequest,
-  VerifyPasswordResponse,
   VerifyRefreshTokenRequest,
   VerifyRefreshTokenResponse,
 } from '@app/common/grpc/models/auth.proto';
@@ -37,16 +37,11 @@ export class AuthGrpcController implements AuthServiceController {
     }
   }
 
-  async verifyPassword(
-    req: VerifyPasswordRequest,
-  ): Promise<VerifyPasswordResponse> {
+  async signin(req: SigninRequest): Promise<SigninResponse> {
     try {
-      const res = await this.authService.verifyUserPassword(
-        req.userId,
-        req.password,
-      );
+      const res = await this.authService.signin(req.userId, req.password);
 
-      return { verified: res };
+      return { refreshToken: res.refreshToken, accessToken: res.accessToken };
     } catch (error) {
       throw new RpcException(Result.error(error));
     }

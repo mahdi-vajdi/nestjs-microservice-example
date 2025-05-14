@@ -13,6 +13,8 @@ import { JwtService } from '@nestjs/jwt';
 import { RefreshToken } from '../../domain/entities/refresh-token.entity';
 import * as crypto from 'node:crypto';
 import { JwtPayload } from '../../domain/types/jwt-payload.type';
+import { UnauthorizedError } from '@app/common/errors/unauthorized.error';
+import { SigninDto } from './dto/signin.dto';
 
 @Injectable()
 export class AuthService {
@@ -55,11 +57,28 @@ export class AuthService {
     }
   }
 
-  async verifyUserPassword(userId: string, password: string): Promise<boolean> {
+  async signin(userId: string, password: string): Promise<SigninDto> {
     try {
       const credential = await this.authRepository.getCredential(userId);
 
-      return await bcrypt.compare(password, credential.passwordHash);
+      const passwordMatches = await bcrypt.compare(
+        password,
+        credential.passwordHash,
+      );
+      if (!passwordMatches) {
+        throw new UnauthorizedError("Password doesn't match");
+      }
+
+      const refreshIdentifier = crypto.randomUUID();
+      const [accessToken, refreshToken] = await Promise.all([
+        this.generateAccessToken(userId),
+        this.generateRefreshToken(userId, refreshIdentifier),
+      ]);
+
+      return {
+        refreshToken: refreshToken,
+        accessToken: accessToken,
+      };
     } catch (error) {
       this.logger.error(
         `error verifying password for user ${userId}: ${error.message}`,
@@ -92,21 +111,10 @@ export class AuthService {
         identifier,
       );
 
-      const payload: JwtPayload = {
-        sub: userId,
-      };
-
       const refreshJwtId = crypto.randomUUID();
       const [accessJWT, refreshJWT] = await Promise.all([
-        this.jwtService.signAsync(payload, {
-          secret: this.authConfig.accessJWTSecret,
-          expiresIn: '1d',
-        }),
-        this.jwtService.signAsync(payload, {
-          secret: this.authConfig.refreshJWTSecret,
-          expiresIn: '7d',
-          jwtid: refreshJwtId,
-        }),
+        this.generateAccessToken(userId),
+        this.generateRefreshToken(userId, refreshJwtId),
       ]);
 
       // Delete the old refresh token
@@ -115,7 +123,7 @@ export class AuthService {
       try {
         // Save the new refresh token
         await this.authRepository.createRefreshToken(
-          RefreshToken.create(userId, refreshJWT),
+          RefreshToken.create(userId, refreshJwtId),
         );
       } catch (error) {
         this.logger.error(
@@ -157,5 +165,23 @@ export class AuthService {
       this.logger.error(`error verifying refresh token: ${error}`);
       throw error;
     }
+  }
+
+  private async generateRefreshToken(
+    userId: string,
+    jwtId: string,
+  ): Promise<string> {
+    return await this.jwtService.signAsync({ sub: userId } as JwtPayload, {
+      secret: this.authConfig.refreshJWTSecret,
+      expiresIn: '7d',
+      jwtid: jwtId,
+    });
+  }
+
+  private async generateAccessToken(userId: string): Promise<string> {
+    return await this.jwtService.signAsync({ sub: userId } as JwtPayload, {
+      secret: this.authConfig.accessJWTSecret,
+      expiresIn: '1d',
+    });
   }
 }

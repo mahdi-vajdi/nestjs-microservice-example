@@ -5,7 +5,6 @@ import {
   UserRepository,
 } from '../../domain/repositories/user-repository.interface';
 import { User } from '../../domain/entities/user.entity';
-import * as bcrypt from 'bcryptjs';
 import { DuplicateError } from '@app/common/errors';
 import {
   USER_EVENT_PUBLISHER,
@@ -35,15 +34,12 @@ export class UserService {
         );
       }
 
-      const hashedPassword = await bcrypt.hash(dto.password, 10);
-
       const user = await this.userProvider.createUser(
         User.create(
           dto.email,
           dto.mobile,
           dto.firstName,
           dto.lastName,
-          hashedPassword,
           dto.avatar,
         ),
       );

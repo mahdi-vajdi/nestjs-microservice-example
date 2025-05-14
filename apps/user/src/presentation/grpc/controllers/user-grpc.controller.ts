@@ -31,7 +31,6 @@ export class UserGrpcController implements UserServiceController {
         mobile: dto.phone,
         firstName: dto.firstName,
         lastName: dto.lastName,
-        password: dto.password,
         avatar: dto.avatar,
       });
 
@@ -57,7 +56,6 @@ export class UserGrpcController implements UserServiceController {
         phone: user.mobile,
         firstName: user.firstName,
         lastName: user.lastName,
-        password: user.password,
       };
     } catch (error) {
       this.logger.error(`error in ${this.getUserById.name}: ${error.message}`);
@@ -78,7 +76,6 @@ export class UserGrpcController implements UserServiceController {
         phone: user.mobile,
         firstName: user.firstName,
         lastName: user.lastName,
-        password: user.password,
       };
     } catch (error) {
       this.logger.error(

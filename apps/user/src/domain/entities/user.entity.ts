@@ -4,7 +4,6 @@ export class User {
   mobile: string;
   firstName: string;
   lastName: string;
-  password: string;
   avatar: string;
   createdAt: Date;
   updatedAt: Date;
@@ -19,7 +18,6 @@ export class User {
     phone: string,
     firstName: string,
     lastName: string,
-    password: string,
     avatar: string,
   ): User {
     return new User({
@@ -27,7 +25,6 @@ export class User {
       mobile: phone,
       firstName: firstName,
       lastName: lastName,
-      password: password,
       avatar: avatar,
     });
   }

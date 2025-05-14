@@ -19,13 +19,14 @@ export interface CreateCredentialResponse {
   createdAt: string;
 }
 
-export interface VerifyPasswordRequest {
+export interface SigninRequest {
   userId: string;
   password: string;
 }
 
-export interface VerifyPasswordResponse {
-  verified: boolean;
+export interface SigninResponse {
+  refreshToken: string;
+  accessToken: string;
 }
 
 export interface SignoutRequest {
@@ -60,7 +61,7 @@ export const GRPC_AUTH_PACKAGE_NAME = "grpc_auth";
 export interface AuthServiceClient {
   createCredential(request: CreateCredentialRequest): Observable<CreateCredentialResponse>;
 
-  verifyPassword(request: VerifyPasswordRequest): Observable<VerifyPasswordResponse>;
+  signin(request: SigninRequest): Observable<SigninResponse>;
 
   signout(request: SignoutRequest): Observable<SignoutResponse>;
 
@@ -74,9 +75,7 @@ export interface AuthServiceController {
     request: CreateCredentialRequest,
   ): Promise<CreateCredentialResponse> | Observable<CreateCredentialResponse> | CreateCredentialResponse;
 
-  verifyPassword(
-    request: VerifyPasswordRequest,
-  ): Promise<VerifyPasswordResponse> | Observable<VerifyPasswordResponse> | VerifyPasswordResponse;
+  signin(request: SigninRequest): Promise<SigninResponse> | Observable<SigninResponse> | SigninResponse;
 
   signout(request: SignoutRequest): Promise<SignoutResponse> | Observable<SignoutResponse> | SignoutResponse;
 
@@ -91,13 +90,7 @@ export interface AuthServiceController {
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = [
-      "createCredential",
-      "verifyPassword",
-      "signout",
-      "refreshTokens",
-      "verifyRefreshToken",
-    ];
+    const grpcMethods: string[] = ["createCredential", "signin", "signout", "refreshTokens", "verifyRefreshToken"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);

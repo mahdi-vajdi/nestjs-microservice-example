@@ -15,7 +15,6 @@ export interface CreateUserRequest {
   phone: string;
   firstName: string;
   lastName: string;
-  password: string;
   avatar: string;
 }
 
@@ -41,7 +40,6 @@ export interface GetUserByIdResponse {
   phone: string;
   firstName: string;
   lastName: string;
-  password: string;
 }
 
 export interface GetUserByEmailResponse {
@@ -52,7 +50,6 @@ export interface GetUserByEmailResponse {
   phone: string;
   firstName: string;
   lastName: string;
-  password: string;
 }
 
 export interface UserExistsRequest {

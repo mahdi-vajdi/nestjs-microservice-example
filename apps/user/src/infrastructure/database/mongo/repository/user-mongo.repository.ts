@@ -20,7 +20,7 @@ export class UserMongoRepository implements UserRepository {
       const user = await this.userModel.findById(userId).lean().exec();
 
       if (!user) throw new NotFoundError('User not found');
-      return this.toDomain(user);
+      return UserModel.toDomain(user);
     } catch (error) {
       this.logger.error(`error in ${this.getUserById}: ${error.message}`);
 
@@ -33,7 +33,7 @@ export class UserMongoRepository implements UserRepository {
   async getUserByEmail(email: string): Promise<User> {
     try {
       const user = await this.userModel.findOne({ email: email }).lean().exec();
-      return this.toDomain(user);
+      return UserModel.toDomain(user);
     } catch (error) {
       this.logger.error(`error in ${this.getUserByEmail}: ${error.message}`);
 
@@ -50,7 +50,7 @@ export class UserMongoRepository implements UserRepository {
         .lean()
         .exec();
 
-      return res.map((user) => this.toDomain(user));
+      return res.map((user) => UserModel.toDomain(user));
     } catch (error) {
       this.logger.error(
         `error in ${this.getUsersByAccountId}: ${error.message}`,
@@ -99,8 +99,8 @@ export class UserMongoRepository implements UserRepository {
 
   async createUser(entity: User): Promise<User> {
     try {
-      const res = await this.userModel.create(this.fromDomain(entity));
-      return this.toDomain(res);
+      const res = await this.userModel.create(UserModel.fromDomain(entity));
+      return UserModel.toDomain(res);
     } catch (error) {
       this.logger.error(`error in ${this.createUser}: ${error.message}`);
 
@@ -132,38 +132,5 @@ export class UserMongoRepository implements UserRepository {
         throw new DatabaseError(error.message);
       else throw new Error(error.message);
     }
-  }
-
-  private fromDomain(user: User): UserModel {
-    if (!user) return null;
-
-    const userModel = new UserModel();
-
-    userModel.email = user.email;
-    userModel.mobile = user.mobile;
-    userModel.firstName = user.firstName;
-    userModel.lastName = user.lastName;
-    userModel.password = user.password;
-    userModel.avatar = user.avatar;
-    userModel.deletedAt = user.deletedAt;
-
-    return userModel;
-  }
-
-  private toDomain(userModel: UserModel): User {
-    if (!userModel) return null;
-
-    return new User({
-      id: userModel._id.toHexString(),
-      email: userModel.email,
-      mobile: userModel.mobile,
-      firstName: userModel.firstName,
-      lastName: userModel.lastName,
-      password: userModel.password,
-      avatar: userModel.avatar,
-      createdAt: userModel.createdAt,
-      updatedAt: userModel.updatedAt,
-      deletedAt: userModel.deletedAt,
-    });
   }
 }

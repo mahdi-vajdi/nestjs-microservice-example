@@ -12,7 +12,7 @@ async function bootstrap() {
 
   app.useLogger(logger);
   app.use(cookieParser());
-  app.setGlobalPrefix('dashboard');
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(configService.getOrThrow('HTTP_PORT'));

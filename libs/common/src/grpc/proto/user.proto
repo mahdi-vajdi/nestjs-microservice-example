@@ -14,7 +14,6 @@ message CreateUserRequest {
   string phone = 2;
   string firstName = 3;
   string lastName = 4;
-  string password = 5;
   string avatar = 6;
 }
 
@@ -40,7 +39,6 @@ message GetUserByIdResponse {
   string phone = 6;
   string firstName = 7;
   string lastName = 8;
-  string password = 11;
 }
 
 message GetUserByEmailResponse {
@@ -51,7 +49,6 @@ message GetUserByEmailResponse {
   string phone = 6;
   string firstName = 7;
   string lastName = 8;
-  string password = 11;
 }
 
 message UserExistsRequest {

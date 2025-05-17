@@ -9,6 +9,7 @@
     "libs/*"
   ],
   "scripts": {
+    "prebuild": "rm -rf dist",
     "build": "nest build --all",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",

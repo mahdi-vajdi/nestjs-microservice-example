@@ -1,7 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LoggerService, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  LoggerService,
+  ValidationPipe,
+} from '@nestjs/common';
 import { LOGGER_PROVIDER } from '@app/common/logger/provider/logger.provider';
 import {
   HTTP_CONFIG_TOKEN,
@@ -10,6 +14,7 @@ import {
 } from './presentation/http/config/http.config';
 import { LoggerModule } from '@app/common/logger/logger.module';
 import { WinstonLoggerService } from '@app/common/logger/winston/winston-logger.service';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function loadLogger(): Promise<LoggerService> {
   const appContext = await NestFactory.createApplicationContext(LoggerModule, {
@@ -30,6 +35,28 @@ async function loadConfig(): Promise<ConfigService> {
   return appContext.get<ConfigService>(ConfigService);
 }
 
+function setupSwagger(app: INestApplication): void {
+  const config = new DocumentBuilder()
+    .setTitle('NestJS Microservice Example')
+    .setDescription('The API Gateway for the NestJS Microservice Example')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const documentFactory = () =>
+    SwaggerModule.createDocument(app, config, {
+      deepScanRoutes: true,
+    });
+
+  SwaggerModule.setup('swagger', app, documentFactory, {
+    explorer: true,
+    useGlobalPrefix: false,
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+}
+
 async function bootstrap() {
   const logger = await loadLogger();
   const configService = await loadConfig();
@@ -41,6 +68,8 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+  setupSwagger(app);
 
   const httpConfig = configService.get<HttpConfig>(HTTP_CONFIG_TOKEN);
 

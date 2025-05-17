@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { RefreshTokenGuard } from '../../guards/refresh-token.guard';
 import { SignupRequest, SignupResponse } from './models/signup.model';
@@ -26,8 +18,10 @@ import {
   UserQueryHandler,
 } from '../../../../domain/query/interfaces/user-query.handler';
 import { RefreshTokensResponse } from './models/refresh-tokens.model';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthHttpController {
   constructor(
     @Inject(AUTH_COMMAND_HANDLER)
@@ -39,6 +33,7 @@ export class AuthHttpController {
   ) {}
 
   @Post('signup')
+  @ApiOkResponse({ type: SignupResponse })
   async signup(@Body() body: SignupRequest): Promise<SignupResponse> {
     const createUserRes = await this.userCommandHandler.createUser({
       email: body.email,
@@ -65,6 +60,7 @@ export class AuthHttpController {
   }
 
   @Post('signin')
+  @ApiOkResponse({ type: SigninResponse })
   async signin(@Body() body: SigninRequest): Promise<SigninResponse> {
     const getUserRes = await this.userQueryHandler.getUserByEmail(body.email);
 
@@ -81,6 +77,7 @@ export class AuthHttpController {
 
   @UseGuards(AccessTokenGuard)
   @Post('signout')
+  @ApiOkResponse({})
   async signout(@Req() req: Request): Promise<void> {
     const jwtPayload = req['user'] as JwtPayloadDto;
 
@@ -91,7 +88,8 @@ export class AuthHttpController {
   }
 
   @UseGuards(RefreshTokenGuard)
-  @Get('refresh')
+  @Post('refresh')
+  @ApiOkResponse({ type: RefreshTokensResponse })
   async refreshTokens(@Req() req: Request): Promise<RefreshTokensResponse> {
     // the refreshToken jwt has been validated by refreshTokenGuard
     const refreshToken = req.cookies.refresh_token;

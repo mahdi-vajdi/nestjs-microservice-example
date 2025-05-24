@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-project-manager",
+  "name": "nestjs-microservice-example",
   "author": "Mahdi Vajdi",
   "description": "",
   "private": false,
@@ -9,6 +9,7 @@
     "libs/*"
   ],
   "scripts": {
+    "prebuild": "rm -rf dist",
     "build": "nest build --all",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",

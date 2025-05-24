@@ -1,4 +1,4 @@
-import { EventMessage } from '@app/common/nats/event.model';
+import { EventMessage } from '@app/common/events/event.model';
 
 export class UserCreated implements EventMessage {
   id: string;

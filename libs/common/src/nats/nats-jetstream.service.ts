@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Event, EventMessage } from '@app/common/nats/event.model';
+import { Event, EventMessage } from '@app/common/events/event.model';
 import { lastValueFrom } from 'rxjs';
 
 export abstract class NatsJetstreamService {

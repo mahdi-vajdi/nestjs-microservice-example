@@ -1,7 +1,7 @@
 {
-  "name": "admin-common",
+  "name": "common-lib",
   "version": "1.0.0",
-  "description": "",
+  "description": "The shared modules for the apps",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,12 +14,9 @@
   "dependencies": {
     "@nestjs/common": "^11.0.11",
     "@nestjs/microservices": "^11.0.12",
-    "mongoose": "^8.12.1",
-    "nats": "^2.29.3",
+    "joi": "^17.13.3",
     "nest-winston": "^1.10.2",
-    "nestjs-pino": "^4.3.1",
     "rxjs": "^7.8.2",
-    "typeorm": "^0.3.21",
     "winston": "^3.17.0"
   },
   "devDependencies": {

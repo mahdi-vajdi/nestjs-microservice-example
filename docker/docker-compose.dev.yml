@@ -3,7 +3,6 @@ services:
     build:
       context: ../
       dockerfile: docker/base-build.Dockerfile
-    image: base-build
 
   project-service:
     container_name: project-service
@@ -35,6 +34,7 @@ services:
     depends_on:
       - base
       - nats
+      - mongo
 
   auth-service:
     container_name: auth-service
@@ -50,6 +50,7 @@ services:
     depends_on:
       - base
       - nats
+      - mongo
 
   gateway-service:
     container_name: gateway-service
@@ -73,11 +74,11 @@ services:
 
   mongo:
     image: mongo
-    container_name: admin-mongodb
+    container_name: mongo
 
   nats:
     image: nats
-    container_name: admin-nats
+    container_name: nats
     ports:
       - '4222:4222'
       - '8222:8222'

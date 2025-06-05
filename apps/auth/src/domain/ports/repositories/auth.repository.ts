@@ -1,5 +1,5 @@
-import { RefreshToken } from '../entities/refresh-token.entity';
-import { Credential } from '../entities/credential.entity';
+import { RefreshToken } from '../../entities/refresh-token.entity';
+import { Credential } from '../../entities/credential.entity';
 
 export interface AuthReader {
   getRefreshToken(userId: string, identifier: string): Promise<RefreshToken>;

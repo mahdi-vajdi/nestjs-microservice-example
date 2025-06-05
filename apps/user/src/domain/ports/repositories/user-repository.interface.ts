@@ -1,5 +1,5 @@
-import { User } from '../entities/user.entity';
-import { UpdateUserOptions } from './options/update-user.options';
+import { User } from '../../entities/user.entity';
+import { UpdateUserOptions } from './dtos/update-user.options';
 
 export interface UserReader {
   getUserById(id: string): Promise<User>;
@@ -16,7 +16,7 @@ export interface UserReader {
 export interface UserWriter {
   createUser(entity: User): Promise<User>;
 
-  updateUser(id: string, queryable: UpdateUserOptions): Promise<boolean>;
+  updateUser(id: string, options: UpdateUserOptions): Promise<boolean>;
 }
 
 export interface UserRepository extends UserReader, UserWriter {}

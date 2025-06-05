@@ -1,7 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { Payload, RpcException } from '@nestjs/microservices';
 import { Result } from '@app/common/result';
-import { UserService } from '../../../application/services/user.service';
 import {
   CreateUserRequest,
   CreateUserResponse,
@@ -14,25 +13,35 @@ import {
   UserServiceController,
   UserServiceControllerMethods,
 } from '@app/common/grpc/models/user.proto';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../../../domain/commands/impl/create-user.command';
+import { GetUserByIdQuery } from '../../../domain/queries/impl/get-user-by-id.query';
+import { GetUserByEmailQuery } from '../../../domain/queries/impl/get-user-by-email.query';
+import { UserExistsQuery } from '../../../domain/queries/impl/user-exists.query';
 
 @Controller()
 @UserServiceControllerMethods()
 export class UserGrpcController implements UserServiceController {
   private readonly logger = new Logger(UserGrpcController.name);
 
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   async createUser(
     @Payload() dto: CreateUserRequest,
   ): Promise<CreateUserResponse> {
     try {
-      const user = await this.userService.createUser({
-        email: dto.email,
-        mobile: dto.phone,
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        avatar: dto.avatar,
-      });
+      const user = await this.commandBus.execute(
+        new CreateUserCommand(
+          dto.email,
+          dto.phone,
+          dto.firstName,
+          dto.lastName,
+          dto.avatar,
+        ),
+      );
 
       return {
         id: user.id,
@@ -47,7 +56,10 @@ export class UserGrpcController implements UserServiceController {
 
   async getUserById(req: GetUserByIdRequest): Promise<GetUserByIdResponse> {
     try {
-      const user = await this.userService.getUserById(req.userId);
+      const user = await this.queryBus.execute(
+        new GetUserByIdQuery(req.userId),
+      );
+
       return {
         id: user.id,
         createdAt: user.createdAt.toISOString(),
@@ -67,7 +79,10 @@ export class UserGrpcController implements UserServiceController {
     req: GetUserByEmailRequest,
   ): Promise<GetUserByEmailResponse> {
     try {
-      const user = await this.userService.getUserByEmail(req.userEmail);
+      const user = await this.queryBus.execute(
+        new GetUserByEmailQuery(req.userEmail),
+      );
+
       return {
         id: user.id,
         createdAt: user.createdAt.toISOString(),
@@ -87,7 +102,10 @@ export class UserGrpcController implements UserServiceController {
 
   async userExists(req: UserExistsRequest): Promise<UserExistsResponse> {
     try {
-      const res = await this.userService.userExists(req.email, req.phone);
+      const res = await this.queryBus.execute(
+        new UserExistsQuery(req.email, req.phone),
+      );
+
       return { userExists: res };
     } catch (error) {
       this.logger.error(`error in ${this.userExists.name}: ${error.message}`);

@@ -2,17 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { NatsJetStreamClientProxy } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 import { UserCreated } from '@app/common/events/user/user-created.event';
 import { User } from '../../../domain/entities/user.entity';
-import { UserEventPublisher } from '../../../domain/event-publisher/user-event.publisher';
+import { ExternalEventPublisher } from '../../../domain/ports/external-event-publisher/external-event-publisher';
 import { NatsJetstreamService } from '@app/common/nats/nats-jetstream.service';
 import { ClientProxy } from '@nestjs/microservices';
 import * as crypto from 'node:crypto';
 
 @Injectable()
-export class UserNatsPublisher
+export class NatsEventPublisher
   extends NatsJetstreamService
-  implements UserEventPublisher
+  implements ExternalEventPublisher
 {
-  logger = new Logger(UserNatsPublisher.name);
+  logger = new Logger(NatsEventPublisher.name);
 
   constructor(private readonly natsClient: NatsJetStreamClientProxy) {
     super();

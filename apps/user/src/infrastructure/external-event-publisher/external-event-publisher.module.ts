@@ -6,8 +6,8 @@ import {
   NatsConfig,
   natsConfig,
 } from '@app/common/nats/nats.config';
-import { UserNatsPublisher } from './nats/user-nats.publisher';
-import { USER_EVENT_PUBLISHER } from '../../domain/event-publisher/user-event.publisher';
+import { NatsEventPublisher } from './nats/nats.event-publisher';
+import { EXTERNAL_EVENT_PUBLISHER } from '../../domain/ports/external-event-publisher/external-event-publisher';
 
 @Module({
   imports: [
@@ -28,10 +28,10 @@ import { USER_EVENT_PUBLISHER } from '../../domain/event-publisher/user-event.pu
   ],
   providers: [
     {
-      provide: USER_EVENT_PUBLISHER,
-      useClass: UserNatsPublisher,
+      provide: EXTERNAL_EVENT_PUBLISHER,
+      useClass: NatsEventPublisher,
     },
   ],
-  exports: [USER_EVENT_PUBLISHER],
+  exports: [EXTERNAL_EVENT_PUBLISHER],
 })
-export class EventPublisherModule {}
+export class ExternalEventPublisherModule {}

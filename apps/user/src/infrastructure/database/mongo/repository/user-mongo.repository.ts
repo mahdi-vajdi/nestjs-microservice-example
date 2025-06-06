@@ -1,11 +1,11 @@
-import { UserRepository } from '../../../../domain/repositories/user-repository.interface';
+import { UserRepository } from '../../../../domain/ports/repositories/user-repository.interface';
 import { Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, MongooseError } from 'mongoose';
 import { User } from '../../../../domain/entities/user.entity';
 import { UserModel } from '../schemas/user.schema';
 import { DatabaseError, NotFoundError } from '@app/common/errors';
-import { UpdateUserOptions } from '../../../../domain/repositories/options/update-user.options';
+import { UpdateUserOptions } from '../../../../domain/ports/repositories/dtos/update-user.options';
 
 export class UserMongoRepository implements UserRepository {
   private readonly logger = new Logger(UserMongoRepository.name);

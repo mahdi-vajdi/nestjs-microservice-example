@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AuthRepository } from '../../../../domain/repositories/auth.repository';
+import { AuthRepository } from '../../../../domain/ports/repositories/auth.repository';
 import { InjectModel } from '@nestjs/mongoose';
 import { RefreshTokenModel } from '../schemas/refresh-token.schema';
 import { Model, MongooseError } from 'mongoose';

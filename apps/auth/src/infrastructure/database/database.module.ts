@@ -6,7 +6,7 @@ import {
   RefreshTokenModel,
   RefreshTokenSchema,
 } from './mongo/schemas/refresh-token.schema';
-import { AUTH_REPOSITORY } from '../../domain/repositories/auth.repository';
+import { AUTH_REPOSITORY } from '../../domain/ports/repositories/auth.repository';
 import { AuthMongoRepository } from './mongo/repository/auth-mongo.repository';
 import {
   CredentialModel,

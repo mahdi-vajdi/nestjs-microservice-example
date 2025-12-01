@@ -4,72 +4,39 @@
   "sourceRoot": "apps/gateway/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
+    "webpack": false,
+    "builder": "swc",
     "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {
-    "project-service": {
-      "type": "application",
-      "root": "apps/project",
-      "entryFile": "main",
-      "sourceRoot": "apps/project/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/project/tsconfig.app.json"
-      }
-    },
-    "auth-service": {
-      "type": "application",
-      "root": "apps/auth",
-      "entryFile": "main",
-      "sourceRoot": "apps/auth/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/auth/tsconfig.app.json"
-      }
-    },
-    "gateway-service": {
-      "type": "application",
-      "root": "apps/gateway",
-      "entryFile": "main",
-      "sourceRoot": "apps/gateway/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/gateway/tsconfig.app.json"
-      }
-    },
-    "user-service": {
-      "type": "application",
-      "root": "apps/user",
-      "entryFile": "main",
-      "sourceRoot": "apps/user/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/user/tsconfig.app.json"
-      }
-    },
-    "common-lib": {
+    "identity": {
       "type": "library",
-      "root": "libs/common",
+      "root": "libs/identity",
       "entryFile": "index",
-      "sourceRoot": "libs/common/src",
+      "sourceRoot": "libs/identity/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/common/tsconfig.lib.json",
-        "assets": [
-          {
-            "include": "**/*.proto",
-            "watchAssets": true,
-            "outDir": "dist/libs/common"
-          }
-        ]
+        "tsConfigPath": "libs/identity/tsconfig.lib.json"
       }
     },
-    "infrastructure-lib": {
-      "type": "library",
-      "root": "libs/infrastructure",
-      "entryFile": "index",
-      "sourceRoot": "libs/infrastructure/src",
+    "identity-service": {
+      "type": "application",
+      "root": "apps/identity-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/identity-service/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/infrastructure/tsconfig.lib.json"
+        "tsConfigPath": "apps/identity-service/tsconfig.app.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
     }
   },
   "monorepo": true,
-  "root": "apps/gateway"
+  "root": "apps/api-gateway"
 }

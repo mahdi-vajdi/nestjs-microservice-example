@@ -4,10 +4,6 @@
   "description": "",
   "private": false,
   "license": "UNLICENSED",
-  "workspaces": [
-    "apps/*",
-    "libs/*"
-  ],
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "nest build --all",
@@ -50,12 +46,12 @@
   },
   "dependencies": {
     "@nestjs/common": "11.1.9",
+    "@nestjs/config": "4.0.2",
     "@nestjs/cqrs": "11.0.3",
     "@nestjs/typeorm": "11.0.0",
     "bcrypt": "6.0.0",
-    "typeorm": "0.3.27",
-    "@nestjs/config": "4.0.2",
     "pg": "8.16.3",
+    "typeorm": "0.3.27",
     "zod": "4.1.13"
   },
   "devDependencies": {
@@ -63,6 +59,7 @@
     "@nestjs/schematics": "11.0.9",
     "@swc/cli": "0.7.9",
     "@swc/core": "1.15.3",
+    "@types/bcrypt": "6.0.0",
     "@types/express": "5.0.5",
     "@types/jest": "30.0.0",
     "@types/node": "24.10.1",

@@ -4,7 +4,8 @@
   "sourceRoot": "apps/gateway/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
+    "webpack": false,
+    "builder": "swc",
     "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {

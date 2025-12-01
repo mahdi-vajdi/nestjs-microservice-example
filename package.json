@@ -48,6 +48,16 @@
       "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1"
     }
   },
+  "dependencies": {
+    "@nestjs/common": "11.1.9",
+    "@nestjs/cqrs": "11.0.3",
+    "@nestjs/typeorm": "11.0.0",
+    "bcrypt": "6.0.0",
+    "typeorm": "0.3.27",
+    "@nestjs/config": "4.0.2",
+    "pg": "8.16.3",
+    "zod": "4.1.13"
+  },
   "devDependencies": {
     "@nestjs/cli": "11.0.14",
     "@nestjs/schematics": "11.0.9",

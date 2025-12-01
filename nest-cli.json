@@ -8,40 +8,6 @@
     "tsConfigPath": "apps/gateway/tsconfig.app.json"
   },
   "projects": {
-    "auth-service": {
-      "type": "application",
-      "root": "apps/auth",
-      "entryFile": "main",
-      "sourceRoot": "apps/auth/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/auth/tsconfig.app.json"
-      }
-    },
-    "common-lib": {
-      "type": "library",
-      "root": "libs/common",
-      "entryFile": "index",
-      "sourceRoot": "libs/common/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/common/tsconfig.lib.json",
-        "assets": [
-          {
-            "include": "**/*.proto",
-            "watchAssets": true,
-            "outDir": "dist/libs/common"
-          }
-        ]
-      }
-    },
-    "gateway-service": {
-      "type": "application",
-      "root": "apps/gateway",
-      "entryFile": "main",
-      "sourceRoot": "apps/gateway/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/gateway/tsconfig.app.json"
-      }
-    },
     "identity": {
       "type": "library",
       "root": "libs/identity",
@@ -60,15 +26,6 @@
         "tsConfigPath": "apps/identity-service/tsconfig.app.json"
       }
     },
-    "project-service": {
-      "type": "application",
-      "root": "apps/project",
-      "entryFile": "main",
-      "sourceRoot": "apps/project/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/project/tsconfig.app.json"
-      }
-    },
     "shared": {
       "type": "library",
       "root": "libs/shared",
@@ -77,17 +34,8 @@
       "compilerOptions": {
         "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
-    },
-    "user-service": {
-      "type": "application",
-      "root": "apps/user",
-      "entryFile": "main",
-      "sourceRoot": "apps/user/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/user/tsconfig.app.json"
-      }
     }
   },
   "monorepo": true,
-  "root": "apps/gateway"
+  "root": "apps/api-gateway"
 }

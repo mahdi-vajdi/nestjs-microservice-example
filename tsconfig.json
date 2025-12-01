@@ -22,30 +22,10 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/common": [
-        "libs/common/src"
-      ],
-      "@app/common/*": [
-        "libs/common/src/*"
-      ],
-      "@app/identity": [
-        "libs/identity/src"
-      ],
-      "@app/identity/*": [
-        "libs/identity/src/*"
-      ],
-      "@app/infrastructure": [
-        "libs/infrastructure/src"
-      ],
-      "@app/infrastructure/*": [
-        "libs/infrastructure/src/*"
-      ],
-      "@app/shared": [
-        "libs/shared/src"
-      ],
-      "@app/shared/*": [
-        "libs/shared/src/*"
-      ]
+      "@app/identity": ["libs/identity/src"],
+      "@app/identity/*": ["libs/identity/src/*"],
+      "@app/shared": ["libs/shared/src"],
+      "@app/shared/*": ["libs/shared/src/*"]
     }
   }
 }

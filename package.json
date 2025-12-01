@@ -44,9 +44,7 @@
       "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/identity(|/.*)$": "<rootDir>/libs/identity/src/$1",
-      "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1",
       "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1"
     }
   }

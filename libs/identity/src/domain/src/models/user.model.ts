@@ -1,6 +1,7 @@
-import { BaseDomainEntity } from '@app/shared';
 import { randomUUID } from 'node:crypto';
+
 import { UserRole } from '@app/identity/domain/src/types/user-role.enum';
+import { BaseDomainEntity } from '@app/shared';
 
 export class User extends BaseDomainEntity {
   private _email: string;
@@ -28,15 +29,7 @@ export class User extends BaseDomainEntity {
     const id = randomUUID();
     const now = new Date();
 
-    const user = new User(
-      id,
-      now,
-      now,
-      email,
-      passwordHash,
-      UserRole.CUSTOMER,
-      true,
-    );
+    const user = new User(id, now, now, email, passwordHash, UserRole.CUSTOMER, true);
 
     // TODO: Create this event and its handler then publish it
     // user.apply(new UserCreatedEvent(id, email))
@@ -53,15 +46,7 @@ export class User extends BaseDomainEntity {
     role: UserRole,
     isActive: boolean,
   ): User {
-    return new User(
-      id,
-      createdAt,
-      updatedAt,
-      email,
-      passwordHash,
-      role,
-      isActive,
-    );
+    return new User(id, createdAt, updatedAt, email, passwordHash, role, isActive);
   }
 
   public changePassword(newHash: string): void {

@@ -1,17 +1,16 @@
 import { User, UserRepositoryPort } from '@app/identity/domain/src';
-import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '@app/identity/infrastructure/persistance/entities/user.entity';
-import { Repository } from 'typeorm';
 import { UserMapper } from '@app/identity/infrastructure/persistance/mapppers/user.mapper';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostgresUserRepository implements UserRepositoryPort {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-  ) {
-  }
+  ) {}
 
   async save(user: User): Promise<void> {
     const entity = UserMapper.toPersistence(user);

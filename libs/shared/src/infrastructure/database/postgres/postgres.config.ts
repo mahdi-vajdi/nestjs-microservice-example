@@ -1,6 +1,7 @@
-import { z } from 'zod';
-import { registerAs } from '@nestjs/config';
 import { env } from 'node:process';
+
+import { registerAs } from '@nestjs/config';
+import { z } from 'zod';
 
 const PostgresConfigSchema = z.object({
   host: z.string(),

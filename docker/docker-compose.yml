@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: postgres
+    env_file:
+      - ../.env
+    volumes:
+      - nestjs_microservice_example_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nestjs-microservice-example-net
+
+  nats:
+    image: nats:latest
+    container_name: nats
+    env_file:
+      - ../.env
+    command: -js
+    volumes:
+      - nestjs_microservice_example_nats_data:/data
+    networks:
+      - nestjs-microservice-example-net
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    env_file:
+      - ../.env
+    volumes:
+      - nestjs_microservice_example_redis_data:/data
+    networks:
+      - nestjs-microservice-example-net
+
+volumes:
+  nestjs_microservice_example_postgres_data:
+  nestjs_microservice_example_nats_data:
+  nestjs_microservice_example_redis_data:
+
+networks:
+  nestjs-microservice-example-net:
+    driver: bridge

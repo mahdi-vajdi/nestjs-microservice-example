@@ -1,0 +1,22 @@
+services:
+  postgres:
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+  nats:
+    restart: always
+    env_file:
+      - ../.env
+    ports:
+      - "${NATS_CLIENT_PORT}:4222"
+      - "${NATS_MGMT_PORT}:8222"
+
+  redis:
+    restart: always
+    env_file:
+      - ../.env
+    ports:
+      - "${REDIS_PORT}:6379"

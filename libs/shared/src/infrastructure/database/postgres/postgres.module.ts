@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { postgresConfig } from '@app/shared/infrastructure/database/postgres/postgres.config';
-import { ConfigModule, ConfigType } from '@nestjs/config';
 import { env } from 'node:process';
+
+import { postgresConfig } from '@app/shared/infrastructure/database/postgres/postgres.config';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigType } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -18,8 +19,7 @@ import { env } from 'node:process';
         database: config.database,
         synchronize: config.synchronize,
         autoLoadEntities: config.autoLoadEntities,
-        ssl:
-          env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       }),
     }),
   ],

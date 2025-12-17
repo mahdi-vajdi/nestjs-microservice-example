@@ -1,12 +1,11 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateUserCommand } from '@app/identity/application/commands/create-user/create-user.command';
 import { User, UserRepositoryPort } from '@app/identity/domain/src';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
-  constructor(private readonly userRepo: UserRepositoryPort) {
-  }
+  constructor(private readonly userRepo: UserRepositoryPort) {}
 
   async execute(command: CreateUserCommand): Promise<any> {
     const { email, password } = command;

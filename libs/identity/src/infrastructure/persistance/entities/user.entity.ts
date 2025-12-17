@@ -1,6 +1,6 @@
+import { UserRole } from '@app/identity/domain/src/types/user-role.enum';
 import { BaseOrmEntity } from '@app/shared';
 import { Column } from 'typeorm';
-import { UserRole } from '@app/identity/domain/src/types/user-role.enum';
 
 export class UserEntity extends BaseOrmEntity {
   @Column()

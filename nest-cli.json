@@ -1,14 +1,29 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/gateway/src",
+  "sourceRoot": "apps/gateway-service/src",
+  "monorepo": true,
+  "root": ".",
   "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": false,
-    "builder": "swc",
-    "tsConfigPath": "apps/gateway/tsconfig.app.json"
+    "deleteOutDir": false
   },
   "projects": {
+    "gateway-service": {
+      "type": "application",
+      "root": "apps/gateway-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway-service/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "../../../libs/shared/src/**/*.proto",
+            "outDir": "dist/libs/shared/src",
+            "watchAssets": true
+          }
+        ]
+      }
+    },
     "identity": {
       "type": "library",
       "root": "libs/identity",
@@ -24,7 +39,14 @@
       "entryFile": "main",
       "sourceRoot": "apps/identity-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/identity-service/tsconfig.app.json"
+        "tsConfigPath": "apps/identity-service/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "../../../libs/shared/src/**/*.proto",
+            "outDir": "dist/libs/shared/src",
+            "watchAssets": true
+          }
+        ]
       }
     },
     "shared": {
@@ -36,7 +58,5 @@
         "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
     }
-  },
-  "monorepo": true,
-  "root": "apps/api-gateway"
+  }
 }

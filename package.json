@@ -8,16 +8,16 @@
     "prebuild": "rm -rf dist",
     "build": "nest build --all",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/apps/dashboard-ms/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/dashboard-ms/test/jest-e2e.json"
+    "start": "nest start",
+    "prestart:dev": "rm -rf dist",
+    "start:dev": "concurrently -k -c \"cyan,magenta\" \"npm:start:dev:gateway\" \"npm:start:dev:identity\"",
+    "start:dev:gateway": "nest start gateway-service --watch",
+    "start:dev:identity": "nest start identity-service --watch",
+    "start:dev:docker": "docker compose --env-file .env -f docker/docker-compose.yml -f docker/docker-compose.local.yml up -d",
+    "start:prod:gateway": "node dist/apps/gateway-service/main",
+    "start:prod:identity": "node dist/apps/identity-service/main"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -45,26 +45,41 @@
     }
   },
   "dependencies": {
+    "@grpc/grpc-js": "1.14.1",
+    "@grpc/proto-loader": "0.8.0",
     "@nestjs/common": "11.1.9",
     "@nestjs/config": "4.0.2",
+    "@nestjs/core": "11.1.9",
     "@nestjs/cqrs": "11.0.3",
+    "@nestjs/microservices": "11.1.9",
+    "@nestjs/platform-express": "11.1.9",
     "@nestjs/typeorm": "11.0.0",
     "bcrypt": "6.0.0",
     "pg": "8.16.3",
+    "rxjs": "7.8.2",
     "typeorm": "0.3.27",
     "zod": "4.1.13"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.1",
     "@nestjs/cli": "11.0.14",
     "@nestjs/schematics": "11.0.9",
-    "@swc/cli": "0.7.9",
-    "@swc/core": "1.15.3",
     "@types/bcrypt": "6.0.0",
     "@types/express": "5.0.5",
     "@types/jest": "30.0.0",
     "@types/node": "24.10.1",
-    "ts-loader": "9.5.4",
+    "concurrently": "9.2.1",
+    "eslint": "9.39.1",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.4",
+    "eslint-plugin-simple-import-sort": "12.1.1",
+    "globals": "16.5.0",
+    "jest": "30.2.0",
+    "prettier": "3.7.3",
+    "supertest": "7.1.4",
+    "ts-jest": "29.4.6",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.48.1"
   }
 }

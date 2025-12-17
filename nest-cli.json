@@ -5,8 +5,7 @@
   "monorepo": true,
   "root": ".",
   "compilerOptions": {
-    "deleteOutDir": false,
-    "webpack": true
+    "deleteOutDir": false
   },
   "projects": {
     "gateway-service": {
@@ -18,7 +17,7 @@
         "tsConfigPath": "apps/gateway-service/tsconfig.app.json",
         "assets": [
           {
-            "include": "../../libs/shared/src/**/*.proto",
+            "include": "../../../libs/shared/src/**/*.proto",
             "outDir": "dist/libs/shared/src",
             "watchAssets": true
           }
@@ -43,7 +42,7 @@
         "tsConfigPath": "apps/identity-service/tsconfig.app.json",
         "assets": [
           {
-            "include": "../../libs/shared/src/**/*.proto",
+            "include": "../../../libs/shared/src/**/*.proto",
             "outDir": "dist/libs/shared/src",
             "watchAssets": true
           }
@@ -56,14 +55,7 @@
       "entryFile": "index",
       "sourceRoot": "libs/shared/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/shared/tsconfig.lib.json",
-        "assets": [
-          {
-            "include": "**/*.proto",
-            "watchAssets": true,
-            "outDir": "dist/libs/shared"
-          }
-        ]
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
     }
   }

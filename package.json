@@ -64,8 +64,6 @@
     "@eslint/js": "9.39.1",
     "@nestjs/cli": "11.0.14",
     "@nestjs/schematics": "11.0.9",
-    "@swc/cli": "0.7.9",
-    "@swc/core": "1.15.3",
     "@types/bcrypt": "6.0.0",
     "@types/express": "5.0.5",
     "@types/jest": "30.0.0",
@@ -80,10 +78,8 @@
     "prettier": "3.7.3",
     "supertest": "7.1.4",
     "ts-jest": "29.4.6",
-    "ts-loader": "9.5.4",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.48.1",
-    "webpack": "5.103.0"
+    "typescript-eslint": "8.48.1"
   }
 }

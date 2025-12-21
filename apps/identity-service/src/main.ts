@@ -1,7 +1,6 @@
 import { env } from 'node:process';
 
 import { identityGrpcConfig } from '@app/shared';
-import { ConfigService, ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import { UserRole } from '@app/identity/domain/src/types/user-role.enum';
+import { UserCreatedEvent } from '@app/identity/domain/events/user-created.event';
+import { UserRole } from '@app/identity/domain/types/user-role.enum';
 import { BaseDomainEntity } from '@app/shared';
 
 export class User extends BaseDomainEntity {
@@ -31,8 +32,7 @@ export class User extends BaseDomainEntity {
 
     const user = new User(id, now, now, email, passwordHash, UserRole.CUSTOMER, true);
 
-    // TODO: Create this event and its handler then publish it
-    // user.apply(new UserCreatedEvent(id, email))
+    user.apply(new UserCreatedEvent(id, email, UserRole.CUSTOMER));
 
     return user;
   }

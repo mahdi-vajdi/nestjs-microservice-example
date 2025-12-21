@@ -1,11 +1,11 @@
-import { User } from '@app/identity/domain/src';
+import { User } from '@app/identity/domain';
 import { UserEntity } from '@app/identity/infrastructure/persistance/entities/user.entity';
 
 export class UserMapper {
   static toPersistence(user: User): UserEntity {
     const entity = new UserEntity();
     entity.id = user.id;
-    entity.email = user.id;
+    entity.email = user.email;
     entity.password_hash = user.passwordHash;
     entity.role = user.role;
     entity.is_active = user.isActive;

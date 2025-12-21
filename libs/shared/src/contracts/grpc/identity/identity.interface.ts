@@ -16,5 +16,6 @@ export interface IdentityGrpcService {
   getUser(data: GetUserRequest): Observable<GetUserResponse>;
 }
 
+export const IDENTITY_SERVICE_NAME = 'IdentityService';
 export const IDENTITY_PACKAGE = 'identity';
 export const IDENTITY_PROTO_PATH = join(__dirname, '../proto/identity.proto');

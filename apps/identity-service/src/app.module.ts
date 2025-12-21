@@ -1,5 +1,6 @@
 import { IdentityModule } from '@app/identity';
 import { identityGrpcConfig, PostgresModule } from '@app/shared';
+import { natsConfig } from '@app/shared/infrastructure/nats/nats.config';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
@@ -8,7 +9,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      load: [identityGrpcConfig],
+      load: [identityGrpcConfig, natsConfig],
     }),
     PostgresModule,
     IdentityModule,

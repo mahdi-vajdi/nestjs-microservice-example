@@ -10,7 +10,7 @@ export abstract class BaseDomainEntity extends AggregateRoot {
   }
 
   equals(other: BaseDomainEntity): boolean {
-    if (!other || !(other instanceof BaseDomainEntity)) return false;
+    if (!other) return false;
     return this.id === other.id;
   }
 }

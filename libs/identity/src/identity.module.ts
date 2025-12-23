@@ -3,8 +3,8 @@ import { GetUserHandler } from '@app/identity/application/queries/get-user/get-u
 import { UserRepositoryPort } from '@app/identity/domain';
 import { OutboxProcessor } from '@app/identity/infrastructure/outbox/outbox.processor';
 import { UserEntity } from '@app/identity/infrastructure/persistance/entities/user.entity';
-import { PostgresUserRepository } from '@app/identity/infrastructure/persistance/repositories/user.repository';
-import { IdentityGrpcController } from '@app/identity/interface/grpc/indentity.grpc-controller';
+import { UserPostgresRepository } from '@app/identity/infrastructure/persistance/repositories/user-postgres.repository';
+import { IdentityGrpcController } from '@app/identity/interface/grpc/identity-grpc.controller';
 import { OutboxEntity } from '@app/shared/infrastructure/database/postgres/outbox.entity';
 import { NATS_SERVICE_NAME, natsConfig } from '@app/shared/infrastructure/nats/nats.config';
 import { Module } from '@nestjs/common';
@@ -37,7 +37,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     OutboxProcessor,
     {
       provide: UserRepositoryPort,
-      useClass: PostgresUserRepository,
+      useClass: UserPostgresRepository,
     },
     // Command Handlers
     CreateUserHandler,

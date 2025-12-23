@@ -5,7 +5,16 @@
   "monorepo": true,
   "root": ".",
   "compilerOptions": {
-    "deleteOutDir": false
+    "deleteOutDir": false,
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "dtoFileNameSuffix": [".dto.ts", ".entity.ts", ".model.ts"],
+          "introspectComments": true
+        }
+      }
+    ]
   },
   "projects": {
     "gateway-service": {

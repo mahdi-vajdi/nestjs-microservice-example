@@ -54,6 +54,7 @@
     "@nestjs/microservices": "11.1.9",
     "@nestjs/platform-express": "11.1.9",
     "@nestjs/schedule": "6.1.0",
+    "@nestjs/swagger": "11.2.3",
     "@nestjs/typeorm": "11.0.0",
     "bcrypt": "6.0.0",
     "nats": "2.29.3",

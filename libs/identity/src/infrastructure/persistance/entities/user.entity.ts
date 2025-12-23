@@ -1,7 +1,12 @@
 import { UserRole } from '@app/identity/domain/types/user-role.enum';
 import { BaseOrmEntity } from '@app/shared';
-import { Column } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
+@Entity({
+  name: 'users',
+  schema: 'identity',
+  comment: 'The users table.',
+})
 export class UserEntity extends BaseOrmEntity {
   @Column()
   email: string;

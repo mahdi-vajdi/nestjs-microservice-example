@@ -1,6 +1,10 @@
-import type { CreateUserRequest } from '@app/shared';
-import { IDENTITY_SERVICE_NAME } from '@app/shared';
-import { IdentityGrpcService } from '@app/shared';
+import {
+  CreateUserRequest,
+  CreateUserResponse,
+  GetUserResponse,
+  IDENTITY_SERVICE_NAME,
+  IdentityGrpcService,
+} from '@app/shared';
 import { Body, Controller, Get, Inject, OnModuleInit, Param, Post } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -16,12 +20,12 @@ export class UserHttpController implements OnModuleInit {
   }
 
   @Post()
-  async createUser(@Body() body: CreateUserRequest) {
+  async createUser(@Body() body: CreateUserRequest): Promise<CreateUserResponse> {
     return lastValueFrom(this.identityService.createUser(body));
   }
 
   @Get(':id')
-  async getUser(@Param('id') id: string) {
+  async getUser(@Param('id') id: string): Promise<GetUserResponse> {
     return lastValueFrom(this.identityService.getUser({ id }));
   }
 }

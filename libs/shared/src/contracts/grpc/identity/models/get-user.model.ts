@@ -1,8 +1,8 @@
-export interface GetUserRequest {
+export class GetUserRequest {
   id: string;
 }
 
-export interface GetUserResponse {
+export class GetUserResponse {
   id: string;
   email: string;
   role: string;

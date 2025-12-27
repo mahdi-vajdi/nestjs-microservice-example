@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { UserCreatedEvent } from '@app/identity/domain/events/user-created.event';
 import { UserRole } from '@app/identity/domain/types/user-role.enum';
 import { BaseDomainEntity } from '@app/shared';
+import { InvalidInputException } from '@app/shared';
 
 export class User extends BaseDomainEntity {
   private _email: string;
@@ -51,7 +52,7 @@ export class User extends BaseDomainEntity {
 
   public changePassword(newHash: string): void {
     if (this._passwordHash === newHash) {
-      throw new Error('The new password must be different than the old one');
+      throw new InvalidInputException('The new password must be different than the old one');
     }
     this._passwordHash = newHash;
     // TODO: Create this event and its handler then publish it

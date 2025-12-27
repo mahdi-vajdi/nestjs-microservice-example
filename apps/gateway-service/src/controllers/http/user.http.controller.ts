@@ -5,7 +5,7 @@ import {
   IDENTITY_SERVICE_NAME,
   IdentityGrpcService,
 } from '@app/shared';
-import { Body, Controller, Get, Inject, Logger, OnModuleInit, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, OnModuleInit, Param, Post } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 

@@ -1,5 +1,12 @@
 import { status } from '@grpc/grpc-js';
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { Response } from 'express';
 
 @Catch()
@@ -10,15 +17,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const grpcCode = exception.code ?? exception.getError?.()?.code ?? status.INTERNAL;
-    const message = exception.details || exception.message || 'Internal server error';
+    let httpStatus: number;
+    let message: string | object;
 
-    const httpStatus = this.mapGrpcStatusToHttp(grpcCode);
+    if (exception instanceof HttpException) {
+      httpStatus = exception.getStatus();
+      const responseBody = exception.getResponse();
+      message =
+        typeof responseBody === 'object'
+          ? (responseBody as any).message || responseBody
+          : responseBody;
 
-    if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR) {
-      this.logger.error(`gRPC Error [Code ${grpcCode}]: ${message}`);
+      this.logger.warn(`HTTP Exception [${httpStatus}]: ${JSON.stringify(message)}`);
     } else {
-      this.logger.warn(`Client Error [Code ${grpcCode} -> HTTP ${httpStatus}]: ${message}`);
+      const grpcCode = exception.code ?? exception.getError?.()?.code ?? status.INTERNAL;
+      message = exception.details || exception.message || 'Internal server error';
+      httpStatus = this.mapGrpcStatusToHttp(grpcCode);
+
+      if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR) {
+        this.logger.error(`gRPC Error [Code ${grpcCode}]: ${message}`);
+      } else {
+        this.logger.warn(`Client Error [Code ${grpcCode} -> HTTP ${httpStatus}]: ${message}`);
+      }
     }
 
     response.status(httpStatus).json({

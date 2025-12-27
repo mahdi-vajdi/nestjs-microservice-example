@@ -1,4 +1,5 @@
 import { natsConfig } from '@app/shared/infrastructure/nats/nats.config';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -26,6 +27,19 @@ async function bootstrap() {
     },
   });
 
+  app.enableCors();
+  app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
   // Swagger
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Shopping Backend Gateway')
@@ -38,10 +52,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  app.useGlobalFilters(new GlobalExceptionFilter());
-
   // Start
-  app.enableCors();
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000);
 

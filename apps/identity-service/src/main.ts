@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { AppModule } from './app.module';
+import { GlobalRpcExceptionFilter } from './filters/rpc-exception.filter';
 
 async function bootstrap() {
   const grpcConfig = identityGrpcConfig();
@@ -17,6 +18,8 @@ async function bootstrap() {
       url: `0.0.0.0:${grpcConfig.port}`,
     },
   });
+
+  app.useGlobalFilters(new GlobalRpcExceptionFilter());
 
   await app.listen();
   console.log(`Identity service is listening via gRPC on port ${env.IDENTITY_SERVICE_PORT}`);

@@ -1,5 +1,6 @@
 import { CreateUserCommand } from '@app/identity/application/commands/create-user/create-user.command';
 import { User, UserRepositoryPort } from '@app/identity/domain';
+import { ConflictException } from '@app/shared';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
 
@@ -12,7 +13,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 
     const existingUser = await this.userRepo.findOneByEmail(email);
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new ConflictException('User with this email already exists');
     }
 
     // FIXME: Use a password service

@@ -1,5 +1,6 @@
 // Domain
-export * from './domain/base.domain-entity';
+export * from './domain/entities/base.domain-entity';
+export * from './domain/exceptions/domain.exception';
 
 // Infrastructure
 export * from './infrastructure/database/postgres/base.orm-entity';

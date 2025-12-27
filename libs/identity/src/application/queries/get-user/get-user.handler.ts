@@ -1,7 +1,7 @@
 import { UserResponseDto } from '@app/identity/application/dtos/user.response.dto';
 import { GetUserQuery } from '@app/identity/application/queries/get-user/get-user.query';
 import { UserRepositoryPort } from '@app/identity/domain';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@app/shared';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 @QueryHandler(GetUserQuery)

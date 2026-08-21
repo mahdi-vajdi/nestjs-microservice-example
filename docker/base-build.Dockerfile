@@ -4,5 +4,5 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm ci
-RUN npm run build -- --all
+RUN corepack enable && yarn install --immutable
+RUN yarn build --all

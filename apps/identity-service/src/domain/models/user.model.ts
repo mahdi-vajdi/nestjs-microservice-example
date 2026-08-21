@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import { UserCreatedEvent } from '@app/identity/domain/events/user-created.event';
-import { UserRole } from '@app/identity/domain/types/user-role.enum';
+import { UserCreatedEvent } from '../events/user-created.event';
+import { UserRole } from '../types/user-role.enum';
 import { BaseDomainEntity } from '@app/shared';
 import { InvalidInputException } from '@app/shared';
 

@@ -1,4 +1,4 @@
-import { UserRole } from '@app/identity/domain';
+import { UserRole } from '../../domain';
 
 export class UserResponseDto {
   id: string;

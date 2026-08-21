@@ -1,6 +1,6 @@
-import { User, UserRepositoryPort } from '@app/identity/domain';
-import { UserEntity } from '@app/identity/infrastructure/persistance/entities/user.entity';
-import { UserMapper } from '@app/identity/infrastructure/persistance/mapppers/user.mapper';
+import { User, UserRepositoryPort } from '../../../domain';
+import { UserEntity } from '../entities/user.entity';
+import { UserMapper } from '../mappers/user.mapper';
 import { OutboxEntity } from '@app/shared/infrastructure/database/postgres/outbox.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';

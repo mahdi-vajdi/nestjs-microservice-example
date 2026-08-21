@@ -1,5 +1,5 @@
-import { CreateUserCommand } from '@app/identity/application/commands/create-user/create-user.command';
-import { GetUserQuery } from '@app/identity/application/queries/get-user/get-user.query';
+import { CreateUserCommand } from '../../application/commands/create-user/create-user.command';
+import { GetUserQuery } from '../../application/queries/get-user/get-user.query';
 import type {
   CreateUserRequest,
   CreateUserResponse,

@@ -1,4 +1,4 @@
-import { User } from '@app/identity/domain/models/user.model';
+import { User } from '../models/user.model';
 
 export abstract class UserRepositoryPort {
   abstract save(user: User): Promise<void>;

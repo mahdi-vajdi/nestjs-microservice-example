@@ -1,5 +1,5 @@
-import { CreateUserCommand } from '@app/identity/application/commands/create-user/create-user.command';
-import { User, UserRepositoryPort } from '@app/identity/domain';
+import { CreateUserCommand } from './create-user.command';
+import { User, UserRepositoryPort } from '../../../domain';
 import { ConflictException } from '@app/shared';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';

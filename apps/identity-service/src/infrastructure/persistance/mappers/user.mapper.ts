@@ -1,5 +1,5 @@
-import { User } from '@app/identity/domain';
-import { UserEntity } from '@app/identity/infrastructure/persistance/entities/user.entity';
+import { User } from '../../../domain';
+import { UserEntity } from '../entities/user.entity';
 
 export class UserMapper {
   static toPersistence(user: User): UserEntity {

@@ -22,10 +22,12 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/identity": ["libs/identity/src"],
-      "@app/identity/*": ["libs/identity/src/*"],
-      "@app/shared": ["libs/shared/src"],
-      "@app/shared/*": ["libs/shared/src/*"]
+      "@app/shared": [
+        "libs/shared/src"
+      ],
+      "@app/shared/*": [
+        "libs/shared/src/*"
+      ]
     }
   }
 }

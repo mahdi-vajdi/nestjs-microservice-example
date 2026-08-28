@@ -1,30 +1,94 @@
+name: nestjs-microservice-example
+
 services:
+
+  # ─── Infrastructure ──────────────────────────────────────────────────────────
+
   postgres:
     image: postgres:18-alpine
+    restart: unless-stopped
     env_file:
       - ../.env
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ 'CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}' ]
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
 
   nats:
-    image: nats:latest
-    env_file:
-      - ../.env
-    command: -js
+    image: nats:2.14.6-alpine
+    restart: unless-stopped
+    # -js enables JetStream; -m 8222 enables the HTTP monitoring endpoint
+    command: -js -m 8222
+    ports:
+      - '${NATS_CLIENT_PORT:-4222}:4222'
+      - '${NATS_MGMT_PORT:-8222}:8222'
     volumes:
       - nats_data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:8222/healthz || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: redis:latest
-    env_file:
-      - ../.env
+    image: redis:8-alpine
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Application services ─────────────────────────────────────────────────────
+
+  identity-service:
+    build:
+      context: ..
+      dockerfile: apps/identity-service/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    # Override localhost references so the app reaches the Docker service names
+    environment:
+      - POSTGRES_HOST=postgres
+      - NATS_SERVERS=nats://nats:4222
+    ports:
+      - '${IDENTITY_SERVICE_PORT:-50051}:50051'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+
+  gateway-service:
+    build:
+      context: ..
+      dockerfile: apps/gateway-service/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    # Override localhost references so the app reaches the Docker service names
+    environment:
+      - NATS_SERVERS=nats://nats:4222
+      - GRPC_IDENTITY_URL=identity-service:50051
+    ports:
+      - '${PORT:-3000}:3000'
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
 
 volumes:
   postgres_data:

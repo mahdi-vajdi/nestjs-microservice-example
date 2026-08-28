@@ -1,2 +1,27 @@
-**/node_modules
+# Build output
 **/dist
+**/node_modules
+
+# Git
+.git
+.gitignore
+
+# Environment files (never bake secrets into the image)
+.env
+.env.*
+!.env.example
+
+# IDE and editor configs
+.idea
+.vscode
+*.iml
+
+# Test and coverage
+**/*.spec.ts
+**/*.e2e-spec.ts
+**/coverage
+
+# Docs and misc
+README.md
+LICENSE
+*.log

@@ -4,14 +4,14 @@ import {
   GetUserResponse,
   IDENTITY_SERVICE_NAME,
   IdentityGrpcService,
-} from '@app/shared';
+} from '@app/contracts';
 import { Body, Controller, Get, Inject, OnModuleInit, Param, Post } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 
 @Controller('users')
 export class UserHttpController implements OnModuleInit {
-  private identityService: IdentityGrpcService;
+  private identityService!: IdentityGrpcService;
 
   constructor(@Inject('IDENTITY_SERVICE') private readonly grpcClient: ClientGrpc) {}
 

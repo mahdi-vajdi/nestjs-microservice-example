@@ -1,9 +1,6 @@
 import { env } from 'node:process';
 
-import {
-  IDENTITY_PACKAGE,
-  IDENTITY_PROTO_PATH,
-} from '@app/shared/contracts/grpc/identity/identity.interface';
+import { IDENTITY_PACKAGE, IDENTITY_PROTO_PATH } from '@app/contracts';
 import { registerAs } from '@nestjs/config';
 import { z } from 'zod';
 

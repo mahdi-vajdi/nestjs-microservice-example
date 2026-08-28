@@ -8,7 +8,7 @@ services:
     image: postgres:18-alpine
     restart: unless-stopped
     env_file:
-      - ../.env
+      - .env
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     volumes:
@@ -52,11 +52,11 @@ services:
 
   identity-service:
     build:
-      context: ..
+      context: .
       dockerfile: apps/identity-service/Dockerfile
     restart: unless-stopped
     env_file:
-      - ../.env
+      - .env
     # Override localhost references so the app reaches the Docker service names
     environment:
       - POSTGRES_HOST=postgres
@@ -71,11 +71,11 @@ services:
 
   gateway-service:
     build:
-      context: ..
+      context: .
       dockerfile: apps/gateway-service/Dockerfile
     restart: unless-stopped
     env_file:
-      - ../.env
+      - .env
     # Override localhost references so the app reaches the Docker service names
     environment:
       - NATS_SERVERS=nats://nats:4222

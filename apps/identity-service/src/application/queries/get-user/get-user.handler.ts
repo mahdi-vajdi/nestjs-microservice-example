@@ -1,8 +1,9 @@
+import { NotFoundException } from '@app/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+
+import { UserRepositoryPort } from '../../../domain';
 import { UserResponseDto } from '../../dtos/user.response.dto';
 import { GetUserQuery } from './get-user.query';
-import { UserRepositoryPort } from '../../../domain';
-import { NotFoundException } from '@app/shared';
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 @QueryHandler(GetUserQuery)
 export class GetUserHandler implements IQueryHandler<GetUserQuery> {

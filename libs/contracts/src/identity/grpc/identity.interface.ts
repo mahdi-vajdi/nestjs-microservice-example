@@ -1,14 +1,9 @@
 import { join } from 'node:path';
 
-import {
-  CreateUserRequest,
-  CreateUserResponse,
-} from '@app/shared/contracts/grpc/identity/models/create-user.model';
-import {
-  GetUserRequest,
-  GetUserResponse,
-} from '@app/shared/contracts/grpc/identity/models/get-user.model';
 import { Observable } from 'rxjs';
+
+import { CreateUserRequest, CreateUserResponse } from './models/create-user.model';
+import { GetUserRequest, GetUserResponse } from './models/get-user.model';
 
 export interface IdentityGrpcService {
   createUser(data: CreateUserRequest): Observable<CreateUserResponse>;

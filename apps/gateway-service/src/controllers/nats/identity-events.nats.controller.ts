@@ -1,4 +1,4 @@
-import { UserCreatedIntegrationEvent } from '@app/shared/contracts/events/user-created.event';
+import { UserCreatedIntegrationEvent } from '@app/contracts';
 import { Controller, Logger } from '@nestjs/common';
 import { Ctx, EventPattern, NatsContext, Payload } from '@nestjs/microservices';
 

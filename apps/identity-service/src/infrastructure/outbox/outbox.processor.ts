@@ -1,10 +1,11 @@
-import { UserCreatedIntegrationEvent } from '@app/shared/contracts/events/user-created.event';
-import { OutboxEntity } from '@app/shared/infrastructure/database/postgres/outbox.entity';
+import { UserCreatedIntegrationEvent } from '@app/contracts';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { OutboxEntity } from '../persistance/entities/outbox.entity';
 
 @Injectable()
 export class OutboxProcessor {

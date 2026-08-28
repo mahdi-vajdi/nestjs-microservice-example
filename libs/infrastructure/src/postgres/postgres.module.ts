@@ -1,9 +1,10 @@
 import { env } from 'node:process';
 
-import { postgresConfig } from '@app/shared/infrastructure/database/postgres/postgres.config';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { postgresConfig } from './postgres.config';
 
 @Module({
   imports: [

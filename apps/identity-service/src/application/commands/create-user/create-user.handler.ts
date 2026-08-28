@@ -1,8 +1,9 @@
-import { CreateUserCommand } from './create-user.command';
-import { User, UserRepositoryPort } from '../../../domain';
-import { ConflictException } from '@app/shared';
+import { ConflictException } from '@app/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as bcrypt from 'bcrypt';
+
+import { User, UserRepositoryPort } from '../../../domain';
+import { CreateUserCommand } from './create-user.command';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {

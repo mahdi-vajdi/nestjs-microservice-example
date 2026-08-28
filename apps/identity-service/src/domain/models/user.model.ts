@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
 
+import { BaseAggregateRoot } from '@app/common';
+import { InvalidInputException } from '@app/common';
+
 import { UserCreatedEvent } from '../events/user-created.event';
 import { UserRole } from '../types/user-role.enum';
-import { BaseDomainEntity } from '@app/shared';
-import { InvalidInputException } from '@app/shared';
 
-export class User extends BaseDomainEntity {
+export class User extends BaseAggregateRoot {
   private _email: string;
   private _passwordHash: string;
   private _role: UserRole;

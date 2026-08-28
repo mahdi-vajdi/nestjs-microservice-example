@@ -30,8 +30,8 @@
         "tsConfigPath": "apps/gateway-service/tsconfig.app.json",
         "assets": [
           {
-            "include": "../../../libs/shared/src/**/*.proto",
-            "outDir": "dist/libs/shared/src",
+            "include": "../../../libs/contracts/src/**/*.proto",
+            "outDir": "dist/libs/contracts/src",
             "watchAssets": true
           }
         ]
@@ -46,20 +46,38 @@
         "tsConfigPath": "apps/identity-service/tsconfig.app.json",
         "assets": [
           {
-            "include": "../../../libs/shared/src/**/*.proto",
-            "outDir": "dist/libs/shared/src",
+            "include": "../../../libs/contracts/src/**/*.proto",
+            "outDir": "dist/libs/contracts/src",
             "watchAssets": true
           }
         ]
       }
     },
-    "shared": {
+    "common": {
       "type": "library",
-      "root": "libs/shared",
+      "root": "libs/common",
       "entryFile": "index",
-      "sourceRoot": "libs/shared/src",
+      "sourceRoot": "libs/common/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
+    "contracts": {
+      "type": "library",
+      "root": "libs/contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    },
+    "infrastructure": {
+      "type": "library",
+      "root": "libs/infrastructure",
+      "entryFile": "index",
+      "sourceRoot": "libs/infrastructure/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/infrastructure/tsconfig.lib.json"
       }
     }
   }

@@ -4,7 +4,7 @@ import {
   InvalidInputException,
   NotFoundException,
   UnauthorizedException,
-} from '@app/shared';
+} from '@app/common';
 import { status } from '@grpc/grpc-js';
 import { ArgumentsHost, Catch, Logger, RpcExceptionFilter } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';

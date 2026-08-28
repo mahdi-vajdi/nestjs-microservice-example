@@ -1,20 +1,20 @@
-import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
-import { GetUserHandler } from './application/queries/get-user/get-user.handler';
-import { UserRepositoryPort } from './domain';
-import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
-import { UserEntity } from './infrastructure/persistance/entities/user.entity';
-import { UserPostgresRepository } from './infrastructure/persistance/repositories/user-postgres.repository';
-import { IdentityGrpcController } from './interface/grpc/identity-grpc.controller';
-
-import { identityGrpcConfig, PostgresModule } from '@app/shared';
-import { OutboxEntity } from '@app/shared/infrastructure/database/postgres/outbox.entity';
-import { NATS_SERVICE_NAME, natsConfig } from '@app/shared/infrastructure/nats/nats.config';
+import { identityGrpcConfig, PostgresModule } from '@app/infrastructure';
+import { NATS_SERVICE_NAME, natsConfig } from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
+import { GetUserHandler } from './application/queries/get-user/get-user.handler';
+import { UserRepositoryPort } from './domain';
+import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
+import { OutboxEntity } from './infrastructure/persistance/entities/outbox.entity';
+import { UserEntity } from './infrastructure/persistance/entities/user.entity';
+import { UserPostgresRepository } from './infrastructure/persistance/repositories/user-postgres.repository';
+import { IdentityGrpcController } from './interface/grpc/identity-grpc.controller';
 
 @Module({
   imports: [

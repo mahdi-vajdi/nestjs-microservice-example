@@ -1,5 +1,4 @@
-import { identityGrpcConfig } from '@app/shared';
-import { natsConfig } from '@app/shared/infrastructure/nats/nats.config';
+import { identityGrpcConfig, natsConfig } from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';

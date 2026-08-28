@@ -1,6 +1,7 @@
-import { UserRole } from '../../../domain/types/user-role.enum';
-import { BaseOrmEntity } from '@app/shared';
+import { BaseOrmEntity } from '@app/infrastructure';
 import { Column, Entity } from 'typeorm';
+
+import { UserRole } from '../../../domain/types/user-role.enum';
 
 @Entity({
   name: 'users',
@@ -9,18 +10,18 @@ import { Column, Entity } from 'typeorm';
 })
 export class UserEntity extends BaseOrmEntity {
   @Column()
-  email: string;
+  email!: string;
 
   @Column()
-  password_hash: string;
+  password_hash!: string;
 
   @Column({
     type: 'enum',
     enum: UserRole,
     default: UserRole.CUSTOMER,
   })
-  role: UserRole;
+  role!: UserRole;
 
   @Column({ default: true })
-  is_active: boolean;
+  is_active!: boolean;
 }

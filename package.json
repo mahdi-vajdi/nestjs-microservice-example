@@ -15,7 +15,6 @@
     "start:dev": "concurrently -k -c \"cyan,magenta\" \"yarn:start:dev:gateway\" \"yarn:start:dev:identity\"",
     "start:dev:gateway": "nest start gateway-service --watch",
     "start:dev:identity": "nest start identity-service --watch",
-    "start:dev:docker": "docker compose --env-file .env -f docker/docker-compose.yml up -d",
     "start:prod:gateway": "node dist/apps/gateway-service/main",
     "start:prod:identity": "node dist/apps/identity-service/main"
   },
@@ -41,7 +40,9 @@
     ],
     "moduleNameMapper": {
       "^@app/identity(|/.*)$": "<rootDir>/libs/identity/src/$1",
-      "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1"
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1"
     }
   },
   "dependencies": {

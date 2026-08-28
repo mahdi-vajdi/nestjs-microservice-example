@@ -1,16 +1,11 @@
-import { CreateUserCommand } from '../../application/commands/create-user/create-user.command';
-import { GetUserQuery } from '../../application/queries/get-user/get-user.query';
-import type {
-  CreateUserRequest,
-  CreateUserResponse,
-} from '@app/shared/contracts/grpc/identity/models/create-user.model';
-import type {
-  GetUserRequest,
-  GetUserResponse,
-} from '@app/shared/contracts/grpc/identity/models/get-user.model';
+import type { CreateUserRequest, CreateUserResponse } from '@app/contracts';
+import type { GetUserRequest, GetUserResponse } from '@app/contracts';
 import { Controller } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GrpcMethod } from '@nestjs/microservices';
+
+import { CreateUserCommand } from '../../application/commands/create-user/create-user.command';
+import { GetUserQuery } from '../../application/queries/get-user/get-user.query';
 
 @Controller()
 export class IdentityGrpcController {

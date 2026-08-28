@@ -1,4 +1,4 @@
-import { BaseOrmEntity } from '@app/shared/infrastructure/database/postgres/base.orm-entity';
+import { BaseOrmEntity } from '@app/infrastructure';
 import { Column, Entity } from 'typeorm';
 
 @Entity({
@@ -8,14 +8,14 @@ import { Column, Entity } from 'typeorm';
 })
 export class OutboxEntity extends BaseOrmEntity {
   @Column({ type: 'uuid' })
-  aggregateId: string;
+  aggregateId!: string;
 
   @Column({ type: 'varchar' })
-  type: string;
+  type!: string;
 
   @Column({ type: 'jsonb' })
-  payload: Record<string, unknown>;
+  payload!: Record<string, unknown>;
 
   @Column({ type: 'boolean', default: false })
-  published: boolean;
+  published!: boolean;
 }

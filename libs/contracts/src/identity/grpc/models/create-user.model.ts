@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Length, MinLength } from 'class-validator';
+import { IsEmail, IsString, Length } from 'class-validator';
 
 export class CreateUserRequest {
   /**
@@ -6,7 +6,7 @@ export class CreateUserRequest {
    * @example 'user@example.com'
    */
   @IsEmail({}, { message: 'Please provide a valid email address.' })
-  email: string;
+  email!: string;
 
   /**
    * The password of the user.
@@ -14,9 +14,9 @@ export class CreateUserRequest {
    */
   @IsString()
   @Length(8, 32, { message: 'Password must be at least 8 characters long.' })
-  password: string;
+  password!: string;
 }
 
 export class CreateUserResponse {
-  id: string;
+  id!: string;
 }

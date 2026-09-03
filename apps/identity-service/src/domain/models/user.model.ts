@@ -5,6 +5,7 @@ import { InvalidInputException } from '@app/common';
 
 import { UserCreatedEvent } from '../events/user-created.event';
 import { UserRole } from '../types/user-role.enum';
+import { Email } from '../value-objects/email.value-object';
 
 export class User extends BaseAggregateRoot {
   private _email: string;
@@ -28,13 +29,13 @@ export class User extends BaseAggregateRoot {
     this._isActive = isActive;
   }
 
-  static create(email: string, passwordHash: string): User {
+  static create(email: Email, passwordHash: string): User {
     const id = randomUUID();
     const now = new Date();
 
-    const user = new User(id, now, now, email, passwordHash, UserRole.CUSTOMER, true);
+    const user = new User(id, now, now, email.value, passwordHash, UserRole.CUSTOMER, true);
 
-    user.apply(new UserCreatedEvent(id, email, UserRole.CUSTOMER));
+    user.apply(new UserCreatedEvent(id, email.value, UserRole.CUSTOMER));
 
     return user;
   }

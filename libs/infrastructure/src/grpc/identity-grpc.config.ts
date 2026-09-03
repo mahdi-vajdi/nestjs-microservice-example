@@ -5,7 +5,7 @@ import { registerAs } from '@nestjs/config';
 import { z } from 'zod';
 
 const IdentityGrpcConfigSchema = z.object({
-  url: z.string().default('0.0.0.0:50051'),
+  host: z.string().default('0.0.0.0'),
   port: z.coerce.number().default(50051),
   package: z.string(),
   protoPath: z.string(),
@@ -15,8 +15,8 @@ export const identityGrpcConfig = registerAs(
   'identity-grpc',
   (): z.infer<typeof IdentityGrpcConfigSchema> => {
     const config = {
-      url: env.GRPC_IDENTITY_URL ?? '0.0.0.0:50051',
-      port: env.GRPC_IDENTITY_PORT ?? 50051,
+      host: env.GRPC_IDENTITY_HOST ?? '0.0.0.0',
+      port: Number(env.GRPC_IDENTITY_PORT ?? 50051),
       package: IDENTITY_PACKAGE,
       protoPath: IDENTITY_PROTO_PATH,
     };

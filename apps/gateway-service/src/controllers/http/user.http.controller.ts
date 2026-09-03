@@ -1,12 +1,22 @@
 import {
   CreateUserResponse,
   GetUserResponse,
+  IDENTITY_GRPC_CLIENT,
   IDENTITY_SERVICE_NAME,
   IdentityGrpcService,
 } from '@app/contracts';
-import { Body, Controller, Get, Inject, OnModuleInit, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  OnModuleInit,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 
 import { CreateUserHttpDto } from './dtos/create-user.http.dto';
@@ -16,7 +26,7 @@ import { CreateUserHttpDto } from './dtos/create-user.http.dto';
 export class UserHttpController implements OnModuleInit {
   private identityService!: IdentityGrpcService;
 
-  constructor(@Inject('IDENTITY_SERVICE') private readonly grpcClient: ClientGrpc) {}
+  constructor(@Inject(IDENTITY_GRPC_CLIENT) private readonly grpcClient: ClientGrpc) {}
 
   onModuleInit() {
     this.identityService = this.grpcClient.getService<IdentityGrpcService>(IDENTITY_SERVICE_NAME);
@@ -33,7 +43,8 @@ export class UserHttpController implements OnModuleInit {
   }
 
   @Get(':id')
-  async getUser(@Param('id') id: string): Promise<GetUserResponse> {
+  @ApiParam({ name: 'id', description: 'User UUID', format: 'uuid' })
+  async getUser(@Param('id', new ParseUUIDPipe()) id: string): Promise<GetUserResponse> {
     return lastValueFrom(this.identityService.getUser({ id }));
   }
 }

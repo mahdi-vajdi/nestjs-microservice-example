@@ -62,7 +62,7 @@ services:
       - POSTGRES_HOST=postgres
       - NATS_SERVERS=nats://nats:4222
     ports:
-      - '${IDENTITY_SERVICE_PORT:-50051}:50051'
+      - '${GRPC_IDENTITY_PORT:-50051}:50051'
     depends_on:
       postgres:
         condition: service_healthy
@@ -79,7 +79,7 @@ services:
     # Override localhost references so the app reaches the Docker service names
     environment:
       - NATS_SERVERS=nats://nats:4222
-      - GRPC_IDENTITY_URL=identity-service:50051
+      - GRPC_IDENTITY_HOST=identity-service
     ports:
       - '${PORT:-3000}:3000'
     depends_on:

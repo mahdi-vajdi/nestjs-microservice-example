@@ -1,3 +1,4 @@
+import { IDENTITY_GRPC_CLIENT } from '@app/contracts';
 import { identityGrpcConfig, natsConfig } from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
@@ -17,14 +18,14 @@ import { SseService } from './services/sse.service';
     }),
     ClientsModule.registerAsync([
       {
-        name: 'IDENTITY_SERVICE',
+        name: IDENTITY_GRPC_CLIENT,
         inject: [identityGrpcConfig.KEY],
         useFactory: (config: ConfigType<typeof identityGrpcConfig>) => ({
           transport: Transport.GRPC,
           options: {
             package: config.package,
             protoPath: config.protoPath,
-            url: config.url,
+            url: `${config.host}:${config.port}`,
           },
         }),
       },

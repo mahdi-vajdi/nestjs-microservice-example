@@ -14,3 +14,4 @@ export interface IdentityGrpcService {
 export const IDENTITY_SERVICE_NAME = 'IdentityService';
 export const IDENTITY_PACKAGE = 'identity';
 export const IDENTITY_PROTO_PATH = join(__dirname, '../proto/identity.proto');
+export const IDENTITY_GRPC_CLIENT = 'IDENTITY_SERVICE' as const;

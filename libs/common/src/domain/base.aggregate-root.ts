@@ -2,12 +2,23 @@ import { DomainEvent } from './domain-event.interface';
 
 export abstract class BaseAggregateRoot {
   private readonly uncommittedEvents: DomainEvent[] = [];
+  protected _updatedAt: Date;
 
   protected constructor(
     public readonly id: string,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date,
-  ) {}
+    updatedAt: Date,
+  ) {
+    this._updatedAt = updatedAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
+  }
+
+  protected touch(): void {
+    this._updatedAt = new Date();
+  }
 
   apply(event: DomainEvent, isFromHistory = false): void {
     if (!isFromHistory) {

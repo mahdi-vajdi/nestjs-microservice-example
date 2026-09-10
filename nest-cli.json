@@ -37,13 +37,29 @@
         ]
       }
     },
-    "identity-service": {
+    "user-service": {
       "type": "application",
-      "root": "apps/identity-service",
+      "root": "apps/user-service",
       "entryFile": "main",
-      "sourceRoot": "apps/identity-service/src",
+      "sourceRoot": "apps/user-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/identity-service/tsconfig.app.json",
+        "tsConfigPath": "apps/user-service/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "../../../libs/contracts/src/**/*.proto",
+            "outDir": "dist/libs/contracts/src",
+            "watchAssets": true
+          }
+        ]
+      }
+    },
+    "auth-service": {
+      "type": "application",
+      "root": "apps/auth-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth-service/tsconfig.app.json",
         "assets": [
           {
             "include": "../../../libs/contracts/src/**/*.proto",

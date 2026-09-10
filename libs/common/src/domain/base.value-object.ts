@@ -1,3 +1,5 @@
+import * as util from 'node:util';
+
 export abstract class ValueObject<T extends object> {
   public readonly props: T;
 
@@ -15,6 +17,6 @@ export abstract class ValueObject<T extends object> {
     if (vo.props === undefined) {
       return false;
     }
-    return JSON.stringify(this.props) === JSON.stringify(vo.props);
+    return util.isDeepStrictEqual(this.props, vo.props);
   }
 }

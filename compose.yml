@@ -50,23 +50,44 @@ services:
 
   # ─── Application services ─────────────────────────────────────────────────────
 
-  identity-service:
+  user-service:
     build:
       context: .
-      dockerfile: apps/identity-service/Dockerfile
+      dockerfile: apps/user-service/Dockerfile
     restart: unless-stopped
     env_file:
       - .env
-    # Override localhost references so the app reaches the Docker service names
     environment:
       - POSTGRES_HOST=postgres
       - NATS_SERVERS=nats://nats:4222
+      - REDIS_HOST=redis
     ports:
-      - '${GRPC_IDENTITY_PORT:-50051}:50051'
+      - '${GRPC_USER_PORT:-50051}:50051'
     depends_on:
       postgres:
         condition: service_healthy
       nats:
+        condition: service_healthy
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - NATS_SERVERS=nats://nats:4222
+      - REDIS_HOST=redis
+    ports:
+      - '${GRPC_AUTH_PORT:-50052}:50052'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   gateway-service:
@@ -76,10 +97,10 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    # Override localhost references so the app reaches the Docker service names
     environment:
       - NATS_SERVERS=nats://nats:4222
-      - GRPC_IDENTITY_HOST=identity-service
+      - GRPC_USER_HOST=user-service
+      - GRPC_AUTH_HOST=auth-service
     ports:
       - '${PORT:-3000}:3000'
     depends_on:
@@ -87,7 +108,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      identity-service:
+      user-service:
+        condition: service_started
+      auth-service:
         condition: service_started
 
 volumes:

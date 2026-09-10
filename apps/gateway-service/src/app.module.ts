@@ -1,11 +1,19 @@
-import { IDENTITY_GRPC_CLIENT } from '@app/contracts';
-import { identityGrpcConfig, natsConfig, NatsJetStreamModule } from '@app/infrastructure';
+import {
+  USER_GRPC_CLIENT,
+  USER_PACKAGE,
+  USER_PROTO_PATH,
+  AUTH_GRPC_CLIENT,
+  AUTH_PACKAGE,
+  AUTH_PROTO_PATH,
+} from '@app/contracts';
+import { userGrpcConfig, authGrpcConfig, NatsJetStreamModule } from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { UserHttpController } from './controllers/http/user.http.controller';
-import { IdentityEventsNatsController } from './controllers/nats/identity-events.nats.controller';
+import { AuthHttpController } from './controllers/http/auth.http.controller';
+import { UserEventsNatsController } from './controllers/nats/user-events.nats.controller';
 import { NotificationSseController } from './controllers/sse/notification.sse.controller';
 import { SseService } from './services/sse.service';
 
@@ -13,19 +21,30 @@ import { SseService } from './services/sse.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      cache: true,
-      load: [identityGrpcConfig, natsConfig],
+      load: [userGrpcConfig, authGrpcConfig],
     }),
     NatsJetStreamModule,
     ClientsModule.registerAsync([
       {
-        name: IDENTITY_GRPC_CLIENT,
-        inject: [identityGrpcConfig.KEY],
-        useFactory: (config: ConfigType<typeof identityGrpcConfig>) => ({
+        name: USER_GRPC_CLIENT,
+        inject: [userGrpcConfig.KEY],
+        useFactory: (config: ConfigType<typeof userGrpcConfig>) => ({
           transport: Transport.GRPC,
           options: {
-            package: config.package,
-            protoPath: config.protoPath,
+            package: USER_PACKAGE,
+            protoPath: USER_PROTO_PATH,
+            url: `${config.host}:${config.port}`,
+          },
+        }),
+      },
+      {
+        name: AUTH_GRPC_CLIENT,
+        inject: [authGrpcConfig.KEY],
+        useFactory: (config: ConfigType<typeof authGrpcConfig>) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: AUTH_PACKAGE,
+            protoPath: AUTH_PROTO_PATH,
             url: `${config.host}:${config.port}`,
           },
         }),
@@ -33,11 +52,9 @@ import { SseService } from './services/sse.service';
     ]),
   ],
   controllers: [
-    // HTTP
     UserHttpController,
-    // NATS
-    IdentityEventsNatsController,
-    // SSE
+    AuthHttpController,
+    UserEventsNatsController,
     NotificationSseController,
   ],
   providers: [SseService],

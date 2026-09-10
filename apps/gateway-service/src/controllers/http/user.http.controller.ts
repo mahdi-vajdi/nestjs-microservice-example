@@ -1,9 +1,9 @@
 import {
   CreateUserResponse,
   GetUserResponse,
-  IDENTITY_GRPC_CLIENT,
-  IDENTITY_SERVICE_NAME,
-  IdentityGrpcService,
+  USER_GRPC_CLIENT,
+  USER_SERVICE_NAME,
+  UserGrpcService,
 } from '@app/contracts';
 import {
   Body,
@@ -24,18 +24,18 @@ import { CreateUserHttpDto } from './dtos/create-user.http.dto';
 @ApiTags('Users')
 @Controller('users')
 export class UserHttpController implements OnModuleInit {
-  private identityService!: IdentityGrpcService;
+  private userService!: UserGrpcService;
 
-  constructor(@Inject(IDENTITY_GRPC_CLIENT) private readonly grpcClient: ClientGrpc) {}
+  constructor(@Inject(USER_GRPC_CLIENT) private readonly grpcClient: ClientGrpc) {}
 
   onModuleInit() {
-    this.identityService = this.grpcClient.getService<IdentityGrpcService>(IDENTITY_SERVICE_NAME);
+    this.userService = this.grpcClient.getService<UserGrpcService>(USER_SERVICE_NAME);
   }
 
   @Post()
   async createUser(@Body() body: CreateUserHttpDto): Promise<CreateUserResponse> {
     return lastValueFrom(
-      this.identityService.createUser({
+      this.userService.createUser({
         email: body.email,
         password: body.password,
       }),
@@ -45,6 +45,6 @@ export class UserHttpController implements OnModuleInit {
   @Get(':id')
   @ApiParam({ name: 'id', description: 'User UUID', format: 'uuid' })
   async getUser(@Param('id', new ParseUUIDPipe()) id: string): Promise<GetUserResponse> {
-    return lastValueFrom(this.identityService.getUser({ id }));
+    return lastValueFrom(this.userService.getUser({ id }));
   }
 }

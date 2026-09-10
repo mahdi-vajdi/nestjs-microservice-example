@@ -9,3 +9,4 @@ export class NotFoundException extends DomainException {}
 export class ConflictException extends DomainException {}
 export class InvalidInputException extends DomainException {}
 export class UnauthorizedException extends DomainException {}
+export class ForbiddenException extends DomainException {}

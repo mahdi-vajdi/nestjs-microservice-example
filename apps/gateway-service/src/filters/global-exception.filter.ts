@@ -13,25 +13,47 @@ import { Response } from 'express';
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
 
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
     let httpStatus: number;
-    let message: string | object;
+    let message: string | object = 'Internal server error';
 
     if (exception instanceof HttpException) {
       httpStatus = exception.getStatus();
       const responseBody = exception.getResponse();
       message =
-        typeof responseBody === 'object'
-          ? (responseBody as any).message || responseBody
+        typeof responseBody === 'object' && responseBody !== null && 'message' in responseBody
+          ? (responseBody.message as string | object)
           : responseBody;
 
       this.logger.warn(`HTTP Exception [${httpStatus}]: ${JSON.stringify(message)}`);
     } else {
-      const grpcCode = exception.code ?? exception.getError?.()?.code ?? status.INTERNAL;
-      message = exception.details || exception.message || 'Internal server error';
+      let grpcCode = status.INTERNAL;
+
+      if (typeof exception === 'object' && exception !== null) {
+        if ('code' in exception && typeof exception.code === 'number') {
+          grpcCode = exception.code;
+        } else if ('getError' in exception && typeof exception.getError === 'function') {
+          const err = exception.getError();
+          if (
+            typeof err === 'object' &&
+            err !== null &&
+            'code' in err &&
+            typeof err.code === 'number'
+          ) {
+            grpcCode = err.code;
+          }
+        }
+
+        if ('details' in exception && typeof exception.details === 'string') {
+          message = exception.details;
+        } else if ('message' in exception && typeof exception.message === 'string') {
+          message = exception.message;
+        }
+      }
+
       httpStatus = this.mapGrpcStatusToHttp(grpcCode);
 
       if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR) {

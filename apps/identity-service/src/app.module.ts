@@ -1,9 +1,12 @@
-import { identityGrpcConfig, PostgresModule } from '@app/infrastructure';
-import { NATS_SERVICE_NAME, natsConfig } from '@app/infrastructure';
+import {
+  identityGrpcConfig,
+  natsConfig,
+  NatsJetStreamModule,
+  PostgresModule,
+} from '@app/infrastructure';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigType } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -27,20 +30,7 @@ import { IdentityGrpcController } from './interface/grpc/identity-grpc.controlle
     PostgresModule,
     CqrsModule,
     TypeOrmModule.forFeature([OutboxEntity, UserEntity]),
-    ClientsModule.registerAsync([
-      {
-        name: NATS_SERVICE_NAME,
-        inject: [natsConfig.KEY],
-        useFactory: (config: ConfigType<typeof natsConfig>) => ({
-          transport: Transport.NATS,
-          options: {
-            servers: config.servers,
-            user: config.user,
-            pass: config.pass,
-          },
-        }),
-      },
-    ]),
+    NatsJetStreamModule,
   ],
   controllers: [IdentityGrpcController],
   providers: [

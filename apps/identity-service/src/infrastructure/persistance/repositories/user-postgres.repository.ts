@@ -27,7 +27,7 @@ export class UserPostgresRepository implements UserRepositoryPort {
           return manager.create(OutboxEntity, {
             aggregateId: user.id,
             type: event.constructor.name,
-            payload: event,
+            payload: Object.assign({}, event),
             published: false,
           });
         });

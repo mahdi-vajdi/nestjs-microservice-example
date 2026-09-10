@@ -18,6 +18,7 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new GlobalRpcExceptionFilter());
+  app.enableShutdownHooks();
 
   await app.listen();
   console.log(`Identity service is listening via gRPC on port ${grpcConfig.port}`);

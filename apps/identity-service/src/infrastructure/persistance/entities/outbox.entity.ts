@@ -14,7 +14,7 @@ export class OutboxEntity extends BaseOrmEntity {
   type!: string;
 
   @Column({ type: 'jsonb' })
-  payload!: Record<string, unknown>;
+  payload!: object;
 
   @Column({ type: 'boolean', default: false })
   published!: boolean;

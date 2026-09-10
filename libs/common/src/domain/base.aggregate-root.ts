@@ -1,5 +1,7 @@
+import { DomainEvent } from './domain-event.interface';
+
 export abstract class BaseAggregateRoot {
-  private readonly uncommittedEvents: any[] = [];
+  private readonly uncommittedEvents: DomainEvent[] = [];
 
   protected constructor(
     public readonly id: string,
@@ -7,13 +9,13 @@ export abstract class BaseAggregateRoot {
     public readonly updatedAt: Date,
   ) {}
 
-  apply(event: any, isFromHistory = false): void {
+  apply(event: DomainEvent, isFromHistory = false): void {
     if (!isFromHistory) {
       this.uncommittedEvents.push(event);
     }
   }
 
-  getUncommittedEvents(): any[] {
+  getUncommittedEvents(): DomainEvent[] {
     return this.uncommittedEvents;
   }
 

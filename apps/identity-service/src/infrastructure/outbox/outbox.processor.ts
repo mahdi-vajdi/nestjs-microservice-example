@@ -1,8 +1,10 @@
 import { UserCreatedIntegrationEvent } from '@app/contracts';
+import { NATS_JETSTREAM_CLIENT } from '@app/infrastructure';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { JetStreamClient } from 'nats';
+import { JSONCodec } from 'nats';
 import { Repository } from 'typeorm';
 
 import { OutboxEntity } from '../persistance/entities/outbox.entity';
@@ -10,10 +12,11 @@ import { OutboxEntity } from '../persistance/entities/outbox.entity';
 @Injectable()
 export class OutboxProcessor {
   private readonly logger = new Logger(OutboxProcessor.name);
+  private readonly jc = JSONCodec();
 
   constructor(
     @InjectRepository(OutboxEntity) private readonly outboxRepository: Repository<OutboxEntity>,
-    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    @Inject(NATS_JETSTREAM_CLIENT) private readonly js: JetStreamClient,
   ) {}
 
   @Cron(CronExpression.EVERY_5_SECONDS)
@@ -27,7 +30,17 @@ export class OutboxProcessor {
 
     for (const event of events) {
       try {
-        this.natsClient.emit(UserCreatedIntegrationEvent.TOPIC, event.payload);
+        const payload = {
+          userId: event.aggregateId,
+          ...event.payload,
+          occurredOn: event.createdAt,
+        };
+
+        const encoded = this.jc.encode(payload);
+
+        await this.js.publish(UserCreatedIntegrationEvent.TOPIC, encoded, {
+          msgID: event.id,
+        });
 
         event.published = true;
         await this.outboxRepository.save(event);

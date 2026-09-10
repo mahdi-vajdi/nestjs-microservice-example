@@ -1,5 +1,5 @@
 import { IDENTITY_GRPC_CLIENT } from '@app/contracts';
-import { identityGrpcConfig, natsConfig } from '@app/infrastructure';
+import { identityGrpcConfig, natsConfig, NatsJetStreamModule } from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -16,6 +16,7 @@ import { SseService } from './services/sse.service';
       cache: true,
       load: [identityGrpcConfig, natsConfig],
     }),
+    NatsJetStreamModule,
     ClientsModule.registerAsync([
       {
         name: IDENTITY_GRPC_CLIENT,

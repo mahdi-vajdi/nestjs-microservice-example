@@ -16,7 +16,10 @@
     "start:dev:gateway": "nest start gateway-service --watch",
     "start:dev:identity": "nest start identity-service --watch",
     "start:prod:gateway": "node dist/apps/gateway-service/main",
-    "start:prod:identity": "node dist/apps/identity-service/main"
+    "start:prod:identity": "node dist/apps/identity-service/main",
+    "migration:generate:identity": "yarn build && typeorm-ts-node-commonjs migration:generate -d apps/identity-service/src/infrastructure/persistance/data-source.ts",
+    "migration:run:identity": "typeorm-ts-node-commonjs migration:run -d apps/identity-service/src/infrastructure/persistance/data-source.ts",
+    "migration:revert:identity": "typeorm-ts-node-commonjs migration:revert -d apps/identity-service/src/infrastructure/persistance/data-source.ts"
   },
   "jest": {
     "moduleFileExtensions": [

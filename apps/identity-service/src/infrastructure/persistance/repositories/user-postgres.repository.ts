@@ -6,13 +6,14 @@ import { User, UserRepositoryPort } from '../../../domain';
 import { OutboxEntity } from '../entities/outbox.entity';
 import { UserEntity } from '../entities/user.entity';
 import { UserMapper } from '../mappers/user.mapper';
+import * as crypto from 'node:crypto';
 
 @Injectable()
 export class UserPostgresRepository implements UserRepositoryPort {
   constructor(
-    @InjectRepository(UserEntity)
+    @InjectRepository(UserEntity, 'postgres')
     private readonly userRepository: Repository<UserEntity>,
-    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectDataSource('postgres') private readonly dataSource: DataSource,
   ) {}
 
   async save(user: User): Promise<void> {
@@ -25,6 +26,7 @@ export class UserPostgresRepository implements UserRepositoryPort {
       if (events.length > 0) {
         const outboxEntities = events.map((event) => {
           return manager.create(OutboxEntity, {
+            id: crypto.randomUUID(),
             aggregateId: user.id,
             type: event.constructor.name,
             payload: Object.assign({}, event),

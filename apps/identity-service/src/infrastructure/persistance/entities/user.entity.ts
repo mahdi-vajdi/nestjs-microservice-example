@@ -1,7 +1,7 @@
 import { BaseOrmEntity } from '@app/infrastructure';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
-import { UserRole } from '../../../domain/types/user-role.enum';
+import { UserRole } from '../../../domain';
 
 @Entity({
   name: 'users',
@@ -9,6 +9,7 @@ import { UserRole } from '../../../domain/types/user-role.enum';
   comment: 'The users table.',
 })
 export class UserEntity extends BaseOrmEntity {
+  @Index('users_email_uniq', { unique: true })
   @Column()
   email!: string;
 

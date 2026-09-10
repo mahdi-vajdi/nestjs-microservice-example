@@ -29,7 +29,7 @@ import { IdentityGrpcController } from './interface/grpc/identity-grpc.controlle
     ScheduleModule.forRoot(),
     PostgresModule,
     CqrsModule,
-    TypeOrmModule.forFeature([OutboxEntity, UserEntity]),
+    TypeOrmModule.forFeature([OutboxEntity, UserEntity], 'postgres'),
     NatsJetStreamModule,
   ],
   controllers: [IdentityGrpcController],

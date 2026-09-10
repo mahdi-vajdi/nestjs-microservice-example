@@ -15,7 +15,7 @@ export class OutboxProcessor {
   private readonly jc = JSONCodec();
 
   constructor(
-    @InjectRepository(OutboxEntity) private readonly outboxRepository: Repository<OutboxEntity>,
+    @InjectRepository(OutboxEntity, 'postgres') private readonly outboxRepository: Repository<OutboxEntity>,
     @Inject(NATS_JETSTREAM_CLIENT) private readonly js: JetStreamClient,
   ) {}
 

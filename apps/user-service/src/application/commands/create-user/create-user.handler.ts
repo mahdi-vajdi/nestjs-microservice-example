@@ -1,0 +1,44 @@
+import { ConflictException } from '@app/common';
+import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import {
+  Email,
+  Password,
+  PASSWORD_HASHER_PORT,
+  PasswordHasherPort,
+  User,
+  USER_REPOSITORY_PORT,
+  UserRepositoryPort,
+} from '../../../domain';
+import { UserResponseDto } from '../../dtos/user.response.dto';
+import { UserResponseMapper } from '../../mappers/user-response.mapper';
+import { CreateUserCommand } from './create-user.command';
+
+@CommandHandler(CreateUserCommand)
+export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
+  constructor(
+    @Inject(USER_REPOSITORY_PORT)
+    private readonly userRepository: UserRepositoryPort,
+    @Inject(PASSWORD_HASHER_PORT)
+    private readonly passwordHasher: PasswordHasherPort,
+  ) {}
+
+  async execute(command: CreateUserCommand): Promise<UserResponseDto> {
+    const email = Email.create(command.email);
+    const password = Password.create(command.password);
+
+    const existingUser = await this.userRepository.findByEmail(email.value);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    const passwordHash = await this.passwordHasher.hash(password.value);
+
+    const user = User.create(email, passwordHash);
+
+    await this.userRepository.save(user);
+
+    return UserResponseMapper.toDto(user);
+  }
+}

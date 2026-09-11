@@ -11,15 +11,12 @@ const AuthGrpcConfigSchema = z.object({
   protoPath: z.string(),
 });
 
-export const authGrpcConfig = registerAs(
-  'auth-grpc',
-  (): z.infer<typeof AuthGrpcConfigSchema> => {
-    const config = {
-      host: env.GRPC_AUTH_HOST ?? '0.0.0.0',
-      port: Number(env.GRPC_AUTH_PORT ?? 50052),
-      package: AUTH_PACKAGE,
-      protoPath: AUTH_PROTO_PATH,
-    };
-    return AuthGrpcConfigSchema.parse(config);
-  },
-);
+export const authGrpcConfig = registerAs('auth-grpc', (): z.infer<typeof AuthGrpcConfigSchema> => {
+  const config = {
+    host: env.GRPC_AUTH_HOST ?? '0.0.0.0',
+    port: Number(env.GRPC_AUTH_PORT ?? 50052),
+    package: AUTH_PACKAGE,
+    protoPath: AUTH_PROTO_PATH,
+  };
+  return AuthGrpcConfigSchema.parse(config);
+});

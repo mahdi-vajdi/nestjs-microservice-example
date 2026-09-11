@@ -11,15 +11,12 @@ const UserGrpcConfigSchema = z.object({
   protoPath: z.string(),
 });
 
-export const userGrpcConfig = registerAs(
-  'user-grpc',
-  (): z.infer<typeof UserGrpcConfigSchema> => {
-    const config = {
-      host: env.GRPC_USER_HOST ?? '0.0.0.0',
-      port: Number(env.GRPC_USER_PORT ?? 50051),
-      package: USER_PACKAGE,
-      protoPath: USER_PROTO_PATH,
-    };
-    return UserGrpcConfigSchema.parse(config);
-  },
-);
+export const userGrpcConfig = registerAs('user-grpc', (): z.infer<typeof UserGrpcConfigSchema> => {
+  const config = {
+    host: env.GRPC_USER_HOST ?? '0.0.0.0',
+    port: Number(env.GRPC_USER_PORT ?? 50051),
+    package: USER_PACKAGE,
+    protoPath: USER_PROTO_PATH,
+  };
+  return UserGrpcConfigSchema.parse(config);
+});

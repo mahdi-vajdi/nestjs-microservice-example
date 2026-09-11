@@ -1,31 +1,50 @@
 import {
-  CreateUserRequest,
   CreateUserResponse,
   GetUserResponse,
-  IDENTITY_SERVICE_NAME,
-  IdentityGrpcService,
-} from '@app/shared';
-import { Body, Controller, Get, Inject, OnModuleInit, Param, Post } from '@nestjs/common';
+  USER_GRPC_CLIENT,
+  USER_SERVICE_NAME,
+  UserGrpcService,
+} from '@app/contracts';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  OnModuleInit,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 
+import { CreateUserHttpDto } from './dtos/create-user.http.dto';
+
+@ApiTags('Users')
 @Controller('users')
 export class UserHttpController implements OnModuleInit {
-  private identityService: IdentityGrpcService;
+  private userService!: UserGrpcService;
 
-  constructor(@Inject('IDENTITY_SERVICE') private readonly grpcClient: ClientGrpc) {}
+  constructor(@Inject(USER_GRPC_CLIENT) private readonly grpcClient: ClientGrpc) {}
 
   onModuleInit() {
-    this.identityService = this.grpcClient.getService<IdentityGrpcService>(IDENTITY_SERVICE_NAME);
+    this.userService = this.grpcClient.getService<UserGrpcService>(USER_SERVICE_NAME);
   }
 
   @Post()
-  async createUser(@Body() body: CreateUserRequest): Promise<CreateUserResponse> {
-    return lastValueFrom(this.identityService.createUser(body));
+  async createUser(@Body() body: CreateUserHttpDto): Promise<CreateUserResponse> {
+    return lastValueFrom(
+      this.userService.createUser({
+        email: body.email,
+        password: body.password,
+      }),
+    );
   }
 
   @Get(':id')
-  async getUser(@Param('id') id: string): Promise<GetUserResponse> {
-    return lastValueFrom(this.identityService.getUser({ id }));
+  @ApiParam({ name: 'id', description: 'User UUID', format: 'uuid' })
+  async getUser(@Param('id', new ParseUUIDPipe()) id: string): Promise<GetUserResponse> {
+    return lastValueFrom(this.userService.getUser({ id }));
   }
 }

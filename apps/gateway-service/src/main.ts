@@ -1,8 +1,7 @@
-import { natsConfig } from '@app/shared/infrastructure/nats/nats.config';
+import { natsConfig, ServerJetStream } from '@app/infrastructure';
 import { ValidationPipe } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import type { ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
@@ -11,22 +10,7 @@ import { GlobalExceptionFilter } from './filters/global-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const natsCfg = app.get<ConfigType<typeof natsConfig>>(natsConfig.KEY);
-  if (!natsCfg) {
-    throw new Error('NATS configuration is missing');
-  }
-
-  // NATS
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.NATS,
-    options: {
-      servers: natsCfg.servers,
-      user: natsCfg.user,
-      pass: natsCfg.pass,
-      queue: 'gateway_projections_queue',
-    },
-  });
-
+  app.enableShutdownHooks();
   app.enableCors();
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(
@@ -39,6 +23,25 @@ async function bootstrap() {
       },
     }),
   );
+
+  // JetStream Microservice
+  const nConfig = app.get<ConfigType<typeof natsConfig>>(natsConfig.KEY);
+  app.connectMicroservice({
+    strategy: new ServerJetStream({
+      connectionOptions: {
+        servers: nConfig.servers,
+        user: nConfig.user,
+        pass: nConfig.pass,
+      },
+      consumerOptions: {
+        stream: nConfig.streamName,
+        durable: nConfig.consumerDurableName,
+        ackWaitMs: nConfig.ackWaitMs,
+        maxDeliver: nConfig.maxDeliver,
+      },
+    }),
+  });
+  await app.startAllMicroservices();
 
   // Swagger
   const swaggerConfig = new DocumentBuilder()
@@ -53,7 +56,6 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   // Start
-  await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000);
 
   console.log(`Gateway service is running on ${await app.getUrl()}`);

@@ -1,8 +1,23 @@
-import { IdentityModule } from '@app/identity';
-import { identityGrpcConfig, PostgresModule } from '@app/shared';
-import { natsConfig } from '@app/shared/infrastructure/nats/nats.config';
+import {
+  identityGrpcConfig,
+  natsConfig,
+  NatsJetStreamModule,
+  PostgresModule,
+} from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
+import { GetUserHandler } from './application/queries/get-user/get-user.handler';
+import { UserRepositoryPort } from './domain';
+import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
+import { OutboxEntity } from './infrastructure/persistance/entities/outbox.entity';
+import { UserEntity } from './infrastructure/persistance/entities/user.entity';
+import { UserPostgresRepository } from './infrastructure/persistance/repositories/user-postgres.repository';
+import { IdentityGrpcController } from './interface/grpc/identity-grpc.controller';
 
 @Module({
   imports: [
@@ -11,10 +26,23 @@ import { ConfigModule } from '@nestjs/config';
       cache: true,
       load: [identityGrpcConfig, natsConfig],
     }),
+    ScheduleModule.forRoot(),
     PostgresModule,
-    IdentityModule,
+    CqrsModule,
+    TypeOrmModule.forFeature([OutboxEntity, UserEntity], 'postgres'),
+    NatsJetStreamModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [IdentityGrpcController],
+  providers: [
+    OutboxProcessor,
+    {
+      provide: UserRepositoryPort,
+      useClass: UserPostgresRepository,
+    },
+    // Command Handlers
+    CreateUserHandler,
+    // Query Handlers
+    GetUserHandler,
+  ],
 })
 export class AppModule {}

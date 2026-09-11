@@ -1,8 +1,9 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
-import { USER_REPOSITORY_PORT, UserRepositoryPort, UserId } from '../../../domain';
-import { ChangePasswordCommand } from './change-password.command';
 import { NotFoundException } from '@app/common';
+import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { USER_REPOSITORY_PORT, UserId, UserRepositoryPort } from '../../../domain';
+import { ChangePasswordCommand } from './change-password.command';
 
 @CommandHandler(ChangePasswordCommand)
 export class ChangePasswordHandler implements ICommandHandler<ChangePasswordCommand> {
@@ -14,7 +15,7 @@ export class ChangePasswordHandler implements ICommandHandler<ChangePasswordComm
   async execute(command: ChangePasswordCommand): Promise<void> {
     const userId = UserId.create(command.userId);
     const user = await this.userRepository.findById(userId.value);
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }

@@ -13,7 +13,10 @@ export class TypeOrmLoggerAdapter implements TypeOrmLogger {
   }
 
   logQuerySlow(time: number, query: string, parameters?: unknown[]) {
-    this.logger.warn(JSON.stringify({ time, query, parameters }), `Slow database query (${time}ms)`);
+    this.logger.warn(
+      JSON.stringify({ time, query, parameters }),
+      `Slow database query (${time}ms)`,
+    );
   }
 
   logSchemaBuild(message: string) {

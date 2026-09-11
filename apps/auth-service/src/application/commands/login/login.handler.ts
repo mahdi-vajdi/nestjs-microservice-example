@@ -1,14 +1,19 @@
+import { randomUUID } from 'node:crypto';
+
 import { InvalidInputException } from '@app/common';
+import { UserLoggedInIntegrationEvent } from '@app/contracts';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { randomUUID } from 'node:crypto';
 
-import { LoginCommand } from './login.command';
-import { AuthResponseDto } from '../../dtos/auth.response.dto';
-import { TokenGeneratorPort, TokenSessionRepositoryPort, UserCredentialRepositoryPort } from '../../../domain';
+import {
+  TokenGeneratorPort,
+  TokenSessionRepositoryPort,
+  UserCredentialRepositoryPort,
+} from '../../../domain';
 import { OutboxEntity } from '../../../infrastructure/persistence/entities/outbox.entity';
-import { UserLoggedInIntegrationEvent } from '@app/contracts';
+import { AuthResponseDto } from '../../dtos/auth.response.dto';
+import { LoginCommand } from './login.command';
 
 @CommandHandler(LoginCommand)
 export class LoginHandler implements ICommandHandler<LoginCommand> {
@@ -16,7 +21,8 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly userRepo: UserCredentialRepositoryPort,
     private readonly tokenGenerator: TokenGeneratorPort,
     private readonly tokenSessionRepo: TokenSessionRepositoryPort,
-    @InjectRepository(OutboxEntity, 'postgres') private readonly outboxRepo: Repository<OutboxEntity>,
+    @InjectRepository(OutboxEntity, 'postgres')
+    private readonly outboxRepo: Repository<OutboxEntity>,
   ) {}
 
   async execute(command: LoginCommand): Promise<AuthResponseDto> {
@@ -30,7 +36,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     }
 
     // Since we receive the password plainly in the command (or hashed, wait the grpc contract gives plain password)
-    // we should ideally compare hashes. For simplicity, we assume command.passwordHash is the plain text, 
+    // we should ideally compare hashes. For simplicity, we assume command.passwordHash is the plain text,
     // but the grpc model has password. Let's compare directly or use a dummy check:
     // If the contract provides plain password and the user model stores the hash, we'd hash and compare here.
     // For now we'll just check if they match (assuming we are not hashing or using a simple hash).
@@ -52,6 +58,10 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
 
     await this.outboxRepo.save(event);
 
-    return new AuthResponseDto(accessTokenData.token, refreshTokenData.token, accessTokenData.expiresIn);
+    return new AuthResponseDto(
+      accessTokenData.token,
+      refreshTokenData.token,
+      accessTokenData.expiresIn,
+    );
   }
 }

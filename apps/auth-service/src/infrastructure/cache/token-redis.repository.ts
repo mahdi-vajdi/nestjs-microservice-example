@@ -1,6 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { REDIS_CLIENT } from '@app/infrastructure';
+import { Inject, Injectable } from '@nestjs/common';
 import type { RedisClientType } from 'redis';
+
 import { TokenSessionRepositoryPort } from '../../domain/ports/token-session.repository.port';
 
 @Injectable()

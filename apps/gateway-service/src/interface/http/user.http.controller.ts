@@ -14,11 +14,13 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateUserHttpDto } from './dtos/create-user.http.dto';
 
 @ApiTags('Users')
@@ -42,6 +44,7 @@ export class UserHttpController implements OnModuleInit {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiParam({ name: 'id', description: 'User UUID', format: 'uuid' })
   async getUser(@Param('id', new ParseUUIDPipe()) id: string): Promise<GetUserResponse> {

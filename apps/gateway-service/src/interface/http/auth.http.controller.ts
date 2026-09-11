@@ -1,24 +1,13 @@
-import {
-  Body,
-  Controller,
-  Inject,
-  OnModuleInit,
-  Post,
-} from '@nestjs/common';
+import { AUTH_GRPC_CLIENT, AUTH_SERVICE_NAME, AuthGrpcService } from '@app/contracts';
+import { Body, Controller, Inject, OnModuleInit, Post, UseGuards } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
+import { ApiTags } from '@nestjs/swagger';
 import { lastValueFrom } from 'rxjs';
 
-import {
-  AUTH_GRPC_CLIENT,
-  AUTH_SERVICE_NAME,
-  AuthGrpcService,
-} from '@app/contracts';
-import type {
-  LoginRequest,
-  LogoutRequest,
-  RefreshTokenRequest,
-} from '@app/contracts';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { LoginHttpDto, LogoutHttpDto, RefreshTokenHttpDto } from './dtos/auth.http.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthHttpController implements OnModuleInit {
   private authService!: AuthGrpcService;
@@ -33,17 +22,18 @@ export class AuthHttpController implements OnModuleInit {
   }
 
   @Post('login')
-  async login(@Body() dto: LoginRequest) {
+  async login(@Body() dto: LoginHttpDto) {
     return await lastValueFrom(this.authService.login(dto));
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Body() dto: LogoutRequest) {
+  async logout(@Body() dto: LogoutHttpDto) {
     return await lastValueFrom(this.authService.logout(dto));
   }
 
   @Post('refresh')
-  async refresh(@Body() dto: RefreshTokenRequest) {
+  async refresh(@Body() dto: RefreshTokenHttpDto) {
     return await lastValueFrom(this.authService.refreshToken(dto));
   }
 }

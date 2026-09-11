@@ -1,4 +1,4 @@
-import { ValueObject, InvalidInputException } from '@app/common';
+import { InvalidInputException, ValueObject } from '@app/common';
 
 export interface UserIdProps {
   value: string;

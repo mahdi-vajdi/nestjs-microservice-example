@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { UserCredential, UserCredentialRepositoryPort } from '../../../domain';
 import { SyncUserCommand } from './sync-user.command';
-import { UserCredentialRepositoryPort, UserCredential } from '../../../domain';
 
 @CommandHandler(SyncUserCommand)
 export class SyncUserHandler implements ICommandHandler<SyncUserCommand> {
@@ -12,7 +13,13 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand> {
     if (action === 'CREATE') {
       const existing = await this.userRepo.findByUserId(userId);
       if (!existing) {
-        const user = UserCredential.create(userId, payload.email, payload.passwordHash, payload.role, true);
+        const user = UserCredential.create(
+          userId,
+          payload.email,
+          payload.passwordHash,
+          payload.role,
+          true,
+        );
         await this.userRepo.save(user);
       }
       return;

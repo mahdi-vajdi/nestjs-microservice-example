@@ -1,12 +1,16 @@
+import type {
+  LoginRequest,
+  LoginResponse,
+  LogoutRequest,
+  LogoutResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
+  ValidateTokenRequest,
+  ValidateTokenResponse,
+} from '@app/contracts';
 import { Controller } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GrpcMethod } from '@nestjs/microservices';
-import type { 
-  LoginRequest, LoginResponse, 
-  LogoutRequest, LogoutResponse, 
-  RefreshTokenRequest, RefreshTokenResponse, 
-  ValidateTokenRequest, ValidateTokenResponse 
-} from '@app/contracts';
 
 import { LoginCommand } from '../../application/commands/login/login.command';
 import { LogoutCommand } from '../../application/commands/logout/logout.command';

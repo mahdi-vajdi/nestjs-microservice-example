@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
+import { Repository } from 'typeorm';
 
 import { User, UserRepositoryPort } from '../../../domain';
-import { UserEntity } from '../entities/user.entity';
 import { OutboxEntity } from '../entities/outbox.entity';
+import { UserEntity } from '../entities/user.entity';
 import { UserMapper } from '../mappers/user.mapper';
-import { InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class UserPostgresRepository implements UserRepositoryPort {
@@ -49,7 +49,7 @@ export class UserPostgresRepository implements UserRepositoryPort {
 
       const events = user.getUncommittedEvents();
       if (events.length > 0) {
-        const outboxEntities = events.map(event => {
+        const outboxEntities = events.map((event) => {
           const outbox = new OutboxEntity();
           outbox.id = randomUUID();
           outbox.aggregateId = user.id;
@@ -66,7 +66,9 @@ export class UserPostgresRepository implements UserRepositoryPort {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException('Error saving user and outbox events', { cause: error });
+      throw new InternalServerErrorException('Error saving user and outbox events', {
+        cause: error,
+      });
     } finally {
       await queryRunner.release();
     }

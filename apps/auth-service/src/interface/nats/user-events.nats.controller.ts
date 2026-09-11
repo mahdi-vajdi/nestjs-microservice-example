@@ -1,7 +1,7 @@
+import { UserCreatedIntegrationEvent } from '@app/contracts'; // And others as well, for simplicity using strings or basic classes
 import { Controller } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { UserCreatedIntegrationEvent } from '@app/contracts'; // And others as well, for simplicity using strings or basic classes
 
 import { SyncUserCommand } from '../../application/commands/sync-user/sync-user.command';
 
@@ -11,25 +11,31 @@ export class UserEventsNatsController {
 
   @EventPattern('user.UserCreated')
   async handleUserCreated(@Payload() data: any) {
-    await this.commandBus.execute(new SyncUserCommand('CREATE', data.userId, {
-      email: data.email,
-      role: data.role,
-      passwordHash: data.passwordHash || '', // In a real app we need it in the event or query it
-    }));
+    await this.commandBus.execute(
+      new SyncUserCommand('CREATE', data.userId, {
+        email: data.email,
+        role: data.role,
+        passwordHash: data.passwordHash || '', // In a real app we need it in the event or query it
+      }),
+    );
   }
 
   @EventPattern('user.PasswordChanged')
   async handlePasswordChanged(@Payload() data: any) {
-    await this.commandBus.execute(new SyncUserCommand('CHANGE_PASSWORD', data.userId, {
-      passwordHash: data.passwordHash,
-    }));
+    await this.commandBus.execute(
+      new SyncUserCommand('CHANGE_PASSWORD', data.userId, {
+        passwordHash: data.passwordHash,
+      }),
+    );
   }
 
   @EventPattern('user.RoleChanged')
   async handleRoleChanged(@Payload() data: any) {
-    await this.commandBus.execute(new SyncUserCommand('CHANGE_ROLE', data.userId, {
-      role: data.role,
-    }));
+    await this.commandBus.execute(
+      new SyncUserCommand('CHANGE_ROLE', data.userId, {
+        role: data.role,
+      }),
+    );
   }
 
   @EventPattern('user.UserDeactivated')

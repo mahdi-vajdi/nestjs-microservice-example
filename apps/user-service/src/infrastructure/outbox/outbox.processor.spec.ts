@@ -43,12 +43,12 @@ describe('OutboxProcessor', () => {
     expect(mockNatsClient.emit).toHaveBeenCalledTimes(1);
     expect(mockNatsClient.emit).toHaveBeenCalledWith(
       UserCreatedIntegrationEvent.TOPIC,
-      event.payload
+      event.payload,
     );
 
     expect(mockOutboxRepo.update).toHaveBeenCalledWith(
       { id: event.id, published: false },
-      { published: true }
+      { published: true },
     );
   });
 

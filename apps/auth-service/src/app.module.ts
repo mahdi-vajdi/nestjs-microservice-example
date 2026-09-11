@@ -1,25 +1,33 @@
-import { authGrpcConfig, natsConfig, NatsJetStreamModule, PostgresModule, RedisModule } from '@app/infrastructure';
+import {
+  authGrpcConfig,
+  natsConfig,
+  NatsJetStreamModule,
+  PostgresModule,
+  RedisModule,
+} from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
+import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
 
-import { UserCredentialRepositoryPort, TokenSessionRepositoryPort, TokenGeneratorPort } from './domain';
 import { LoginHandler } from './application/commands/login/login.handler';
 import { LogoutHandler } from './application/commands/logout/logout.handler';
 import { RefreshTokenHandler } from './application/commands/refresh-token/refresh-token.handler';
-import { ValidateTokenHandler } from './application/queries/validate-token/validate-token.handler';
 import { SyncUserHandler } from './application/commands/sync-user/sync-user.handler';
-
-import { UserCredentialEntity } from './infrastructure/persistence/entities/user-credential.entity';
-import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
-import { UserCredentialPostgresRepository } from './infrastructure/persistence/repositories/user-credential-postgres.repository';
+import { ValidateTokenHandler } from './application/queries/validate-token/validate-token.handler';
+import {
+  TokenGeneratorPort,
+  TokenSessionRepositoryPort,
+  UserCredentialRepositoryPort,
+} from './domain';
 import { TokenRedisRepository } from './infrastructure/cache/token-redis.repository';
-import { JwtTokenGenerator } from './infrastructure/token/jwt-token-generator';
 import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
-
+import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
+import { UserCredentialEntity } from './infrastructure/persistence/entities/user-credential.entity';
+import { UserCredentialPostgresRepository } from './infrastructure/persistence/repositories/user-credential-postgres.repository';
+import { JwtTokenGenerator } from './infrastructure/token/jwt-token-generator';
 import { AuthGrpcController } from './interface/grpc/auth-grpc.controller';
 import { UserEventsNatsController } from './interface/nats/user-events.nats.controller';
 

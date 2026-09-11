@@ -1,8 +1,9 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
-import { USER_REPOSITORY_PORT, UserRepositoryPort, UserId } from '../../../domain';
-import { ActivateUserCommand } from './activate-user.command';
 import { NotFoundException } from '@app/common';
+import { Inject } from '@nestjs/common';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
+import { USER_REPOSITORY_PORT, UserId, UserRepositoryPort } from '../../../domain';
+import { ActivateUserCommand } from './activate-user.command';
 
 @CommandHandler(ActivateUserCommand)
 export class ActivateUserHandler implements ICommandHandler<ActivateUserCommand> {
@@ -14,7 +15,7 @@ export class ActivateUserHandler implements ICommandHandler<ActivateUserCommand>
   async execute(command: ActivateUserCommand): Promise<void> {
     const userId = UserId.create(command.userId);
     const user = await this.userRepository.findById(userId.value);
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }

@@ -1,4 +1,4 @@
-import { ValueObject, InvalidInputException } from '@app/common';
+import { InvalidInputException, ValueObject } from '@app/common';
 
 interface RefreshTokenProps {
   value: string;

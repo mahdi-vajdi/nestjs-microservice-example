@@ -1,22 +1,22 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { NATS_JETSTREAM_CLIENT } from '@app/infrastructure';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ClientProxy } from '@nestjs/microservices';
 
-import { NATS_JETSTREAM_CLIENT } from '@app/infrastructure';
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
 
 @Injectable()
 export class OutboxProcessor {
   private readonly logger = new Logger(OutboxProcessor.name);
-  
+
   private readonly topicRegistry: Record<string, string> = {
-    'UserCreatedEvent': 'user.UserCreated',
-    'UserPasswordChangedEvent': 'user.PasswordChanged',
-    'UserRoleChangedEvent': 'user.RoleChanged',
-    'UserDeactivatedEvent': 'user.Deactivated',
-    'UserActivatedEvent': 'user.Activated'
+    UserCreatedEvent: 'user.UserCreated',
+    UserPasswordChangedEvent: 'user.PasswordChanged',
+    UserRoleChangedEvent: 'user.RoleChanged',
+    UserDeactivatedEvent: 'user.Deactivated',
+    UserActivatedEvent: 'user.Activated',
   };
 
   constructor(
@@ -45,11 +45,8 @@ export class OutboxProcessor {
         }
 
         this.natsClient.emit(topic, event.payload);
-        
-        await this.outboxRepository.update(
-          { id: event.id, published: false },
-          { published: true }
-        );
+
+        await this.outboxRepository.update({ id: event.id, published: false }, { published: true });
       } catch (error) {
         this.logger.error(`Failed to process outbox event ${event.id}`, error);
       }

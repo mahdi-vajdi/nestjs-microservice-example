@@ -3,12 +3,11 @@ import { randomUUID } from 'node:crypto';
 import { BaseAggregateRoot } from '@app/common';
 import { InvalidInputException } from '@app/common';
 
+import { UserActivatedEvent } from '../events/user-activated.event';
 import { UserCreatedEvent } from '../events/user-created.event';
+import { UserDeactivatedEvent } from '../events/user-deactivated.event';
 import { UserPasswordChangedEvent } from '../events/user-password-changed.event';
 import { UserRoleChangedEvent } from '../events/user-role-changed.event';
-import { UserDeactivatedEvent } from '../events/user-deactivated.event';
-import { UserActivatedEvent } from '../events/user-activated.event';
-
 import { UserRole } from '../types/user-role.enum';
 import { UserSnapshot } from '../types/user-snapshot';
 import { Email } from '../value-objects/email.value-object';

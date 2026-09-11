@@ -5,7 +5,7 @@ export class Initial1694380800000 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE SCHEMA IF NOT EXISTS "auth"`);
-    
+
     await queryRunner.query(`
       CREATE TABLE "auth"."user_credentials" (
         "user_id" uuid NOT NULL,

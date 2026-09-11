@@ -1,22 +1,21 @@
-import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-
 import {
-  UserGrpcService,
   type CreateUserRequest,
   CreateUserResponse,
+  type GetUserByEmailRequest,
   type GetUserRequest,
   GetUserResponse,
-  type GetUserByEmailRequest
+  UserGrpcService,
 } from '@app/contracts';
+import { Controller } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { GrpcMethod } from '@nestjs/microservices';
 
 import { CreateUserCommand } from '../../application/commands/create-user/create-user.command';
 import { GetUserQuery } from '../../application/queries/get-user/get-user.query';
 import { GetUserByEmailQuery } from '../../application/queries/get-user-by-email/get-user-by-email.query';
 
 @Controller()
-export class UserGrpcController  {
+export class UserGrpcController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,

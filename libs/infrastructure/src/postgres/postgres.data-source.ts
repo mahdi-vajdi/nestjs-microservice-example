@@ -1,5 +1,7 @@
 import 'dotenv/config';
+
 import { DataSource } from 'typeorm';
+
 import { postgresConfigSchema } from './postgres.config';
 
 const config = postgresConfigSchema.parse({

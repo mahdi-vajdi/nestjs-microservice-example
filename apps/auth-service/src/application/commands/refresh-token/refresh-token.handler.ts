@@ -1,8 +1,13 @@
 import { InvalidInputException } from '@app/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RefreshTokenCommand } from './refresh-token.command';
+
+import {
+  TokenGeneratorPort,
+  TokenSessionRepositoryPort,
+  UserCredentialRepositoryPort,
+} from '../../../domain';
 import { AuthResponseDto } from '../../dtos/auth.response.dto';
-import { TokenGeneratorPort, TokenSessionRepositoryPort, UserCredentialRepositoryPort } from '../../../domain';
+import { RefreshTokenCommand } from './refresh-token.command';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand> {
@@ -30,6 +35,10 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
 
     await this.tokenSessionRepo.store(refreshTokenData.token, user.id, refreshTokenData.expiresIn);
 
-    return new AuthResponseDto(accessTokenData.token, refreshTokenData.token, accessTokenData.expiresIn);
+    return new AuthResponseDto(
+      accessTokenData.token,
+      refreshTokenData.token,
+      accessTokenData.expiresIn,
+    );
   }
 }

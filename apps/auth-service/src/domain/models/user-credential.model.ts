@@ -22,7 +22,13 @@ export class UserCredential extends BaseAggregateRoot {
     this._isActive = isActive;
   }
 
-  static create(id: string, email: string, passwordHash: string, role: string, isActive: boolean = true): UserCredential {
+  static create(
+    id: string,
+    email: string,
+    passwordHash: string,
+    role: string,
+    isActive: boolean = true,
+  ): UserCredential {
     const now = new Date();
     return new UserCredential(id, now, now, email, passwordHash, role, isActive);
   }

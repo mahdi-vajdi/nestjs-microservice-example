@@ -1,7 +1,7 @@
 import { DomainException } from '@app/common';
+import { status } from '@grpc/grpc-js';
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { status } from '@grpc/grpc-js';
 
 @Catch()
 export class GlobalRpcExceptionFilter implements ExceptionFilter {

@@ -1,4 +1,4 @@
-import { Controller, Logger, Param, Sse } from '@nestjs/common';
+import { Controller, Logger, MessageEvent, Param, Sse } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
 import { SseService } from '../../services/sse.service';

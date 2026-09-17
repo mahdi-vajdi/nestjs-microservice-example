@@ -43,7 +43,9 @@ export class User extends BaseAggregateRoot {
 
     const user = new User(id, now, now, email, passwordHash, UserRole.CUSTOMER, true, null);
 
-    user.apply(new UserCreatedEvent(id, email.value, UserRole.CUSTOMER, randomUUID(), now));
+    user.apply(
+      new UserCreatedEvent(id, email.value, UserRole.CUSTOMER, passwordHash, randomUUID(), now),
+    );
 
     return user;
   }
@@ -67,7 +69,7 @@ export class User extends BaseAggregateRoot {
     }
     this._passwordHash = newHash;
     this.touch();
-    this.apply(new UserPasswordChangedEvent(this.id, randomUUID(), new Date()));
+    this.apply(new UserPasswordChangedEvent(this.id, newHash, randomUUID(), new Date()));
   }
 
   public changeRole(role: UserRole): void {

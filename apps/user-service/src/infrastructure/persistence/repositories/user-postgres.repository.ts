@@ -1,7 +1,7 @@
+import { randomUUID } from 'node:crypto';
+
 import { Injectable } from '@nestjs/common';
-import { InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { randomUUID } from 'crypto';
 import { Repository } from 'typeorm';
 
 import { User, UserRepositoryPort } from '../../../domain';
@@ -12,30 +12,22 @@ import { UserMapper } from '../mappers/user.mapper';
 @Injectable()
 export class UserPostgresRepository implements UserRepositoryPort {
   constructor(
-    @InjectRepository(UserEntity)
+    @InjectRepository(UserEntity, 'postgres')
     private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(OutboxEntity)
+    @InjectRepository(OutboxEntity, 'postgres')
     private readonly outboxRepository: Repository<OutboxEntity>,
   ) {}
 
   async findById(id: string): Promise<User | null> {
-    try {
-      const entity = await this.userRepository.findOne({ where: { id } });
-      if (!entity) return null;
-      return UserMapper.toDomain(entity);
-    } catch (error) {
-      throw new InternalServerErrorException('Error finding user by id', { cause: error });
-    }
+    const entity = await this.userRepository.findOne({ where: { id } });
+    if (!entity) return null;
+    return UserMapper.toDomain(entity);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    try {
-      const entity = await this.userRepository.findOne({ where: { email } });
-      if (!entity) return null;
-      return UserMapper.toDomain(entity);
-    } catch (error) {
-      throw new InternalServerErrorException('Error finding user by email', { cause: error });
-    }
+    const entity = await this.userRepository.findOne({ where: { email } });
+    if (!entity) return null;
+    return UserMapper.toDomain(entity);
   }
 
   async save(user: User): Promise<void> {
@@ -54,7 +46,7 @@ export class UserPostgresRepository implements UserRepositoryPort {
           outbox.id = randomUUID();
           outbox.aggregateId = user.id;
           outbox.eventType = event.constructor.name;
-          outbox.payload = { ...event };
+          outbox.payload = { ...event } as Record<string, unknown>;
           outbox.published = false;
           return outbox;
         });
@@ -66,9 +58,7 @@ export class UserPostgresRepository implements UserRepositoryPort {
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException('Error saving user and outbox events', {
-        cause: error,
-      });
+      throw error;
     } finally {
       await queryRunner.release();
     }

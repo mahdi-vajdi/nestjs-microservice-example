@@ -1,3 +1,10 @@
+import {
+  UserActivatedIntegrationEvent,
+  UserCreatedIntegrationEvent,
+  UserDeactivatedIntegrationEvent,
+  UserPasswordChangedIntegrationEvent,
+  UserRoleChangedIntegrationEvent,
+} from '@app/contracts';
 import { NATS_JETSTREAM_CLIENT } from '@app/infrastructure';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -12,15 +19,15 @@ export class OutboxProcessor {
   private readonly logger = new Logger(OutboxProcessor.name);
 
   private readonly topicRegistry: Record<string, string> = {
-    UserCreatedEvent: 'user.UserCreated',
-    UserPasswordChangedEvent: 'user.PasswordChanged',
-    UserRoleChangedEvent: 'user.RoleChanged',
-    UserDeactivatedEvent: 'user.Deactivated',
-    UserActivatedEvent: 'user.Activated',
+    UserCreatedEvent: UserCreatedIntegrationEvent.TOPIC,
+    UserPasswordChangedEvent: UserPasswordChangedIntegrationEvent.TOPIC,
+    UserRoleChangedEvent: UserRoleChangedIntegrationEvent.TOPIC,
+    UserDeactivatedEvent: UserDeactivatedIntegrationEvent.TOPIC,
+    UserActivatedEvent: UserActivatedIntegrationEvent.TOPIC,
   };
 
   constructor(
-    @InjectRepository(OutboxEntity)
+    @InjectRepository(OutboxEntity, 'postgres')
     private readonly outboxRepository: Repository<OutboxEntity>,
     @Inject(NATS_JETSTREAM_CLIENT)
     private readonly natsClient: ClientProxy,

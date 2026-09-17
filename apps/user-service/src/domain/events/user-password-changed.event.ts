@@ -5,6 +5,7 @@ export class UserPasswordChangedEvent implements DomainEvent {
 
   constructor(
     public readonly aggregateId: string,
+    public readonly newPasswordHash: string,
     public readonly eventId: string,
     public readonly occurredAt: Date,
   ) {}

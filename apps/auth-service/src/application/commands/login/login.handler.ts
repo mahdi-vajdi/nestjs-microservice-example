@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 
 import { InvalidInputException } from '@app/common';
-import { UserLoggedInIntegrationEvent } from '@app/contracts';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import {
+  PasswordVerifierPort,
   TokenGeneratorPort,
   TokenSessionRepositoryPort,
   UserCredentialRepositoryPort,
@@ -21,6 +21,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly userRepo: UserCredentialRepositoryPort,
     private readonly tokenGenerator: TokenGeneratorPort,
     private readonly tokenSessionRepo: TokenSessionRepositoryPort,
+    private readonly passwordVerifier: PasswordVerifierPort,
     @InjectRepository(OutboxEntity, 'postgres')
     private readonly outboxRepo: Repository<OutboxEntity>,
   ) {}
@@ -32,15 +33,11 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     }
 
     if (!user.isActive) {
-      throw new InvalidInputException('User is deactivated');
+      throw new InvalidInputException('User account is deactivated');
     }
 
-    // Since we receive the password plainly in the command (or hashed, wait the grpc contract gives plain password)
-    // we should ideally compare hashes. For simplicity, we assume command.passwordHash is the plain text,
-    // but the grpc model has password. Let's compare directly or use a dummy check:
-    // If the contract provides plain password and the user model stores the hash, we'd hash and compare here.
-    // For now we'll just check if they match (assuming we are not hashing or using a simple hash).
-    if (user.passwordHash !== command.passwordHash) {
+    const isPasswordValid = await this.passwordVerifier.verify(command.password, user.passwordHash);
+    if (!isPasswordValid) {
       throw new InvalidInputException('Invalid email or password');
     }
 
@@ -52,7 +49,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     const event = new OutboxEntity();
     event.id = randomUUID();
     event.aggregateId = user.id;
-    event.type = UserLoggedInIntegrationEvent.TOPIC;
+    event.type = 'UserLoggedInEvent';
     event.payload = {};
     event.published = false;
 

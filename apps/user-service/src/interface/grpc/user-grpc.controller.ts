@@ -4,7 +4,6 @@ import {
   type GetUserByEmailRequest,
   type GetUserRequest,
   GetUserResponse,
-  UserGrpcService,
 } from '@app/contracts';
 import { Controller } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -22,20 +21,21 @@ export class UserGrpcController {
   ) {}
 
   @GrpcMethod('UserService', 'CreateUser')
-  async createUser(request: CreateUserRequest): Promise<any> {
-    const command = new CreateUserCommand(request.email, request.password);
-    return this.commandBus.execute(command);
+  async createUser(request: CreateUserRequest): Promise<CreateUserResponse> {
+    return this.commandBus.execute<CreateUserCommand, CreateUserResponse>(
+      new CreateUserCommand(request.email, request.password),
+    );
   }
 
   @GrpcMethod('UserService', 'GetUser')
-  async getUser(request: GetUserRequest): Promise<any> {
-    const query = new GetUserQuery(request.id);
-    return this.queryBus.execute(query);
+  async getUser(request: GetUserRequest): Promise<GetUserResponse> {
+    return this.queryBus.execute<GetUserQuery, GetUserResponse>(new GetUserQuery(request.id));
   }
 
   @GrpcMethod('UserService', 'GetUserByEmail')
-  async getUserByEmail(request: GetUserByEmailRequest): Promise<any> {
-    const query = new GetUserByEmailQuery(request.email);
-    return this.queryBus.execute(query);
+  async getUserByEmail(request: GetUserByEmailRequest): Promise<GetUserResponse> {
+    return this.queryBus.execute<GetUserByEmailQuery, GetUserResponse>(
+      new GetUserByEmailQuery(request.email),
+    );
   }
 }

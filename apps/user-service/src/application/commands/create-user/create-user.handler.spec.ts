@@ -7,7 +7,7 @@ import { CreateUserHandler } from './create-user.handler';
 describe('CreateUserHandler', () => {
   let handler: CreateUserHandler;
   let mockUserRepo: jest.Mocked<UserRepositoryPort>;
-  let mockPasswordHasher: jest.Mocked<any>;
+  let mockPasswordHasher: jest.Mocked<PasswordHasherPort>;
 
   beforeEach(() => {
     mockUserRepo = {

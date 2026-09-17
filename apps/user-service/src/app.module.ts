@@ -19,7 +19,7 @@ import { DeactivateUserHandler } from './application/commands/deactivate-user/de
 import { UpdateLastLoginHandler } from './application/commands/update-last-login/update-last-login.handler';
 import { GetUserHandler } from './application/queries/get-user/get-user.handler';
 import { GetUserByEmailHandler } from './application/queries/get-user-by-email/get-user-by-email.handler';
-import { PASSWORD_HASHER_PORT, USER_REPOSITORY_PORT } from './domain';
+import { PasswordHasherPort, UserRepositoryPort } from './domain';
 import { BcryptPasswordHasher } from './infrastructure/hashing/bcrypt-password-hasher';
 import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
 import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
@@ -56,11 +56,11 @@ const queryHandlers = [GetUserHandler, GetUserByEmailHandler];
   providers: [
     OutboxProcessor,
     {
-      provide: USER_REPOSITORY_PORT,
+      provide: UserRepositoryPort,
       useClass: UserPostgresRepository,
     },
     {
-      provide: PASSWORD_HASHER_PORT,
+      provide: PasswordHasherPort,
       useClass: BcryptPasswordHasher,
     },
     ...commandHandlers,

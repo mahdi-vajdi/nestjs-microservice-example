@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 COPY . .
 
 RUN corepack enable && yarn install --immutable
-RUN yarn build user-service
+RUN yarn build auth-service
 
 # ─── Stage 2: Production release ─────────────────────────────────────────────
 FROM node:22-alpine AS release
@@ -23,10 +23,10 @@ COPY --from=builder /usr/src/app/.yarn ./.yarn
 COPY --from=builder /usr/src/app/.yarnrc.yml ./
 
 # Copy compiled output
-COPY --from=builder /usr/src/app/dist/apps/user-service ./dist/apps/user-service
+COPY --from=builder /usr/src/app/dist/apps/auth-service ./dist/apps/auth-service
 COPY --from=builder /usr/src/app/dist/libs ./dist/libs
 
 # Install production dependencies only, then clean cache
 RUN corepack enable && yarn workspaces focus -A --production && yarn cache clean --all
 
-CMD ["node", "dist/apps/user-service/main"]
+CMD ["node", "dist/apps/auth-service/main"]

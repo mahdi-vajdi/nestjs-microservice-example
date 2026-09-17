@@ -18,11 +18,13 @@ import { RefreshTokenHandler } from './application/commands/refresh-token/refres
 import { SyncUserHandler } from './application/commands/sync-user/sync-user.handler';
 import { ValidateTokenHandler } from './application/queries/validate-token/validate-token.handler';
 import {
+  PasswordVerifierPort,
   TokenGeneratorPort,
   TokenSessionRepositoryPort,
   UserCredentialRepositoryPort,
 } from './domain';
 import { TokenRedisRepository } from './infrastructure/cache/token-redis.repository';
+import { BcryptPasswordVerifier } from './infrastructure/hashing/bcrypt-password-verifier';
 import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
 import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
 import { UserCredentialEntity } from './infrastructure/persistence/entities/user-credential.entity';
@@ -66,6 +68,10 @@ import { UserEventsNatsController } from './interface/nats/user-events.nats.cont
     {
       provide: TokenGeneratorPort,
       useClass: JwtTokenGenerator,
+    },
+    {
+      provide: PasswordVerifierPort,
+      useClass: BcryptPasswordVerifier,
     },
     LoginHandler,
     LogoutHandler,

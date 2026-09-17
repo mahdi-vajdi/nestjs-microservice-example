@@ -8,9 +8,9 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand> {
   constructor(private readonly userRepo: UserCredentialRepositoryPort) {}
 
   async execute(command: SyncUserCommand): Promise<void> {
-    const { action, userId, payload } = command;
+    const { userId, payload } = command;
 
-    if (action === 'CREATE') {
+    if (payload.action === 'CREATE') {
       const existing = await this.userRepo.findByUserId(userId);
       if (!existing) {
         const user = UserCredential.create(
@@ -31,7 +31,7 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand> {
       return;
     }
 
-    switch (action) {
+    switch (payload.action) {
       case 'CHANGE_PASSWORD':
         user.updatePassword(payload.passwordHash);
         break;

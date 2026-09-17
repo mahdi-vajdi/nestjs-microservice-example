@@ -1,14 +1,11 @@
 import { ConflictException } from '@app/common';
-import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import {
   Email,
   Password,
-  PASSWORD_HASHER_PORT,
   PasswordHasherPort,
   User,
-  USER_REPOSITORY_PORT,
   UserRepositoryPort,
 } from '../../../domain';
 import { UserResponseDto } from '../../dtos/user.response.dto';
@@ -18,9 +15,8 @@ import { CreateUserCommand } from './create-user.command';
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
   constructor(
-    @Inject(USER_REPOSITORY_PORT)
     private readonly userRepository: UserRepositoryPort,
-    @Inject(PASSWORD_HASHER_PORT)
+
     private readonly passwordHasher: PasswordHasherPort,
   ) {}
 

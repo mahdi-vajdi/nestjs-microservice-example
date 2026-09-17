@@ -1,7 +1,9 @@
 import { BaseAggregateRoot } from '@app/common';
 
+import { Email } from '../value-objects/email.value-object';
+
 export class UserCredential extends BaseAggregateRoot {
-  private _email: string;
+  private _email: Email;
   private _passwordHash: string;
   private _role: string;
   private _isActive: boolean;
@@ -10,7 +12,7 @@ export class UserCredential extends BaseAggregateRoot {
     id: string,
     createdAt: Date,
     updatedAt: Date,
-    email: string,
+    email: Email,
     passwordHash: string,
     role: string,
     isActive: boolean,
@@ -30,7 +32,7 @@ export class UserCredential extends BaseAggregateRoot {
     isActive: boolean = true,
   ): UserCredential {
     const now = new Date();
-    return new UserCredential(id, now, now, email, passwordHash, role, isActive);
+    return new UserCredential(id, now, now, Email.create(email), passwordHash, role, isActive);
   }
 
   static reconstitute(
@@ -42,7 +44,15 @@ export class UserCredential extends BaseAggregateRoot {
     role: string,
     isActive: boolean,
   ): UserCredential {
-    return new UserCredential(id, createdAt, updatedAt, email, passwordHash, role, isActive);
+    return new UserCredential(
+      id,
+      createdAt,
+      updatedAt,
+      Email.create(email),
+      passwordHash,
+      role,
+      isActive,
+    );
   }
 
   public updatePassword(newHash: string): void {
@@ -62,7 +72,7 @@ export class UserCredential extends BaseAggregateRoot {
   }
 
   get email(): string {
-    return this._email;
+    return this._email.value;
   }
 
   get role(): string {

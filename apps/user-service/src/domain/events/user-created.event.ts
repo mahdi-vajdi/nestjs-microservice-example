@@ -9,6 +9,7 @@ export class UserCreatedEvent implements DomainEvent {
     public readonly aggregateId: string,
     public readonly email: string,
     public readonly role: UserRole,
+    public readonly passwordHash: string,
     public readonly eventId: string,
     public readonly occurredAt: Date,
   ) {}

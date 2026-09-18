@@ -39,4 +39,14 @@ describe('UserCredential Model', () => {
     cred.activate();
     expect(cred.isActive).toBe(true);
   });
+
+  it('should record login event when login is called', () => {
+    const cred = UserCredential.create('user-1', 'test@example.com', 'hashedpwd', 'CUSTOMER');
+    cred.login();
+
+    const events = cred.getUncommittedEvents();
+    expect(events).toHaveLength(1);
+    expect(events[0].constructor.name).toBe('UserLoggedInEvent');
+    expect(events[0].aggregateId).toBe('user-1');
+  });
 });

@@ -25,27 +25,27 @@ describe('LoginHandler', () => {
       findByEmail: jest.fn(),
       findByUserId: jest.fn(),
       save: jest.fn(),
-    } as any;
+    };
 
     tokenGenerator = {
       generateAccessToken: jest.fn(),
       generateRefreshToken: jest.fn(),
       verifyAccessToken: jest.fn(),
-    } as any;
+    };
 
     tokenSessionRepo = {
       store: jest.fn(),
       findUserIdByToken: jest.fn(),
       revoke: jest.fn(),
-    } as any;
+    };
 
     passwordVerifier = {
       verify: jest.fn(),
-    } as any;
+    };
 
     eventPublisher = {
       mergeObjectContext: jest.fn().mockImplementation((obj) => obj),
-    } as any;
+    } as unknown as jest.Mocked<EventPublisher>;
 
     handler = new LoginHandler(
       userRepo,

@@ -1,12 +1,17 @@
+import { TokenGeneratorPort } from '../../../domain';
 import { ValidateTokenHandler } from './validate-token.handler';
 import { ValidateTokenQuery } from './validate-token.query';
 
 describe('ValidateTokenHandler', () => {
   let handler: ValidateTokenHandler;
-  let mockTokenGen: any;
+  let mockTokenGen: jest.Mocked<TokenGeneratorPort>;
 
   beforeEach(() => {
-    mockTokenGen = { verifyAccessToken: jest.fn() };
+    mockTokenGen = {
+      generateAccessToken: jest.fn(),
+      generateRefreshToken: jest.fn(),
+      verifyAccessToken: jest.fn(),
+    };
     handler = new ValidateTokenHandler(mockTokenGen);
   });
 

@@ -1,22 +1,36 @@
 import { InvalidInputException } from '@app/common';
 
-import { UserCredential } from '../../../domain';
+import {
+  TokenGeneratorPort,
+  TokenSessionRepositoryPort,
+  UserCredential,
+  UserCredentialRepositoryPort,
+} from '../../../domain';
 import { RefreshTokenCommand } from './refresh-token.command';
 import { RefreshTokenHandler } from './refresh-token.handler';
 
 describe('RefreshTokenHandler', () => {
   let handler: RefreshTokenHandler;
-  let mockUserRepo: any;
-  let mockTokenGen: any;
-  let mockTokenSession: any;
+  let mockUserRepo: jest.Mocked<UserCredentialRepositoryPort>;
+  let mockTokenGen: jest.Mocked<TokenGeneratorPort>;
+  let mockTokenSession: jest.Mocked<TokenSessionRepositoryPort>;
 
   beforeEach(() => {
-    mockUserRepo = { findByUserId: jest.fn() };
+    mockUserRepo = {
+      findByUserId: jest.fn(),
+      findByEmail: jest.fn(),
+      save: jest.fn(),
+    };
     mockTokenGen = {
       generateAccessToken: jest.fn().mockResolvedValue({ token: 'access', expiresIn: 3600 }),
       generateRefreshToken: jest.fn().mockResolvedValue({ token: 'new_refresh', expiresIn: 7200 }),
+      verifyAccessToken: jest.fn(),
     };
-    mockTokenSession = { findUserIdByToken: jest.fn(), revoke: jest.fn(), store: jest.fn() };
+    mockTokenSession = {
+      findUserIdByToken: jest.fn(),
+      revoke: jest.fn(),
+      store: jest.fn(),
+    };
 
     handler = new RefreshTokenHandler(mockUserRepo, mockTokenGen, mockTokenSession);
   });

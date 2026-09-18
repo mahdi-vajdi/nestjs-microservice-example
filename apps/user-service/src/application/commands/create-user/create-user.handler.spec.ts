@@ -25,7 +25,7 @@ describe('CreateUserHandler', () => {
 
     mockEventPublisher = {
       mergeObjectContext: jest.fn().mockImplementation((obj) => obj),
-    } as any;
+    } as unknown as jest.Mocked<EventPublisher>;
 
     handler = new CreateUserHandler(mockUserRepo, mockPasswordHasher, mockEventPublisher);
   });

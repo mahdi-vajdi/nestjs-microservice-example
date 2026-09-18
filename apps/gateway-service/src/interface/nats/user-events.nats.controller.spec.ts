@@ -7,16 +7,14 @@ import { UserEventsNatsController } from './user-events.nats.controller';
 
 describe('UserEventsNatsController', () => {
   let controller: UserEventsNatsController;
-  let sseService: Pick<jest.Mocked<SseService>, 'notifyClient' | 'addClient' | 'removeClient'>;
+  let sseService: Pick<jest.Mocked<SseService>, 'notifyClient'>;
 
   beforeEach(() => {
     sseService = {
       notifyClient: jest.fn(),
-      addClient: jest.fn(),
-      removeClient: jest.fn(),
     };
 
-    controller = new UserEventsNatsController(sseService as SseService);
+    controller = new UserEventsNatsController(sseService as unknown as SseService);
   });
 
   it('should process UserCreatedIntegrationEvent successfully and ack the message', async () => {
@@ -25,6 +23,7 @@ describe('UserEventsNatsController', () => {
       'user-123',
       'test@example.com',
       'USER',
+      'hashed_pwd',
       new Date(),
     );
 
@@ -56,6 +55,7 @@ describe('UserEventsNatsController', () => {
       'user-123',
       'test@example.com',
       'USER',
+      'hashed_pwd',
       new Date(),
     );
 

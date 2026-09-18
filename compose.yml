@@ -61,6 +61,7 @@ services:
       - POSTGRES_HOST=postgres
       - NATS_SERVERS=nats://nats:4222
       - REDIS_HOST=redis
+      - NATS_CONSUMER_DURABLE_NAME=user-service-consumer
     ports:
       - '${GRPC_USER_PORT:-50051}:50051'
     depends_on:
@@ -80,6 +81,7 @@ services:
       - POSTGRES_HOST=postgres
       - NATS_SERVERS=nats://nats:4222
       - REDIS_HOST=redis
+      - NATS_CONSUMER_DURABLE_NAME=auth-service-consumer
     ports:
       - '${GRPC_AUTH_PORT:-50052}:50052'
     depends_on:
@@ -101,6 +103,7 @@ services:
       - NATS_SERVERS=nats://nats:4222
       - GRPC_USER_HOST=user-service
       - GRPC_AUTH_HOST=auth-service
+      - NATS_CONSUMER_DURABLE_NAME=gateway-service-consumer
     ports:
       - '${PORT:-3000}:3000'
     depends_on:

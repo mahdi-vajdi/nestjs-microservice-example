@@ -6,7 +6,12 @@ import {
   USER_PACKAGE,
   USER_PROTO_PATH,
 } from '@app/contracts';
-import { authGrpcConfig, NatsJetStreamModule, userGrpcConfig } from '@app/infrastructure';
+import {
+  authGrpcConfig,
+  natsConfig,
+  NatsJetStreamModule,
+  userGrpcConfig,
+} from '@app/infrastructure';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -23,7 +28,7 @@ import { SseService } from './services/sse.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [userGrpcConfig, authGrpcConfig],
+      load: [userGrpcConfig, authGrpcConfig, natsConfig],
     }),
     ThrottlerModule.forRoot([
       {

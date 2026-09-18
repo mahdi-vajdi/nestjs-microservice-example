@@ -45,7 +45,7 @@ export class UserCredentialPostgresRepository implements UserCredentialRepositor
           outbox.id = event.eventId;
           outbox.aggregateId = credential.id;
           outbox.type = event.constructor.name;
-          outbox.payload = {};
+          outbox.payload = { userId: credential.id, occurredOn: event.occurredAt };
           outbox.published = false;
           return outbox;
         });

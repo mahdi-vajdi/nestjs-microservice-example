@@ -41,13 +41,7 @@ export class OutboxProcessor {
           continue;
         }
 
-        const payload = {
-          userId: event.aggregateId,
-          ...event.payload,
-          occurredOn: event.createdAt,
-        };
-
-        const encoded = this.jc.encode(payload);
+        const encoded = this.jc.encode(event.payload);
 
         await this.js.publish(topic, encoded, {
           msgID: event.id,

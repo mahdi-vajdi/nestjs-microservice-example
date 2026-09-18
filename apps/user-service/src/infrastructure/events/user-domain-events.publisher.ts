@@ -14,11 +14,14 @@ import type { JetStreamClient } from 'nats';
 import { JSONCodec } from 'nats';
 import { Repository } from 'typeorm';
 
-import { UserActivatedEvent } from '../../domain';
-import { UserCreatedEvent } from '../../domain';
-import { UserDeactivatedEvent } from '../../domain';
-import { UserPasswordChangedEvent } from '../../domain';
-import { UserRoleChangedEvent } from '../../domain';
+import {
+  UserActivatedEvent,
+  UserCreatedEvent,
+  UserDeactivatedEvent,
+  UserPasswordChangedEvent,
+  UserRoleChangedEvent,
+} from '../../domain';
+import { buildUserIntegrationPayload } from '../persistence/mappers/user-outbox-payload.mapper';
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
 
 @EventsHandler(
@@ -50,7 +53,7 @@ export class UserDomainEventsPublisher implements IEventHandler<DomainEvent> {
     const topic = this.topicRegistry[event.constructor.name];
     if (!topic) return;
 
-    const payload = this.buildIntegrationPayload(event);
+    const payload = buildUserIntegrationPayload(event);
 
     try {
       await this.js.publish(topic, this.jc.encode(payload), { msgID: event.eventId });
@@ -58,34 +61,5 @@ export class UserDomainEventsPublisher implements IEventHandler<DomainEvent> {
     } catch (err) {
       this.logger.error(`Instant publish failed for ${event.constructor.name}`, err);
     }
-  }
-
-  private buildIntegrationPayload(event: DomainEvent): Record<string, unknown> {
-    if (event instanceof UserCreatedEvent) {
-      return {
-        userId: event.aggregateId,
-        email: event.email,
-        role: event.role,
-        passwordHash: event.passwordHash,
-        occurredOn: event.occurredAt,
-      };
-    }
-    if (event instanceof UserPasswordChangedEvent) {
-      return {
-        userId: event.aggregateId,
-        newPasswordHash: event.newPasswordHash,
-        occurredOn: event.occurredAt,
-      };
-    }
-    if (event instanceof UserRoleChangedEvent) {
-      return { userId: event.aggregateId, newRole: event.role, occurredOn: event.occurredAt };
-    }
-    if (event instanceof UserDeactivatedEvent) {
-      return { userId: event.aggregateId, occurredOn: event.occurredAt };
-    }
-    if (event instanceof UserActivatedEvent) {
-      return { userId: event.aggregateId, occurredOn: event.occurredAt };
-    }
-    return { userId: (event as DomainEvent).aggregateId };
   }
 }

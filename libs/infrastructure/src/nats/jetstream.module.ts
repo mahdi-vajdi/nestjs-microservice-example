@@ -3,8 +3,8 @@ import type { ConfigType } from '@nestjs/config';
 import type { JetStreamClient, NatsConnection } from 'nats';
 import { connect, ErrorCode, NatsError, RetentionPolicy, StorageType } from 'nats';
 
-import { NATS_CONNECTION, NATS_JETSTREAM_CLIENT, natsConfig } from './nats.config';
 import { DeadLetterModule } from './dead-letter.module';
+import { NATS_CONNECTION, NATS_JETSTREAM_CLIENT, natsConfig } from './nats.config';
 
 @Global()
 @Module({

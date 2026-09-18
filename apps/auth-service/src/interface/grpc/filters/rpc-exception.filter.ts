@@ -7,7 +7,7 @@ import { RpcException } from '@nestjs/microservices';
 export class GlobalRpcExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalRpcExceptionFilter.name);
 
-  catch(exception: Error, host: ArgumentsHost): any {
+  catch(exception: Error, _host: ArgumentsHost): RpcException {
     this.logger.error(exception.message, exception.stack);
 
     let code = status.INTERNAL;

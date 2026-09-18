@@ -1,11 +1,12 @@
-import { getCorrelationId } from '@app/infrastructure';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserCredential, UserCredentialRepositoryPort } from '../../../domain';
+import { UserLoggedInEvent } from '../../../domain/events/user-logged-in.event';
 import { OutboxEntity } from '../entities/outbox.entity';
 import { UserCredentialEntity } from '../entities/user-credential.entity';
+import { AuthOutboxPayloadMapper } from '../mappers/auth-outbox-payload.mapper';
 import { UserCredentialMapper } from '../mappers/user-credential.mapper';
 
 @Injectable()
@@ -42,16 +43,11 @@ export class UserCredentialPostgresRepository implements UserCredentialRepositor
 
       if (events.length > 0) {
         const outboxEntities = events.map((event) => {
-          const correlationId = event.correlationId ?? getCorrelationId();
           const outbox = new OutboxEntity();
           outbox.id = event.eventId;
           outbox.aggregateId = credential.id;
-          outbox.type = event.constructor.name;
-          outbox.payload = {
-            userId: credential.id,
-            occurredOn: event.occurredAt,
-            ...(correlationId ? { correlationId } : {}),
-          };
+          outbox.type = event.eventName;
+          outbox.payload = AuthOutboxPayloadMapper.build(event as UserLoggedInEvent);
           outbox.published = false;
           return outbox;
         });

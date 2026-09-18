@@ -3,7 +3,8 @@ import { DomainEvent } from '@app/common';
 import { UserRole } from '../types/user-role.enum';
 
 export class UserCreatedEvent implements DomainEvent {
-  public readonly eventName = 'UserCreatedEvent';
+  static readonly EVENT_NAME = 'UserCreatedEvent';
+  public readonly eventName = UserCreatedEvent.EVENT_NAME;
 
   constructor(
     public readonly aggregateId: string,

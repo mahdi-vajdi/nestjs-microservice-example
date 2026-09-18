@@ -1,9 +1,5 @@
 import { UserLoggedInIntegrationEvent } from '@app/contracts';
-import {
-  generateCorrelationId,
-  JetStreamContext,
-  runWithCorrelationId,
-} from '@app/infrastructure';
+import { generateCorrelationId, JetStreamContext, runWithCorrelationId } from '@app/infrastructure';
 import { Controller, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Ctx, EventPattern, Payload } from '@nestjs/microservices';

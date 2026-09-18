@@ -1,9 +1,5 @@
 import { UserCreatedIntegrationEvent } from '@app/contracts';
-import {
-  generateCorrelationId,
-  JetStreamContext,
-  runWithCorrelationId,
-} from '@app/infrastructure';
+import { generateCorrelationId, JetStreamContext, runWithCorrelationId } from '@app/infrastructure';
 import { Controller, Logger } from '@nestjs/common';
 import { Ctx, EventPattern, Payload } from '@nestjs/microservices';
 
@@ -32,7 +28,11 @@ export class UserEventsNatsController {
         await this.sseService.notifyClient(event.userId, {
           status: 'COMPLETED',
           message: 'User account created successfully',
-          user: event,
+          user: {
+            userId: event.userId,
+            email: event.email,
+            role: event.role,
+          },
         });
 
         msg.ack();
@@ -41,7 +41,7 @@ export class UserEventsNatsController {
           `Error processing event ${UserCreatedIntegrationEvent.TOPIC} [correlationId=${correlationId}]:`,
           err,
         );
-        msg.nak(1000);
+        msg.nak(5_000);
       }
     });
   }

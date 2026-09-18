@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 import { User, UserRepositoryPort } from '../../../domain';
 import { OutboxEntity } from '../entities/outbox.entity';
 import { UserEntity } from '../entities/user.entity';
-import { buildUserIntegrationPayload } from '../mappers/user-outbox-payload.mapper';
 import { UserMapper } from '../mappers/user.mapper';
+import { UserOutboxPayloadMapper } from '../mappers/user-outbox-payload.mapper';
 
 @Injectable()
 export class UserPostgresRepository implements UserRepositoryPort {
@@ -44,8 +44,8 @@ export class UserPostgresRepository implements UserRepositoryPort {
           const outbox = new OutboxEntity();
           outbox.id = event.eventId;
           outbox.aggregateId = user.id;
-          outbox.eventType = event.constructor.name;
-          outbox.payload = buildUserIntegrationPayload(event);
+          outbox.eventType = event.eventName;
+          outbox.payload = UserOutboxPayloadMapper.toIntegrationPayload(event);
           outbox.published = false;
           return outbox;
         });

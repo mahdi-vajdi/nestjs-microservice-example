@@ -1,5 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
+
 import { Metadata } from '@grpc/grpc-js';
 
 export const CORRELATION_ID_HEADER = 'x-correlation-id';
@@ -28,4 +29,3 @@ export function createGrpcMetadata(correlationId?: string): Metadata {
   }
   return metadata;
 }
-

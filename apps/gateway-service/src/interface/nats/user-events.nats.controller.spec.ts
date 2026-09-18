@@ -42,7 +42,11 @@ describe('UserEventsNatsController', () => {
     expect(sseService.notifyClient).toHaveBeenCalledWith('user-123', {
       status: 'COMPLETED',
       message: 'User account created successfully',
-      user: event,
+      user: {
+        userId: 'user-123',
+        email: 'test@example.com',
+        role: 'USER',
+      },
     });
 
     expect(mockAck).toHaveBeenCalled();
@@ -76,6 +80,6 @@ describe('UserEventsNatsController', () => {
     await controller.handleUserCreated(event, context);
 
     expect(mockAck).not.toHaveBeenCalled();
-    expect(mockNak).toHaveBeenCalledWith(1000);
+    expect(mockNak).toHaveBeenCalledWith(5000);
   });
 });

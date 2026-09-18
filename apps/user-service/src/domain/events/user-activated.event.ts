@@ -1,7 +1,8 @@
 import { DomainEvent } from '@app/common';
 
 export class UserActivatedEvent implements DomainEvent {
-  public readonly eventName = 'UserActivatedEvent';
+  static readonly EVENT_NAME = 'UserActivatedEvent';
+  public readonly eventName = UserActivatedEvent.EVENT_NAME;
 
   constructor(
     public readonly aggregateId: string,

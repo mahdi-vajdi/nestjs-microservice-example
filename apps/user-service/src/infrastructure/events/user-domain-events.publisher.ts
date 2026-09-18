@@ -21,7 +21,6 @@ import {
   UserPasswordChangedEvent,
   UserRoleChangedEvent,
 } from '../../domain';
-import { buildUserIntegrationPayload } from '../persistence/mappers/user-outbox-payload.mapper';
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
 
 @EventsHandler(
@@ -36,11 +35,11 @@ export class UserDomainEventsPublisher implements IEventHandler<DomainEvent> {
   private readonly jc = JSONCodec();
 
   private readonly topicRegistry: Record<string, string> = {
-    UserCreatedEvent: UserCreatedIntegrationEvent.TOPIC,
-    UserPasswordChangedEvent: UserPasswordChangedIntegrationEvent.TOPIC,
-    UserRoleChangedEvent: UserRoleChangedIntegrationEvent.TOPIC,
-    UserDeactivatedEvent: UserDeactivatedIntegrationEvent.TOPIC,
-    UserActivatedEvent: UserActivatedIntegrationEvent.TOPIC,
+    [UserCreatedEvent.EVENT_NAME]: UserCreatedIntegrationEvent.TOPIC,
+    [UserPasswordChangedEvent.EVENT_NAME]: UserPasswordChangedIntegrationEvent.TOPIC,
+    [UserRoleChangedEvent.EVENT_NAME]: UserRoleChangedIntegrationEvent.TOPIC,
+    [UserDeactivatedEvent.EVENT_NAME]: UserDeactivatedIntegrationEvent.TOPIC,
+    [UserActivatedEvent.EVENT_NAME]: UserActivatedIntegrationEvent.TOPIC,
   };
 
   constructor(
@@ -50,21 +49,25 @@ export class UserDomainEventsPublisher implements IEventHandler<DomainEvent> {
   ) {}
 
   async handle(event: DomainEvent): Promise<void> {
-    const topic = this.topicRegistry[event.constructor.name];
+    const topic = this.topicRegistry[event.eventName];
     if (!topic) return;
 
-    const payload = buildUserIntegrationPayload(event);
-    const correlationId = (payload.correlationId as string) || 'none';
+    const unpublished = await this.outboxRepo.findOne({
+      where: { id: event.eventId, published: false },
+    });
+    if (!unpublished) return;
+
+    const correlationId = (unpublished.payload?.correlationId as string) || 'none';
 
     try {
       this.logger.log(
-        `Publishing event ${event.constructor.name} to topic ${topic} [correlationId=${correlationId}]`,
+        `Publishing event ${event.eventName} to topic ${topic} [correlationId=${correlationId}]`,
       );
-      await this.js.publish(topic, this.jc.encode(payload), { msgID: event.eventId });
-      await this.outboxRepo.update({ id: event.eventId }, { published: true });
+      await this.js.publish(topic, this.jc.encode(unpublished.payload), { msgID: unpublished.id });
+      await this.outboxRepo.update({ id: unpublished.id, published: false }, { published: true });
     } catch (err) {
       this.logger.error(
-        `Instant publish failed for ${event.constructor.name} [correlationId=${correlationId}]`,
+        `Instant publish failed for ${event.eventName} [correlationId=${correlationId}]`,
         err,
       );
     }

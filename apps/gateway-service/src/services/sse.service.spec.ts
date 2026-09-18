@@ -1,6 +1,5 @@
 import type { MessageEvent } from '@nestjs/common';
 import type { RedisClientType } from 'redis';
-import { firstValueFrom, toArray } from 'rxjs';
 
 import { SseService } from './sse.service';
 
@@ -65,12 +64,8 @@ describe('SseService', () => {
     });
 
     // Simulate incoming Redis pub/sub messages
-    subscribeCallback(
-      JSON.stringify({ userId: otherUserId, data: { info: 'for other user' } }),
-    );
-    subscribeCallback(
-      JSON.stringify({ userId: targetUserId, data: { info: 'for target user' } }),
-    );
+    subscribeCallback(JSON.stringify({ userId: otherUserId, data: { info: 'for other user' } }));
+    subscribeCallback(JSON.stringify({ userId: targetUserId, data: { info: 'for target user' } }));
 
     expect(receivedMessages).toHaveLength(1);
     expect(receivedMessages[0]).toEqual({

@@ -12,7 +12,7 @@ export class OutboxEntity {
   eventType!: string;
 
   @Column({ name: 'payload', type: 'jsonb' })
-  payload!: any;
+  payload!: Record<string, unknown>;
 
   @Column({ name: 'published', type: 'boolean', default: false })
   published!: boolean;

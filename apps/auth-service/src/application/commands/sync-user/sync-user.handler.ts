@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { UserCredential, UserCredentialRepositoryPort } from '../../../domain';
@@ -5,6 +6,8 @@ import { SyncUserCommand } from './sync-user.command';
 
 @CommandHandler(SyncUserCommand)
 export class SyncUserHandler implements ICommandHandler<SyncUserCommand> {
+  private readonly logger = new Logger(SyncUserHandler.name);
+
   constructor(private readonly userRepo: UserCredentialRepositoryPort) {}
 
   async execute(command: SyncUserCommand): Promise<void> {
@@ -27,7 +30,9 @@ export class SyncUserHandler implements ICommandHandler<SyncUserCommand> {
 
     const user = await this.userRepo.findByUserId(userId);
     if (!user) {
-      // Out of order message or not created yet
+      this.logger.warn(
+        `User credential not found for action ${payload.action} (userId=${userId}). Message skipped or out of order.`,
+      );
       return;
     }
 

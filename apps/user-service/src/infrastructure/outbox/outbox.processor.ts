@@ -13,6 +13,13 @@ import type { JetStreamClient } from 'nats';
 import { JSONCodec } from 'nats';
 import { Repository } from 'typeorm';
 
+import {
+  UserActivatedEvent,
+  UserCreatedEvent,
+  UserDeactivatedEvent,
+  UserPasswordChangedEvent,
+  UserRoleChangedEvent,
+} from '../../domain';
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
 
 @Injectable()
@@ -21,11 +28,11 @@ export class OutboxProcessor {
   private readonly jc = JSONCodec();
 
   private readonly topicRegistry: Record<string, string> = {
-    UserCreatedEvent: UserCreatedIntegrationEvent.TOPIC,
-    UserPasswordChangedEvent: UserPasswordChangedIntegrationEvent.TOPIC,
-    UserRoleChangedEvent: UserRoleChangedIntegrationEvent.TOPIC,
-    UserDeactivatedEvent: UserDeactivatedIntegrationEvent.TOPIC,
-    UserActivatedEvent: UserActivatedIntegrationEvent.TOPIC,
+    [UserCreatedEvent.EVENT_NAME]: UserCreatedIntegrationEvent.TOPIC,
+    [UserPasswordChangedEvent.EVENT_NAME]: UserPasswordChangedIntegrationEvent.TOPIC,
+    [UserRoleChangedEvent.EVENT_NAME]: UserRoleChangedIntegrationEvent.TOPIC,
+    [UserDeactivatedEvent.EVENT_NAME]: UserDeactivatedIntegrationEvent.TOPIC,
+    [UserActivatedEvent.EVENT_NAME]: UserActivatedIntegrationEvent.TOPIC,
   };
 
   constructor(
@@ -53,12 +60,6 @@ export class OutboxProcessor {
           continue;
         }
 
-        // Try mapping payload just in case (the instant publisher is better, but outbox processor shouldn't blindly send unmapped payload if we can avoid it. Wait, the outbox processor already saved the mapped payload? No, the outbox entity saves the raw DomainEvent as payload.)
-        // Actually, we'll let it use the stored payload (which is domain event) and just map it here, but mapping is hard without instanceof.
-        // Wait! We can extract the building logic to a shared mapper, or just encode the stored payload as it was.
-        // Wait, the plan said: "switch to js.publish() with await". I'll just keep it simple.
-
-        // As per the plan: switch to js.publish
         await this.js.publish(topic, this.jc.encode(event.payload), { msgID: event.id });
 
         await this.outboxRepository.update({ id: event.id, published: false }, { published: true });

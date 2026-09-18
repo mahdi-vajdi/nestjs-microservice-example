@@ -70,8 +70,14 @@ export class ServerJetStream extends Server implements CustomTransportStrategy {
     // Ensure the durable pull consumer exists on the server, creating it if absent.
     try {
       await jsm.consumers.info(stream, durable);
+      if (filterSubjects?.length) {
+        await jsm.consumers.update(stream, durable, {
+          filter_subjects: filterSubjects,
+        });
+      }
       this.logger.log(
-        `JetStream durable consumer '${durable}' already exists on stream '${stream}'`,
+        `JetStream durable consumer '${durable}' already exists on stream '${stream}'` +
+          (filterSubjects?.length ? ` (updated subjects: ${filterSubjects.join(', ')})` : ''),
       );
     } catch (err) {
       if (!(err instanceof NatsError) || err.code !== ErrorCode.JetStream404NoMessages) {

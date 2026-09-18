@@ -51,4 +51,3 @@ export const grpcClientCorrelationIdInterceptor: Interceptor = (options, nextCal
   };
   return new InterceptingCall(nextCall(options), requester);
 };
-

@@ -90,9 +90,7 @@ describe('SyncUserHandler', () => {
       const cred = UserCredential.create('u-1', 'test@example.com', 'pwd', 'CUSTOMER');
       mockUserRepo.findByUserId.mockResolvedValue(cred);
 
-      await handler.execute(
-        new SyncUserCommand('u-1', { action: 'CHANGE_ROLE', role: 'ADMIN' }),
-      );
+      await handler.execute(new SyncUserCommand('u-1', { action: 'CHANGE_ROLE', role: 'ADMIN' }));
 
       expect(cred.role).toBe('ADMIN');
       expect(mockUserRepo.save).toHaveBeenCalledWith(cred);

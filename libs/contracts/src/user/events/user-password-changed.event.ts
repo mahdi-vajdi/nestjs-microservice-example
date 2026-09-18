@@ -1,5 +1,5 @@
 export class UserPasswordChangedIntegrationEvent {
-  static readonly TOPIC = 'user.PasswordChanged';
+  static readonly TOPIC = 'user.UserPasswordChanged';
 
   constructor(
     public readonly eventId: string,

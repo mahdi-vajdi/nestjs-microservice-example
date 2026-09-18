@@ -1,5 +1,5 @@
 export class UserRoleChangedIntegrationEvent {
-  static readonly TOPIC = 'user.RoleChanged';
+  static readonly TOPIC = 'user.UserRoleChanged';
 
   constructor(
     public readonly eventId: string,

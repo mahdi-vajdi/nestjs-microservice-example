@@ -7,6 +7,7 @@ import type { JetStreamClient } from 'nats';
 import { JSONCodec } from 'nats';
 import { Repository } from 'typeorm';
 
+import { UserLoggedInEvent } from '../../domain';
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
 
 @Injectable()
@@ -15,7 +16,7 @@ export class OutboxProcessor {
   private readonly jc = JSONCodec();
 
   private readonly topicRegistry: Record<string, string> = {
-    UserLoggedInEvent: UserLoggedInIntegrationEvent.TOPIC,
+    [UserLoggedInEvent.EVENT_NAME]: UserLoggedInIntegrationEvent.TOPIC,
   };
 
   constructor(

@@ -53,13 +53,19 @@ export class ServerJetStream extends Server implements CustomTransportStrategy {
     const js = this.nc.jetstream();
     const jsm = await this.nc.jetstreamManager();
 
-    const {
-      stream,
-      durable,
-      filterSubjects,
-      ackWaitMs = 10_000,
-      maxDeliver = 5,
-    } = this.options.consumerOptions;
+    const { stream, durable, ackWaitMs = 10_000, maxDeliver = 5 } = this.options.consumerOptions;
+
+    let filterSubjects = this.options.consumerOptions.filterSubjects;
+    if (!filterSubjects || filterSubjects.length === 0) {
+      filterSubjects = [...this.messageHandlers.keys()].map((patternStr) => {
+        try {
+          const parsed = JSON.parse(patternStr);
+          return parsed.pattern || parsed;
+        } catch {
+          return patternStr;
+        }
+      });
+    }
 
     // Ensure the durable pull consumer exists on the server, creating it if absent.
     try {

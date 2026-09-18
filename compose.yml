@@ -104,6 +104,7 @@ services:
       - GRPC_USER_HOST=user-service
       - GRPC_AUTH_HOST=auth-service
       - NATS_CONSUMER_DURABLE_NAME=gateway-service-consumer
+      - REDIS_HOST=redis
     ports:
       - '${PORT:-3000}:3000'
     depends_on:

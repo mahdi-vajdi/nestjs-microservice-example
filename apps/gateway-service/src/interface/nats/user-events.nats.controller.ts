@@ -23,7 +23,7 @@ export class UserEventsNatsController {
         `Received event: ${UserCreatedIntegrationEvent.TOPIC} for user ${event.email} (${event.userId})`,
       );
 
-      this.sseService.notifyClient(event.userId, {
+      await this.sseService.notifyClient(event.userId, {
         status: 'COMPLETED',
         message: 'User account created successfully',
         user: event,

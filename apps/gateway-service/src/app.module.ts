@@ -10,6 +10,8 @@ import {
   authGrpcConfig,
   natsConfig,
   NatsJetStreamModule,
+  redisConfig,
+  RedisModule,
   userGrpcConfig,
 } from '@app/infrastructure';
 import { Module } from '@nestjs/common';
@@ -28,7 +30,7 @@ import { SseService } from './services/sse.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [userGrpcConfig, authGrpcConfig, natsConfig],
+      load: [userGrpcConfig, authGrpcConfig, natsConfig, redisConfig],
     }),
     ThrottlerModule.forRoot([
       {
@@ -37,6 +39,7 @@ import { SseService } from './services/sse.service';
       },
     ]),
     NatsJetStreamModule,
+    RedisModule,
     ClientsModule.registerAsync([
       {
         name: USER_GRPC_CLIENT,

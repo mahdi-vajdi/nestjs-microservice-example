@@ -1,4 +1,9 @@
-import { natsConfig, ServerJetStream, userGrpcConfig } from '@app/infrastructure';
+import {
+  GrpcCorrelationIdInterceptor,
+  natsConfig,
+  ServerJetStream,
+  userGrpcConfig,
+} from '@app/infrastructure';
 import type { ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -32,6 +37,7 @@ async function bootstrap() {
     }),
   });
 
+  app.useGlobalInterceptors(new GrpcCorrelationIdInterceptor());
   app.useGlobalFilters(new AllExceptionsFilter());
   app.enableShutdownHooks();
 

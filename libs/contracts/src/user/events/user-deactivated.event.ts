@@ -5,5 +5,6 @@ export class UserDeactivatedIntegrationEvent {
     public readonly eventId: string,
     public readonly userId: string,
     public readonly occurredAt: Date,
+    public readonly correlationId?: string,
   ) {}
 }

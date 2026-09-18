@@ -54,12 +54,19 @@ export class UserDomainEventsPublisher implements IEventHandler<DomainEvent> {
     if (!topic) return;
 
     const payload = buildUserIntegrationPayload(event);
+    const correlationId = (payload.correlationId as string) || 'none';
 
     try {
+      this.logger.log(
+        `Publishing event ${event.constructor.name} to topic ${topic} [correlationId=${correlationId}]`,
+      );
       await this.js.publish(topic, this.jc.encode(payload), { msgID: event.eventId });
       await this.outboxRepo.update({ id: event.eventId }, { published: true });
     } catch (err) {
-      this.logger.error(`Instant publish failed for ${event.constructor.name}`, err);
+      this.logger.error(
+        `Instant publish failed for ${event.constructor.name} [correlationId=${correlationId}]`,
+        err,
+      );
     }
   }
 }

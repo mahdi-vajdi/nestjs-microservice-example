@@ -7,5 +7,6 @@ export class UserActivatedEvent implements DomainEvent {
     public readonly aggregateId: string,
     public readonly eventId: string,
     public readonly occurredAt: Date,
+    public readonly correlationId?: string,
   ) {}
 }

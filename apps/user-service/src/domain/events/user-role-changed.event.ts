@@ -10,5 +10,6 @@ export class UserRoleChangedEvent implements DomainEvent {
     public readonly role: UserRole,
     public readonly eventId: string,
     public readonly occurredAt: Date,
+    public readonly correlationId?: string,
   ) {}
 }

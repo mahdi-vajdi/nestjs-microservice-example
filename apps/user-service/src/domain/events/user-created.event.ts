@@ -12,5 +12,6 @@ export class UserCreatedEvent implements DomainEvent {
     public readonly passwordHash: string,
     public readonly eventId: string,
     public readonly occurredAt: Date,
+    public readonly correlationId?: string,
   ) {}
 }

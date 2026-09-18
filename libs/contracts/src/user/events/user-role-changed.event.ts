@@ -6,5 +6,6 @@ export class UserRoleChangedIntegrationEvent {
     public readonly userId: string,
     public readonly newRole: string,
     public readonly occurredAt: Date,
+    public readonly correlationId?: string,
   ) {}
 }

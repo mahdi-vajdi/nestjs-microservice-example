@@ -8,5 +8,6 @@ export class UserCreatedIntegrationEvent {
     public readonly role: string,
     public readonly passwordHash: string,
     public readonly occurredAt: Date,
+    public readonly correlationId?: string,
   ) {}
 }

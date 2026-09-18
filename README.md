@@ -431,8 +431,8 @@ cp .env.example .env
 | `NATS_ACK_WAIT_MS` | `30000` | Acknowledgment timeout window in milliseconds |
 | `NATS_MAX_DELIVER` | `5` | Maximum delivery attempts before routing to DLQ |
 | **gRPC Services** | | |
-| `GRPC_IDENTITY_HOST` | `0.0.0.0` | Host interface for `user-service` gRPC server |
-| `GRPC_IDENTITY_PORT` | `50051` | Port for `user-service` gRPC server |
+| `GRPC_USER_HOST` | `0.0.0.0` | Host interface for `user-service` gRPC server |
+| `GRPC_USER_PORT` | `50051` | Port for `user-service` gRPC server |
 | `GRPC_AUTH_HOST` | `0.0.0.0` | Host interface for `auth-service` gRPC server |
 | `GRPC_AUTH_PORT` | `50052` | Port for `auth-service` gRPC server |
 | **Security & JWT** | | |
@@ -502,14 +502,13 @@ If you prefer running services directly on your host machine for live reloading:
 
 3. **Start the microservices** (in separate terminal tabs or concurrently):
    ```bash
-   # Terminal 1: User Service
-   nest start user-service --watch
+   # Option A: Start all services concurrently
+   yarn start:dev
 
-   # Terminal 2: Auth Service
-   nest start auth-service --watch
-
-   # Terminal 3: Gateway Service
-   nest start gateway-service --watch
+   # Option B: Start services individually in separate tabs
+   yarn start:dev:user       # User Service
+   yarn start:dev:auth       # Auth Service
+   yarn start:dev:gateway    # Gateway Service
    ```
 
 ---
@@ -519,14 +518,25 @@ If you prefer running services directly on your host machine for live reloading:
 TypeORM migrations are managed per bounded context using the TypeORM CLI:
 
 ```bash
+# --- User Service Migrations ---
 # Generate a new migration based on entity changes in user-service
 yarn migration:generate:user -- apps/user-service/src/infrastructure/persistence/migrations/AddProfileFields
 
-# Run pending migrations
+# Run pending migrations for user-service
 yarn migration:run:user
 
-# Revert the latest migration
+# Revert the latest migration for user-service
 yarn migration:revert:user
+
+# --- Auth Service Migrations ---
+# Generate a new migration based on entity changes in auth-service
+yarn migration:generate:auth -- apps/auth-service/src/infrastructure/persistence/migrations/AddCredentialFields
+
+# Run pending migrations for auth-service
+yarn migration:run:auth
+
+# Revert the latest migration for auth-service
+yarn migration:revert:auth
 ```
 
 ---

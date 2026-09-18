@@ -5861,9 +5861,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nestjs-microservice-example@workspace:.":
+"nestjs-ecommerce-microservices@workspace:.":
   version: 0.0.0-use.local
-  resolution: "nestjs-microservice-example@workspace:."
+  resolution: "nestjs-ecommerce-microservices@workspace:."
   dependencies:
     "@eslint/js": "npm:10.0.1"
     "@grpc/grpc-js": "npm:1.14.4"

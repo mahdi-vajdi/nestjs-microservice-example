@@ -1,7 +1,7 @@
 {
-  "name": "nestjs-microservice-example",
+  "name": "nestjs-ecommerce-microservices",
   "author": "Mahdi Vajdi",
-  "description": "",
+  "description": "Production-grade e-commerce microservices monorepo built with NestJS, DDD, Hexagonal Architecture, CQRS, gRPC, NATS JetStream, and Transactional Outbox.",
   "packageManager": "yarn@4.18.0",
   "license": "UNLICENSED",
   "scripts": {
@@ -12,14 +12,19 @@
     "test": "jest",
     "start": "nest start",
     "prestart:dev": "rm -rf dist",
-    "start:dev": "concurrently -k -c \"cyan,magenta\" \"yarn:start:dev:gateway\" \"yarn:start:dev:identity\"",
+    "start:dev": "concurrently -k -c \"cyan,magenta,yellow\" \"yarn:start:dev:gateway\" \"yarn:start:dev:user\" \"yarn:start:dev:auth\"",
     "start:dev:gateway": "nest start gateway-service --watch",
-    "start:dev:identity": "nest start user-service --watch",
+    "start:dev:user": "nest start user-service --watch",
+    "start:dev:auth": "nest start auth-service --watch",
     "start:prod:gateway": "node dist/apps/gateway-service/main",
-    "start:prod:identity": "node dist/apps/user-service/main",
+    "start:prod:user": "node dist/apps/user-service/main",
+    "start:prod:auth": "node dist/apps/auth-service/main",
     "migration:generate:user": "yarn build && typeorm-ts-node-commonjs migration:generate -d apps/user-service/src/infrastructure/persistence/data-source.ts",
     "migration:run:user": "typeorm-ts-node-commonjs migration:run -d apps/user-service/src/infrastructure/persistence/data-source.ts",
-    "migration:revert:user": "typeorm-ts-node-commonjs migration:revert -d apps/user-service/src/infrastructure/persistence/data-source.ts"
+    "migration:revert:user": "typeorm-ts-node-commonjs migration:revert -d apps/user-service/src/infrastructure/persistence/data-source.ts",
+    "migration:generate:auth": "yarn build && typeorm-ts-node-commonjs migration:generate -d apps/auth-service/src/infrastructure/persistence/data-source.ts",
+    "migration:run:auth": "typeorm-ts-node-commonjs migration:run -d apps/auth-service/src/infrastructure/persistence/data-source.ts",
+    "migration:revert:auth": "typeorm-ts-node-commonjs migration:revert -d apps/auth-service/src/infrastructure/persistence/data-source.ts"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -42,7 +47,6 @@
       "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
-      "^@app/identity(|/.*)$": "<rootDir>/libs/identity/src/$1",
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/infrastructure(|/.*)$": "<rootDir>/libs/infrastructure/src/$1"

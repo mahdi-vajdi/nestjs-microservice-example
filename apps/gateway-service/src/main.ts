@@ -45,8 +45,8 @@ async function bootstrap() {
 
   // Swagger
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Shopping Backend Gateway')
-    .setDescription('The API Gateway for the Shopping Microservices')
+    .setTitle('E-Commerce Microservices Gateway')
+    .setDescription('The API Gateway for the E-Commerce Microservices platform')
     .setVersion('1.0')
     .addTag('Users')
     .addServer('http://localhost:3000')

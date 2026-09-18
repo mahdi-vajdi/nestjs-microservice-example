@@ -19,9 +19,12 @@ import { DeactivateUserHandler } from './application/commands/deactivate-user/de
 import { UpdateLastLoginHandler } from './application/commands/update-last-login/update-last-login.handler';
 import { GetUserHandler } from './application/queries/get-user/get-user.handler';
 import { GetUserByEmailHandler } from './application/queries/get-user-by-email/get-user-by-email.handler';
-import { PASSWORD_HASHER_PORT, USER_REPOSITORY_PORT } from './domain';
+import { PasswordHasherPort, UserRepositoryPort } from './domain';
+import { UserDomainEventsPublisher } from './infrastructure/events/user-domain-events.publisher';
 import { BcryptPasswordHasher } from './infrastructure/hashing/bcrypt-password-hasher';
+import { DeadLetterEntity } from './infrastructure/outbox/dead-letter.entity';
 import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
+import { UserDeadLetterService } from './infrastructure/outbox/user-dead-letter.service';
 import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
 import { UserEntity } from './infrastructure/persistence/entities/user.entity';
 import { UserPostgresRepository } from './infrastructure/persistence/repositories/user-postgres.repository';
@@ -49,18 +52,20 @@ const queryHandlers = [GetUserHandler, GetUserByEmailHandler];
     ScheduleModule.forRoot(),
     PostgresModule,
     CqrsModule,
-    TypeOrmModule.forFeature([OutboxEntity, UserEntity], 'postgres'),
+    TypeOrmModule.forFeature([OutboxEntity, UserEntity, DeadLetterEntity], 'postgres'),
     NatsJetStreamModule,
   ],
   controllers: [UserGrpcController, AuthEventsNatsController],
   providers: [
     OutboxProcessor,
+    UserDomainEventsPublisher,
+    UserDeadLetterService,
     {
-      provide: USER_REPOSITORY_PORT,
+      provide: UserRepositoryPort,
       useClass: UserPostgresRepository,
     },
     {
-      provide: PASSWORD_HASHER_PORT,
+      provide: PasswordHasherPort,
       useClass: BcryptPasswordHasher,
     },
     ...commandHandlers,

@@ -1,16 +1,16 @@
+import * as crypto from 'node:crypto';
+
 import { BaseAggregateRoot } from '@app/common';
 
-export class UserCredential extends BaseAggregateRoot {
-  private _email: string;
-  private _passwordHash: string;
-  private _role: string;
-  private _isActive: boolean;
+import { UserLoggedInEvent } from '../events/user-logged-in.event';
+import { Email } from '../value-objects/email.value-object';
 
+export class UserCredential extends BaseAggregateRoot {
   private constructor(
     id: string,
     createdAt: Date,
     updatedAt: Date,
-    email: string,
+    email: Email,
     passwordHash: string,
     role: string,
     isActive: boolean,
@@ -22,6 +22,30 @@ export class UserCredential extends BaseAggregateRoot {
     this._isActive = isActive;
   }
 
+  private _email: Email;
+
+  get email(): string {
+    return this._email.value;
+  }
+
+  private _passwordHash: string;
+
+  get passwordHash(): string {
+    return this._passwordHash;
+  }
+
+  private _role: string;
+
+  get role(): string {
+    return this._role;
+  }
+
+  private _isActive: boolean;
+
+  get isActive(): boolean {
+    return this._isActive;
+  }
+
   static create(
     id: string,
     email: string,
@@ -30,7 +54,7 @@ export class UserCredential extends BaseAggregateRoot {
     isActive: boolean = true,
   ): UserCredential {
     const now = new Date();
-    return new UserCredential(id, now, now, email, passwordHash, role, isActive);
+    return new UserCredential(id, now, now, Email.create(email), passwordHash, role, isActive);
   }
 
   static reconstitute(
@@ -42,7 +66,15 @@ export class UserCredential extends BaseAggregateRoot {
     role: string,
     isActive: boolean,
   ): UserCredential {
-    return new UserCredential(id, createdAt, updatedAt, email, passwordHash, role, isActive);
+    return new UserCredential(
+      id,
+      createdAt,
+      updatedAt,
+      Email.create(email),
+      passwordHash,
+      role,
+      isActive,
+    );
   }
 
   public updatePassword(newHash: string): void {
@@ -61,19 +93,8 @@ export class UserCredential extends BaseAggregateRoot {
     this._isActive = true;
   }
 
-  get email(): string {
-    return this._email;
-  }
-
-  get role(): string {
-    return this._role;
-  }
-
-  get passwordHash(): string {
-    return this._passwordHash;
-  }
-
-  get isActive(): boolean {
-    return this._isActive;
+  public login(): void {
+    this.touch();
+    this.apply(new UserLoggedInEvent(this.id, crypto.randomUUID(), new Date()));
   }
 }

@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import { BaseAggregateRoot } from '@app/common';
-import { InvalidInputException } from '@app/common';
+import { BaseAggregateRoot, InvalidInputException } from '@app/common';
 
 import { UserActivatedEvent } from '../events/user-activated.event';
 import { UserCreatedEvent } from '../events/user-created.event';
@@ -13,12 +12,6 @@ import { UserSnapshot } from '../types/user-snapshot';
 import { Email } from '../value-objects/email.value-object';
 
 export class User extends BaseAggregateRoot {
-  private _email: Email;
-  private _passwordHash: string;
-  private _role: UserRole;
-  private _isActive: boolean;
-  private _lastLoginAt: Date | null;
-
   private constructor(
     id: string,
     createdAt: Date,
@@ -37,13 +30,45 @@ export class User extends BaseAggregateRoot {
     this._lastLoginAt = lastLoginAt;
   }
 
+  private _email: Email;
+
+  get email(): string {
+    return this._email.value;
+  }
+
+  private _passwordHash: string;
+
+  get passwordHash(): string {
+    return this._passwordHash;
+  }
+
+  private _role: UserRole;
+
+  get role(): UserRole {
+    return this._role;
+  }
+
+  private _isActive: boolean;
+
+  get isActive(): boolean {
+    return this._isActive;
+  }
+
+  private _lastLoginAt: Date | null;
+
+  get lastLoginAt(): Date | null {
+    return this._lastLoginAt;
+  }
+
   static create(email: Email, passwordHash: string): User {
     const id = randomUUID();
     const now = new Date();
 
     const user = new User(id, now, now, email, passwordHash, UserRole.CUSTOMER, true, null);
 
-    user.apply(new UserCreatedEvent(id, email.value, UserRole.CUSTOMER, randomUUID(), now));
+    user.apply(
+      new UserCreatedEvent(id, email.value, UserRole.CUSTOMER, passwordHash, randomUUID(), now),
+    );
 
     return user;
   }
@@ -67,7 +92,7 @@ export class User extends BaseAggregateRoot {
     }
     this._passwordHash = newHash;
     this.touch();
-    this.apply(new UserPasswordChangedEvent(this.id, randomUUID(), new Date()));
+    this.apply(new UserPasswordChangedEvent(this.id, newHash, randomUUID(), new Date()));
   }
 
   public changeRole(role: UserRole): void {
@@ -98,25 +123,5 @@ export class User extends BaseAggregateRoot {
   public recordLastLogin(): void {
     this._lastLoginAt = new Date();
     this.touch();
-  }
-
-  get email(): string {
-    return this._email.value;
-  }
-
-  get role(): UserRole {
-    return this._role;
-  }
-
-  get passwordHash(): string {
-    return this._passwordHash;
-  }
-
-  get isActive(): boolean {
-    return this._isActive;
-  }
-
-  get lastLoginAt(): Date | null {
-    return this._lastLoginAt;
   }
 }

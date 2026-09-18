@@ -3,7 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserCredential, UserCredentialRepositoryPort } from '../../../domain';
+import { UserLoggedInEvent } from '../../../domain/events/user-logged-in.event';
+import { OutboxEntity } from '../entities/outbox.entity';
 import { UserCredentialEntity } from '../entities/user-credential.entity';
+import { AuthOutboxPayloadMapper } from '../mappers/auth-outbox-payload.mapper';
+import { UserCredentialMapper } from '../mappers/user-credential.mapper';
 
 @Injectable()
 export class UserCredentialPostgresRepository implements UserCredentialRepositoryPort {
@@ -15,39 +19,47 @@ export class UserCredentialPostgresRepository implements UserCredentialRepositor
   async findByEmail(email: string): Promise<UserCredential | null> {
     const entity = await this.repo.findOneBy({ email });
     if (!entity) return null;
-    return this.mapToDomain(entity);
+    return UserCredentialMapper.toDomain(entity);
   }
 
   async findByUserId(userId: string): Promise<UserCredential | null> {
     const entity = await this.repo.findOneBy({ user_id: userId });
     if (!entity) return null;
-    return this.mapToDomain(entity);
+    return UserCredentialMapper.toDomain(entity);
   }
 
-  async save(user: UserCredential): Promise<void> {
-    const entity = this.mapToEntity(user);
-    await this.repo.save(entity);
-  }
+  async save(credential: UserCredential): Promise<void> {
+    const events = credential.getUncommittedEvents();
+    const queryRunner = this.repo.manager.connection.createQueryRunner();
 
-  private mapToDomain(entity: UserCredentialEntity): UserCredential {
-    return UserCredential.reconstitute(
-      entity.user_id,
-      entity.created_at,
-      entity.updated_at,
-      entity.email,
-      entity.password_hash,
-      entity.role,
-      entity.is_active,
-    );
-  }
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-  private mapToEntity(domain: UserCredential): UserCredentialEntity {
-    const entity = new UserCredentialEntity();
-    entity.user_id = domain.id;
-    entity.email = domain.email;
-    entity.password_hash = domain.passwordHash;
-    entity.role = domain.role;
-    entity.is_active = domain.isActive;
-    return entity;
+    try {
+      await queryRunner.manager.save(
+        UserCredentialEntity,
+        UserCredentialMapper.toEntity(credential),
+      );
+
+      if (events.length > 0) {
+        const outboxEntities = events.map((event) => {
+          const outbox = new OutboxEntity();
+          outbox.id = event.eventId;
+          outbox.aggregateId = credential.id;
+          outbox.type = event.eventName;
+          outbox.payload = AuthOutboxPayloadMapper.build(event as UserLoggedInEvent);
+          outbox.published = false;
+          return outbox;
+        });
+        await queryRunner.manager.save(OutboxEntity, outboxEntities);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

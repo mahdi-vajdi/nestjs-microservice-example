@@ -1,6 +1,8 @@
 # NestJS E-Commerce Microservice — DDD / Hexagonal Architecture
 
-A **research and reference benchmark** for building production-grade e-commerce backends using a NestJS monorepo of microservices. This project rigorously applies Domain-Driven Design (DDD), Hexagonal (Ports & Adapters) Architecture, Clean Architecture, and CQRS/Event Sourcing principles.
+A **research and reference benchmark** for building production-grade e-commerce backends using a NestJS monorepo of
+microservices. This project rigorously applies Domain-Driven Design (DDD), Hexagonal (Ports & Adapters) Architecture,
+Clean Architecture, and CQRS/Event Sourcing principles.
 
 ---
 
@@ -30,50 +32,53 @@ Client (REST/SSE)
 ```
 
 ### Communication
-| Pattern | Technology | Use Case |
-|---|---|---|
-| Synchronous RPC | **gRPC** | Gateway → service, service → service queries |
-| Async events | **NATS JetStream** | Domain events, saga steps, notifications |
-| Client-facing | **REST (HTTP/JSON)** | Gateway only |
-| Real-time push | **SSE** | Notifications to browser clients |
+
+| Pattern         | Technology           | Use Case                                     |
+|-----------------|----------------------|----------------------------------------------|
+| Synchronous RPC | **gRPC**             | Gateway → service, service → service queries |
+| Async events    | **NATS JetStream**   | Domain events, saga steps, notifications     |
+| Client-facing   | **REST (HTTP/JSON)** | Gateway only                                 |
+| Real-time push  | **SSE**              | Notifications to browser clients             |
 
 ### Distributed Patterns
+
 - **Outbox Pattern** — Every service uses a transactional outbox for reliable at-least-once event publishing
-- **Saga (Choreography)** — `order-service` owns the checkout saga; orchestrates payment, inventory, and shipping via NATS events
+- **Saga (Choreography)** — `order-service` owns the checkout saga; orchestrates payment, inventory, and shipping via
+  NATS events
 - **CQRS** — Commands and queries are strictly separated, with read-optimized projections where needed
 
 ---
 
 ## Bounded Contexts
 
-| Service | Status | Responsibility |
-|---|---|---|
-| `identity-service` | 🔄 Refactoring | Users, auth (JWT + Redis sessions), RBAC + ABAC |
-| `gateway-service` | 🔄 Refactoring | API Gateway, request routing, SSE |
-| `catalog-service` | 📋 Planned | Products, categories, variants, SKU, pricing |
-| `inventory-service` | 📋 Planned | Stock levels per variant/SKU |
-| `order-service` | 📋 Planned | Cart, order lifecycle, saga orchestration |
-| `payment-service` | 📋 Planned | Payment processing, invoices, refunds |
-| `shipping-service` | 📋 Planned | Fulfillment, tracking |
-| `notification-service` | 📋 Planned | Email, SMS, push, SSE events |
-| `review-service` | 📋 Planned | Product reviews and ratings |
-| `search-service` | 📋 Planned | Full-text search (Elasticsearch) |
-| `analytics-service` | 📋 Planned | Reporting and metrics |
+| Service                | Status         | Responsibility                                  |
+|------------------------|----------------|-------------------------------------------------|
+| `identity-service`     | 🔄 Refactoring | Users, auth (JWT + Redis sessions), RBAC + ABAC |
+| `gateway-service`      | 🔄 Refactoring | API Gateway, request routing, SSE               |
+| `catalog-service`      | 📋 Planned     | Products, categories, variants, SKU, pricing    |
+| `inventory-service`    | 📋 Planned     | Stock levels per variant/SKU                    |
+| `order-service`        | 📋 Planned     | Cart, order lifecycle, saga orchestration       |
+| `payment-service`      | 📋 Planned     | Payment processing, invoices, refunds           |
+| `shipping-service`     | 📋 Planned     | Fulfillment, tracking                           |
+| `notification-service` | 📋 Planned     | Email, SMS, push, SSE events                    |
+| `review-service`       | 📋 Planned     | Product reviews and ratings                     |
+| `search-service`       | 📋 Planned     | Full-text search (Elasticsearch)                |
+| `analytics-service`    | 📋 Planned     | Reporting and metrics                           |
 
 ---
 
 ## Technology Stack
 
-| Concern | Technology |
-|---|---|
-| Framework | NestJS (monorepo) |
-| Language | TypeScript (strict mode) |
-| Primary DB | PostgreSQL + TypeORM (one schema per service) |
-| Cache / Sessions | Redis |
-| Async messaging | NATS JetStream |
-| Sync RPC | gRPC (Protocol Buffers) |
-| Product search | Elasticsearch / OpenSearch |
-| Package manager | Yarn 4.x |
+| Concern          | Technology                                    |
+|------------------|-----------------------------------------------|
+| Framework        | NestJS (monorepo)                             |
+| Language         | TypeScript (strict mode)                      |
+| Primary DB       | PostgreSQL + TypeORM (one schema per service) |
+| Cache / Sessions | Redis                                         |
+| Async messaging  | NATS JetStream                                |
+| Sync RPC         | gRPC (Protocol Buffers)                       |
+| Product search   | Elasticsearch / OpenSearch                    |
+| Package manager  | Yarn 4.x                                      |
 
 ---
 
@@ -92,6 +97,7 @@ libs/
 ```
 
 ### Canonical Service Layer Structure
+
 ```
 apps/<service>/src/
 ├── domain/
@@ -119,11 +125,13 @@ apps/<service>/src/
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (LTS v20.x+)
 - Yarn 4.x (`corepack enable`)
 - Docker (for PostgreSQL, Redis, NATS, Elasticsearch)
 
 ### Installation
+
 ```bash
 git clone https://github.com/mahdi-vajdi/nestjs-microservice-example.git
 cd nestjs-microservice-example
@@ -131,11 +139,13 @@ yarn install
 ```
 
 ### Infrastructure (Docker)
+
 ```bash
 docker compose up -d
 ```
 
 ### Commands
+
 ```bash
 yarn build      # Build all apps and libs
 yarn lint       # ESLint

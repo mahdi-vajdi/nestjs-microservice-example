@@ -1,5 +1,5 @@
 import { UserCreatedIntegrationEvent } from '@app/contracts';
-import { JetStreamContext } from '@app/infrastructure';
+import { generateCorrelationId, JetStreamContext, runWithCorrelationId } from '@app/infrastructure';
 import { Controller, Logger } from '@nestjs/common';
 import { Ctx, EventPattern, Payload } from '@nestjs/microservices';
 
@@ -17,22 +17,32 @@ export class UserEventsNatsController {
     @Ctx() context: JetStreamContext,
   ): Promise<void> {
     const msg = context.message;
+    const correlationId = event.correlationId ?? generateCorrelationId();
 
-    try {
-      this.logger.log(
-        `Received event: ${UserCreatedIntegrationEvent.TOPIC} for user ${event.email} (${event.userId})`,
-      );
+    await runWithCorrelationId(correlationId, async () => {
+      try {
+        this.logger.log(
+          `Received event: ${UserCreatedIntegrationEvent.TOPIC} for user ${event.email} (${event.userId}) [correlationId=${correlationId}]`,
+        );
 
-      this.sseService.notifyClient(event.userId, {
-        status: 'COMPLETED',
-        message: 'User account created successfully',
-        user: event,
-      });
+        await this.sseService.notifyClient(event.userId, {
+          status: 'COMPLETED',
+          message: 'User account created successfully',
+          user: {
+            userId: event.userId,
+            email: event.email,
+            role: event.role,
+          },
+        });
 
-      msg.ack();
-    } catch (err) {
-      this.logger.error(`Error processing event ${UserCreatedIntegrationEvent.TOPIC}:`, err);
-      msg.nak(1000);
-    }
+        msg.ack();
+      } catch (err) {
+        this.logger.error(
+          `Error processing event ${UserCreatedIntegrationEvent.TOPIC} [correlationId=${correlationId}]:`,
+          err,
+        );
+        msg.nak(5_000);
+      }
+    });
   }
 }

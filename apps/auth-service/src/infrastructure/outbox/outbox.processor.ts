@@ -1,12 +1,13 @@
 import { UserLoggedInIntegrationEvent } from '@app/contracts';
 import { NATS_JETSTREAM_CLIENT } from '@app/infrastructure';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { JetStreamClient } from 'nats';
 import { JSONCodec } from 'nats';
 import { Repository } from 'typeorm';
 
+import { UserLoggedInEvent } from '../../domain';
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
 
 @Injectable()
@@ -14,13 +15,17 @@ export class OutboxProcessor {
   private readonly logger = new Logger(OutboxProcessor.name);
   private readonly jc = JSONCodec();
 
+  private readonly topicRegistry: Record<string, string> = {
+    [UserLoggedInEvent.EVENT_NAME]: UserLoggedInIntegrationEvent.TOPIC,
+  };
+
   constructor(
     @InjectRepository(OutboxEntity, 'postgres')
     private readonly outboxRepository: Repository<OutboxEntity>,
     @Inject(NATS_JETSTREAM_CLIENT) private readonly js: JetStreamClient,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron('0 */5 * * * *')
   async handleOutbox() {
     const events = await this.outboxRepository
       .createQueryBuilder('outbox')
@@ -31,15 +36,15 @@ export class OutboxProcessor {
 
     for (const event of events) {
       try {
-        const payload = {
-          userId: event.aggregateId,
-          ...event.payload,
-          occurredOn: event.createdAt,
-        };
+        const topic = this.topicRegistry[event.type];
+        if (!topic) {
+          this.logger.warn(`Unknown event type in auth outbox: ${event.type}`);
+          continue;
+        }
 
-        const encoded = this.jc.encode(payload);
+        const encoded = this.jc.encode(event.payload);
 
-        await this.js.publish(UserLoggedInIntegrationEvent.TOPIC, encoded, {
+        await this.js.publish(topic, encoded, {
           msgID: event.id,
         });
 

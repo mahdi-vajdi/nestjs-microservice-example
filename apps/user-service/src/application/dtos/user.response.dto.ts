@@ -1,5 +1,4 @@
-import { UserRole } from '../../domain';
-import { User } from '../../domain';
+import { User, UserRole } from '../../domain';
 
 export class UserResponseDto {
   id!: string;

@@ -1,8 +1,13 @@
+export type SyncUserPayload =
+  | { action: 'CREATE'; email: string; passwordHash: string; role: string }
+  | { action: 'CHANGE_PASSWORD'; passwordHash: string }
+  | { action: 'CHANGE_ROLE'; role: string }
+  | { action: 'DEACTIVATE' }
+  | { action: 'ACTIVATE' };
+
 export class SyncUserCommand {
   constructor(
-    public readonly action:
-      'CREATE' | 'CHANGE_PASSWORD' | 'CHANGE_ROLE' | 'DEACTIVATE' | 'ACTIVATE',
     public readonly userId: string,
-    public readonly payload?: any,
+    public readonly payload: SyncUserPayload,
   ) {}
 }

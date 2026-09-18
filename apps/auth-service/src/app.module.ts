@@ -18,11 +18,16 @@ import { RefreshTokenHandler } from './application/commands/refresh-token/refres
 import { SyncUserHandler } from './application/commands/sync-user/sync-user.handler';
 import { ValidateTokenHandler } from './application/queries/validate-token/validate-token.handler';
 import {
+  PasswordVerifierPort,
   TokenGeneratorPort,
   TokenSessionRepositoryPort,
   UserCredentialRepositoryPort,
 } from './domain';
 import { TokenRedisRepository } from './infrastructure/cache/token-redis.repository';
+import { AuthDomainEventsPublisher } from './infrastructure/events/auth-domain-events.publisher';
+import { BcryptPasswordVerifier } from './infrastructure/hashing/bcrypt-password-verifier';
+import { AuthDeadLetterService } from './infrastructure/outbox/auth-dead-letter.service';
+import { DeadLetterEntity } from './infrastructure/outbox/dead-letter.entity';
 import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
 import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
 import { UserCredentialEntity } from './infrastructure/persistence/entities/user-credential.entity';
@@ -42,7 +47,7 @@ import { UserEventsNatsController } from './interface/nats/user-events.nats.cont
     PostgresModule,
     RedisModule,
     CqrsModule,
-    TypeOrmModule.forFeature([OutboxEntity, UserCredentialEntity], 'postgres'),
+    TypeOrmModule.forFeature([OutboxEntity, UserCredentialEntity, DeadLetterEntity], 'postgres'),
     NatsJetStreamModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -55,6 +60,8 @@ import { UserEventsNatsController } from './interface/nats/user-events.nats.cont
   controllers: [AuthGrpcController, UserEventsNatsController],
   providers: [
     OutboxProcessor,
+    AuthDomainEventsPublisher,
+    AuthDeadLetterService,
     {
       provide: UserCredentialRepositoryPort,
       useClass: UserCredentialPostgresRepository,
@@ -66,6 +73,10 @@ import { UserEventsNatsController } from './interface/nats/user-events.nats.cont
     {
       provide: TokenGeneratorPort,
       useClass: JwtTokenGenerator,
+    },
+    {
+      provide: PasswordVerifierPort,
+      useClass: BcryptPasswordVerifier,
     },
     LoginHandler,
     LogoutHandler,

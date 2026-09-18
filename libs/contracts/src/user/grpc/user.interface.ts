@@ -5,9 +5,9 @@ import { GetUserRequest, GetUserResponse } from './models/get-user.model';
 import { GetUserByEmailRequest } from './models/get-user-by-email.model';
 
 export interface UserGrpcService {
-  createUser(data: CreateUserRequest): Observable<CreateUserResponse>;
-  getUser(data: GetUserRequest): Observable<GetUserResponse>;
-  getUserByEmail(data: GetUserByEmailRequest): Observable<GetUserResponse>;
+  createUser(data: CreateUserRequest, metadata?: any): Observable<CreateUserResponse>;
+  getUser(data: GetUserRequest, metadata?: any): Observable<GetUserResponse>;
+  getUserByEmail(data: GetUserByEmailRequest, metadata?: any): Observable<GetUserResponse>;
 }
 
 export const USER_SERVICE_NAME = 'UserService';

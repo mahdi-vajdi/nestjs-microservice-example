@@ -12,7 +12,7 @@ export class OutboxEntity {
   aggregateId!: string;
 
   @Column({ type: 'jsonb' })
-  payload!: Record<string, any>;
+  payload!: Record<string, unknown>;
 
   @Column({ default: false })
   published!: boolean;

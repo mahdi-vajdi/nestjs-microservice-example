@@ -6,10 +6,10 @@ import { RefreshTokenRequest, RefreshTokenResponse } from './models/refresh-toke
 import { ValidateTokenRequest, ValidateTokenResponse } from './models/validate-token.model';
 
 export interface AuthGrpcService {
-  login(data: LoginRequest): Observable<LoginResponse>;
-  logout(data: LogoutRequest): Observable<LogoutResponse>;
-  refreshToken(data: RefreshTokenRequest): Observable<RefreshTokenResponse>;
-  validateToken(data: ValidateTokenRequest): Observable<ValidateTokenResponse>;
+  login(data: LoginRequest, metadata?: any): Observable<LoginResponse>;
+  logout(data: LogoutRequest, metadata?: any): Observable<LogoutResponse>;
+  refreshToken(data: RefreshTokenRequest, metadata?: any): Observable<RefreshTokenResponse>;
+  validateToken(data: ValidateTokenRequest, metadata?: any): Observable<ValidateTokenResponse>;
 }
 
 export const AUTH_SERVICE_NAME = 'AuthService';

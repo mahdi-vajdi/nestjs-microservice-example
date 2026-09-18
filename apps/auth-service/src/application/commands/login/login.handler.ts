@@ -1,17 +1,12 @@
-import { randomUUID } from 'node:crypto';
-
 import { InvalidInputException } from '@app/common';
-import { UserLoggedInIntegrationEvent } from '@app/contracts';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 
 import {
+  PasswordVerifierPort,
   TokenGeneratorPort,
   TokenSessionRepositoryPort,
   UserCredentialRepositoryPort,
 } from '../../../domain';
-import { OutboxEntity } from '../../../infrastructure/persistence/entities/outbox.entity';
 import { AuthResponseDto } from '../../dtos/auth.response.dto';
 import { LoginCommand } from './login.command';
 
@@ -21,42 +16,43 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly userRepo: UserCredentialRepositoryPort,
     private readonly tokenGenerator: TokenGeneratorPort,
     private readonly tokenSessionRepo: TokenSessionRepositoryPort,
-    @InjectRepository(OutboxEntity, 'postgres')
-    private readonly outboxRepo: Repository<OutboxEntity>,
+    private readonly passwordVerifier: PasswordVerifierPort,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(command: LoginCommand): Promise<AuthResponseDto> {
-    const user = await this.userRepo.findByEmail(command.email);
-    if (!user) {
+    const existingCredential = await this.userRepo.findByEmail(command.email);
+
+    if (!existingCredential) {
       throw new InvalidInputException('Invalid email or password');
     }
 
-    if (!user.isActive) {
-      throw new InvalidInputException('User is deactivated');
+    const credential = this.eventPublisher.mergeObjectContext(existingCredential);
+
+    if (!credential.isActive) {
+      throw new InvalidInputException('User account is deactivated');
     }
 
-    // Since we receive the password plainly in the command (or hashed, wait the grpc contract gives plain password)
-    // we should ideally compare hashes. For simplicity, we assume command.passwordHash is the plain text,
-    // but the grpc model has password. Let's compare directly or use a dummy check:
-    // If the contract provides plain password and the user model stores the hash, we'd hash and compare here.
-    // For now we'll just check if they match (assuming we are not hashing or using a simple hash).
-    if (user.passwordHash !== command.passwordHash) {
+    const isValid = await this.passwordVerifier.verify(command.password, credential.passwordHash);
+    if (!isValid) {
       throw new InvalidInputException('Invalid email or password');
     }
 
-    const accessTokenData = await this.tokenGenerator.generateAccessToken(user.id, user.role);
-    const refreshTokenData = await this.tokenGenerator.generateRefreshToken(user.id);
+    const accessTokenData = await this.tokenGenerator.generateAccessToken(
+      credential.id,
+      credential.role,
+    );
+    const refreshTokenData = await this.tokenGenerator.generateRefreshToken(credential.id);
 
-    await this.tokenSessionRepo.store(refreshTokenData.token, user.id, refreshTokenData.expiresIn);
+    await this.tokenSessionRepo.store(
+      refreshTokenData.token,
+      credential.id,
+      refreshTokenData.expiresIn,
+    );
 
-    const event = new OutboxEntity();
-    event.id = randomUUID();
-    event.aggregateId = user.id;
-    event.type = UserLoggedInIntegrationEvent.TOPIC;
-    event.payload = {};
-    event.published = false;
-
-    await this.outboxRepo.save(event);
+    credential.login();
+    await this.userRepo.save(credential);
+    credential.commit();
 
     return new AuthResponseDto(
       accessTokenData.token,

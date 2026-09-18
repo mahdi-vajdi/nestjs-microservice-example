@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      test: [ 'CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
     volumes:
       - nats_data:/data
     healthcheck:
-      test: ['CMD-SHELL', 'wget -qO- http://localhost:8222/healthz || exit 1']
+      test: [ 'CMD-SHELL', 'wget -qO- http://localhost:8222/healthz || exit 1' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -43,7 +43,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: [ 'CMD', 'redis-cli', 'ping' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -61,6 +61,7 @@ services:
       - POSTGRES_HOST=postgres
       - NATS_SERVERS=nats://nats:4222
       - REDIS_HOST=redis
+      - NATS_CONSUMER_DURABLE_NAME=user-service-consumer
     ports:
       - '${GRPC_USER_PORT:-50051}:50051'
     depends_on:
@@ -80,6 +81,7 @@ services:
       - POSTGRES_HOST=postgres
       - NATS_SERVERS=nats://nats:4222
       - REDIS_HOST=redis
+      - NATS_CONSUMER_DURABLE_NAME=auth-service-consumer
     ports:
       - '${GRPC_AUTH_PORT:-50052}:50052'
     depends_on:
@@ -101,6 +103,8 @@ services:
       - NATS_SERVERS=nats://nats:4222
       - GRPC_USER_HOST=user-service
       - GRPC_AUTH_HOST=auth-service
+      - NATS_CONSUMER_DURABLE_NAME=gateway-service-consumer
+      - REDIS_HOST=redis
     ports:
       - '${PORT:-3000}:3000'
     depends_on:

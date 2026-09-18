@@ -1,16 +1,7 @@
 import { ConflictException } from '@app/common';
-import { Inject } from '@nestjs/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 
-import {
-  Email,
-  Password,
-  PASSWORD_HASHER_PORT,
-  PasswordHasherPort,
-  User,
-  USER_REPOSITORY_PORT,
-  UserRepositoryPort,
-} from '../../../domain';
+import { Email, Password, PasswordHasherPort, User, UserRepositoryPort } from '../../../domain';
 import { UserResponseDto } from '../../dtos/user.response.dto';
 import { UserResponseMapper } from '../../mappers/user-response.mapper';
 import { CreateUserCommand } from './create-user.command';
@@ -18,10 +9,9 @@ import { CreateUserCommand } from './create-user.command';
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
   constructor(
-    @Inject(USER_REPOSITORY_PORT)
     private readonly userRepository: UserRepositoryPort,
-    @Inject(PASSWORD_HASHER_PORT)
     private readonly passwordHasher: PasswordHasherPort,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<UserResponseDto> {
@@ -35,9 +25,10 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 
     const passwordHash = await this.passwordHasher.hash(password.value);
 
-    const user = User.create(email, passwordHash);
+    const user = this.eventPublisher.mergeObjectContext(User.create(email, passwordHash));
 
     await this.userRepository.save(user);
+    user.commit();
 
     return UserResponseMapper.toDto(user);
   }

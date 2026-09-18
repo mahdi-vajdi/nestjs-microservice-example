@@ -53,19 +53,31 @@ export class ServerJetStream extends Server implements CustomTransportStrategy {
     const js = this.nc.jetstream();
     const jsm = await this.nc.jetstreamManager();
 
-    const {
-      stream,
-      durable,
-      filterSubjects,
-      ackWaitMs = 10_000,
-      maxDeliver = 5,
-    } = this.options.consumerOptions;
+    const { stream, durable, ackWaitMs = 10_000, maxDeliver = 5 } = this.options.consumerOptions;
+
+    let filterSubjects = this.options.consumerOptions.filterSubjects;
+    if (!filterSubjects || filterSubjects.length === 0) {
+      filterSubjects = [...this.messageHandlers.keys()].map((patternStr) => {
+        try {
+          const parsed = JSON.parse(patternStr);
+          return parsed.pattern || parsed;
+        } catch {
+          return patternStr;
+        }
+      });
+    }
 
     // Ensure the durable pull consumer exists on the server, creating it if absent.
     try {
       await jsm.consumers.info(stream, durable);
+      if (filterSubjects?.length) {
+        await jsm.consumers.update(stream, durable, {
+          filter_subjects: filterSubjects,
+        });
+      }
       this.logger.log(
-        `JetStream durable consumer '${durable}' already exists on stream '${stream}'`,
+        `JetStream durable consumer '${durable}' already exists on stream '${stream}'` +
+          (filterSubjects?.length ? ` (updated subjects: ${filterSubjects.join(', ')})` : ''),
       );
     } catch (err) {
       if (!(err instanceof NatsError) || err.code !== ErrorCode.JetStream404NoMessages) {
@@ -94,6 +106,24 @@ export class ServerJetStream extends Server implements CustomTransportStrategy {
     void this.consumeLoop(this.messages);
 
     callback();
+  }
+
+  public async close(): Promise<void> {
+    this.isRunning = false;
+
+    if (this.messages) {
+      this.logger.log('Closing JetStream consumer message iterator...');
+      this.messages.close();
+    }
+
+    if (this.nc && !this.nc.isClosed()) {
+      this.logger.log('Draining NATS connection...');
+      try {
+        await this.nc.drain();
+      } catch (err) {
+        this.logger.error('Error draining NATS connection', err);
+      }
+    }
   }
 
   private async consumeLoop(messages: ConsumerMessages): Promise<void> {
@@ -132,23 +162,5 @@ export class ServerJetStream extends Server implements CustomTransportStrategy {
       }
       // Ack/nak is the handler's responsibility via JetStreamContext.
     });
-  }
-
-  public async close(): Promise<void> {
-    this.isRunning = false;
-
-    if (this.messages) {
-      this.logger.log('Closing JetStream consumer message iterator...');
-      this.messages.close();
-    }
-
-    if (this.nc && !this.nc.isClosed()) {
-      this.logger.log('Draining NATS connection...');
-      try {
-        await this.nc.drain();
-      } catch (err) {
-        this.logger.error('Error draining NATS connection', err);
-      }
-    }
   }
 }

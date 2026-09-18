@@ -9,8 +9,8 @@ import { ArgumentsHost, Catch, RpcExceptionFilter } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 
 @Catch()
-export class AllExceptionsFilter implements RpcExceptionFilter<any> {
-  catch(exception: any, host: ArgumentsHost): Observable<any> {
+export class AllExceptionsFilter implements RpcExceptionFilter<unknown> {
+  catch(exception: unknown, _host: ArgumentsHost): Observable<{ code: number; message: string }> {
     let code = status.INTERNAL;
     let message = 'Internal server error';
 
@@ -28,10 +28,15 @@ export class AllExceptionsFilter implements RpcExceptionFilter<any> {
     } else if (exception instanceof DomainException) {
       code = status.FAILED_PRECONDITION;
       message = exception.message;
-    } else if (exception?.code) {
+    } else if (
+      typeof exception === 'object' &&
+      exception !== null &&
+      'code' in exception &&
+      typeof (exception as { code: unknown }).code === 'number'
+    ) {
       // Pass through existing gRPC errors
-      code = exception.code;
-      message = exception.message || message;
+      code = (exception as { code: number }).code;
+      message = (exception as { message?: string }).message || message;
     }
 
     return throwError(() => ({

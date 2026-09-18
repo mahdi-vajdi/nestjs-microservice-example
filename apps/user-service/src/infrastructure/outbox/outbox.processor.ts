@@ -1,32 +1,48 @@
+import {
+  UserActivatedIntegrationEvent,
+  UserCreatedIntegrationEvent,
+  UserDeactivatedIntegrationEvent,
+  UserPasswordChangedIntegrationEvent,
+  UserRoleChangedIntegrationEvent,
+} from '@app/contracts';
 import { NATS_JETSTREAM_CLIENT } from '@app/infrastructure';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { JetStreamClient } from 'nats';
+import { JSONCodec } from 'nats';
 import { Repository } from 'typeorm';
 
+import {
+  UserActivatedEvent,
+  UserCreatedEvent,
+  UserDeactivatedEvent,
+  UserPasswordChangedEvent,
+  UserRoleChangedEvent,
+} from '../../domain';
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
 
 @Injectable()
 export class OutboxProcessor {
   private readonly logger = new Logger(OutboxProcessor.name);
+  private readonly jc = JSONCodec();
 
   private readonly topicRegistry: Record<string, string> = {
-    UserCreatedEvent: 'user.UserCreated',
-    UserPasswordChangedEvent: 'user.PasswordChanged',
-    UserRoleChangedEvent: 'user.RoleChanged',
-    UserDeactivatedEvent: 'user.Deactivated',
-    UserActivatedEvent: 'user.Activated',
+    [UserCreatedEvent.EVENT_NAME]: UserCreatedIntegrationEvent.TOPIC,
+    [UserPasswordChangedEvent.EVENT_NAME]: UserPasswordChangedIntegrationEvent.TOPIC,
+    [UserRoleChangedEvent.EVENT_NAME]: UserRoleChangedIntegrationEvent.TOPIC,
+    [UserDeactivatedEvent.EVENT_NAME]: UserDeactivatedIntegrationEvent.TOPIC,
+    [UserActivatedEvent.EVENT_NAME]: UserActivatedIntegrationEvent.TOPIC,
   };
 
   constructor(
-    @InjectRepository(OutboxEntity)
+    @InjectRepository(OutboxEntity, 'postgres')
     private readonly outboxRepository: Repository<OutboxEntity>,
     @Inject(NATS_JETSTREAM_CLIENT)
-    private readonly natsClient: ClientProxy,
+    private readonly js: JetStreamClient,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron('0 */5 * * * *') // EVERY_5_MINUTES
   async processOutbox() {
     const unpublishedEvents = await this.outboxRepository.find({
       where: { published: false },
@@ -44,7 +60,7 @@ export class OutboxProcessor {
           continue;
         }
 
-        this.natsClient.emit(topic, event.payload);
+        await this.js.publish(topic, this.jc.encode(event.payload), { msgID: event.id });
 
         await this.outboxRepository.update({ id: event.id, published: false }, { published: true });
       } catch (error) {

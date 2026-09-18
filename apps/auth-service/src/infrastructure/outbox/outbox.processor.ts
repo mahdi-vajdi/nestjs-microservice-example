@@ -1,7 +1,7 @@
 import { UserLoggedInIntegrationEvent } from '@app/contracts';
 import { NATS_JETSTREAM_CLIENT } from '@app/infrastructure';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { JetStreamClient } from 'nats';
 import { JSONCodec } from 'nats';
@@ -24,7 +24,7 @@ export class OutboxProcessor {
     @Inject(NATS_JETSTREAM_CLIENT) private readonly js: JetStreamClient,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron('0 */5 * * * *')
   async handleOutbox() {
     const events = await this.outboxRepository
       .createQueryBuilder('outbox')

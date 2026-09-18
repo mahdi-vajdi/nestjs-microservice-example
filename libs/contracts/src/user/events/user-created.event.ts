@@ -1,4 +1,6 @@
 export class UserCreatedIntegrationEvent {
+  static readonly TOPIC = 'user.UserCreated';
+
   constructor(
     public readonly eventId: string,
     public readonly userId: string,
@@ -7,6 +9,4 @@ export class UserCreatedIntegrationEvent {
     public readonly passwordHash: string,
     public readonly occurredAt: Date,
   ) {}
-
-  static readonly TOPIC = 'user.UserCreated';
 }

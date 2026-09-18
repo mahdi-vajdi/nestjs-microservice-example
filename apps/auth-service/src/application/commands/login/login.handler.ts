@@ -1,9 +1,5 @@
-import { randomUUID } from 'node:crypto';
-
 import { InvalidInputException } from '@app/common';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 
 import {
   PasswordVerifierPort,
@@ -11,7 +7,6 @@ import {
   TokenSessionRepositoryPort,
   UserCredentialRepositoryPort,
 } from '../../../domain';
-import { OutboxEntity } from '../../../infrastructure/persistence/entities/outbox.entity';
 import { AuthResponseDto } from '../../dtos/auth.response.dto';
 import { LoginCommand } from './login.command';
 
@@ -22,38 +17,42 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     private readonly tokenGenerator: TokenGeneratorPort,
     private readonly tokenSessionRepo: TokenSessionRepositoryPort,
     private readonly passwordVerifier: PasswordVerifierPort,
-    @InjectRepository(OutboxEntity, 'postgres')
-    private readonly outboxRepo: Repository<OutboxEntity>,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(command: LoginCommand): Promise<AuthResponseDto> {
-    const user = await this.userRepo.findByEmail(command.email);
-    if (!user) {
+    const existingCredential = await this.userRepo.findByEmail(command.email);
+
+    if (!existingCredential) {
       throw new InvalidInputException('Invalid email or password');
     }
 
-    if (!user.isActive) {
+    const credential = this.eventPublisher.mergeObjectContext(existingCredential);
+
+    if (!credential.isActive) {
       throw new InvalidInputException('User account is deactivated');
     }
 
-    const isPasswordValid = await this.passwordVerifier.verify(command.password, user.passwordHash);
-    if (!isPasswordValid) {
+    const isValid = await this.passwordVerifier.verify(command.password, credential.passwordHash);
+    if (!isValid) {
       throw new InvalidInputException('Invalid email or password');
     }
 
-    const accessTokenData = await this.tokenGenerator.generateAccessToken(user.id, user.role);
-    const refreshTokenData = await this.tokenGenerator.generateRefreshToken(user.id);
+    const accessTokenData = await this.tokenGenerator.generateAccessToken(
+      credential.id,
+      credential.role,
+    );
+    const refreshTokenData = await this.tokenGenerator.generateRefreshToken(credential.id);
 
-    await this.tokenSessionRepo.store(refreshTokenData.token, user.id, refreshTokenData.expiresIn);
+    await this.tokenSessionRepo.store(
+      refreshTokenData.token,
+      credential.id,
+      refreshTokenData.expiresIn,
+    );
 
-    const event = new OutboxEntity();
-    event.id = randomUUID();
-    event.aggregateId = user.id;
-    event.type = 'UserLoggedInEvent';
-    event.payload = {};
-    event.published = false;
-
-    await this.outboxRepo.save(event);
+    credential.login();
+    await this.userRepo.save(credential);
+    credential.commit();
 
     return new AuthResponseDto(
       accessTokenData.token,

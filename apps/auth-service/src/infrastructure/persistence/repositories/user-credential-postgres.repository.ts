@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserCredential, UserCredentialRepositoryPort } from '../../../domain';
+import { OutboxEntity } from '../entities/outbox.entity';
 import { UserCredentialEntity } from '../entities/user-credential.entity';
 import { UserCredentialMapper } from '../mappers/user-credential.mapper';
 
@@ -25,8 +26,38 @@ export class UserCredentialPostgresRepository implements UserCredentialRepositor
     return UserCredentialMapper.toDomain(entity);
   }
 
-  async save(user: UserCredential): Promise<void> {
-    const entity = UserCredentialMapper.toEntity(user);
-    await this.repo.save(entity);
+  async save(credential: UserCredential): Promise<void> {
+    const events = credential.getUncommittedEvents();
+    const queryRunner = this.repo.manager.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(
+        UserCredentialEntity,
+        UserCredentialMapper.toEntity(credential),
+      );
+
+      if (events.length > 0) {
+        const outboxEntities = events.map((event) => {
+          const outbox = new OutboxEntity();
+          outbox.id = event.eventId;
+          outbox.aggregateId = credential.id;
+          outbox.type = event.constructor.name;
+          outbox.payload = {};
+          outbox.published = false;
+          return outbox;
+        });
+        await queryRunner.manager.save(OutboxEntity, outboxEntities);
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

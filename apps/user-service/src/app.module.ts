@@ -20,6 +20,7 @@ import { UpdateLastLoginHandler } from './application/commands/update-last-login
 import { GetUserHandler } from './application/queries/get-user/get-user.handler';
 import { GetUserByEmailHandler } from './application/queries/get-user-by-email/get-user-by-email.handler';
 import { PasswordHasherPort, UserRepositoryPort } from './domain';
+import { UserDomainEventsPublisher } from './infrastructure/events/user-domain-events.publisher';
 import { BcryptPasswordHasher } from './infrastructure/hashing/bcrypt-password-hasher';
 import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
 import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
@@ -55,6 +56,7 @@ const queryHandlers = [GetUserHandler, GetUserByEmailHandler];
   controllers: [UserGrpcController, AuthEventsNatsController],
   providers: [
     OutboxProcessor,
+    UserDomainEventsPublisher,
     {
       provide: UserRepositoryPort,
       useClass: UserPostgresRepository,

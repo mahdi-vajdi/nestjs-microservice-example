@@ -1,7 +1,8 @@
 import { InvalidInputException } from '@app/common';
+
+import { UserCredential } from '../../../domain';
 import { RefreshTokenCommand } from './refresh-token.command';
 import { RefreshTokenHandler } from './refresh-token.handler';
-import { UserCredential } from '../../../domain';
 
 describe('RefreshTokenHandler', () => {
   let handler: RefreshTokenHandler;
@@ -22,7 +23,9 @@ describe('RefreshTokenHandler', () => {
 
   it('should refresh token successfully', async () => {
     mockTokenSession.findUserIdByToken.mockResolvedValue('user-1');
-    mockUserRepo.findByUserId.mockResolvedValue(UserCredential.create('user-1', 'test@example.com', 'h', 'C'));
+    mockUserRepo.findByUserId.mockResolvedValue(
+      UserCredential.create('user-1', 'test@example.com', 'h', 'C'),
+    );
 
     const result = await handler.execute(new RefreshTokenCommand('valid_token'));
     expect(result.accessToken).toBe('access');
@@ -33,6 +36,8 @@ describe('RefreshTokenHandler', () => {
   it('should throw if token session is invalid', async () => {
     mockTokenSession.findUserIdByToken.mockResolvedValue(null);
 
-    await expect(handler.execute(new RefreshTokenCommand('bad_token'))).rejects.toThrow(InvalidInputException);
+    await expect(handler.execute(new RefreshTokenCommand('bad_token'))).rejects.toThrow(
+      InvalidInputException,
+    );
   });
 });

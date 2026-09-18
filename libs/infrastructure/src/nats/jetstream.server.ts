@@ -96,6 +96,24 @@ export class ServerJetStream extends Server implements CustomTransportStrategy {
     callback();
   }
 
+  public async close(): Promise<void> {
+    this.isRunning = false;
+
+    if (this.messages) {
+      this.logger.log('Closing JetStream consumer message iterator...');
+      this.messages.close();
+    }
+
+    if (this.nc && !this.nc.isClosed()) {
+      this.logger.log('Draining NATS connection...');
+      try {
+        await this.nc.drain();
+      } catch (err) {
+        this.logger.error('Error draining NATS connection', err);
+      }
+    }
+  }
+
   private async consumeLoop(messages: ConsumerMessages): Promise<void> {
     try {
       for await (const msg of messages) {
@@ -132,23 +150,5 @@ export class ServerJetStream extends Server implements CustomTransportStrategy {
       }
       // Ack/nak is the handler's responsibility via JetStreamContext.
     });
-  }
-
-  public async close(): Promise<void> {
-    this.isRunning = false;
-
-    if (this.messages) {
-      this.logger.log('Closing JetStream consumer message iterator...');
-      this.messages.close();
-    }
-
-    if (this.nc && !this.nc.isClosed()) {
-      this.logger.log('Draining NATS connection...');
-      try {
-        await this.nc.drain();
-      } catch (err) {
-        this.logger.error('Error draining NATS connection', err);
-      }
-    }
   }
 }

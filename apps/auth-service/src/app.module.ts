@@ -24,6 +24,7 @@ import {
   UserCredentialRepositoryPort,
 } from './domain';
 import { TokenRedisRepository } from './infrastructure/cache/token-redis.repository';
+import { AuthDomainEventsPublisher } from './infrastructure/events/auth-domain-events.publisher';
 import { BcryptPasswordVerifier } from './infrastructure/hashing/bcrypt-password-verifier';
 import { OutboxProcessor } from './infrastructure/outbox/outbox.processor';
 import { OutboxEntity } from './infrastructure/persistence/entities/outbox.entity';
@@ -57,6 +58,7 @@ import { UserEventsNatsController } from './interface/nats/user-events.nats.cont
   controllers: [AuthGrpcController, UserEventsNatsController],
   providers: [
     OutboxProcessor,
+    AuthDomainEventsPublisher,
     {
       provide: UserCredentialRepositoryPort,
       useClass: UserCredentialPostgresRepository,

@@ -8,8 +8,6 @@ export abstract class ValueObject<T extends object> {
     this.props = Object.freeze(props);
   }
 
-  protected abstract validate(props: T): void;
-
   public equals(vo?: ValueObject<T>): boolean {
     if (vo === null || vo === undefined) {
       return false;
@@ -19,4 +17,6 @@ export abstract class ValueObject<T extends object> {
     }
     return util.isDeepStrictEqual(this.props, vo.props);
   }
+
+  protected abstract validate(props: T): void;
 }

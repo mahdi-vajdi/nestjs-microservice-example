@@ -1,3 +1,4 @@
+export * from './events/user-logged-in.event';
 export * from './models/user-credential.model';
 export * from './ports/password-verifier.port';
 export * from './ports/token-generator.port';

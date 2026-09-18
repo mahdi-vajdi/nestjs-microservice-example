@@ -1,13 +1,11 @@
+import * as crypto from 'node:crypto';
+
 import { BaseAggregateRoot } from '@app/common';
 
+import { UserLoggedInEvent } from '../events/user-logged-in.event';
 import { Email } from '../value-objects/email.value-object';
 
 export class UserCredential extends BaseAggregateRoot {
-  private _email: Email;
-  private _passwordHash: string;
-  private _role: string;
-  private _isActive: boolean;
-
   private constructor(
     id: string,
     createdAt: Date,
@@ -22,6 +20,30 @@ export class UserCredential extends BaseAggregateRoot {
     this._passwordHash = passwordHash;
     this._role = role;
     this._isActive = isActive;
+  }
+
+  private _email: Email;
+
+  get email(): string {
+    return this._email.value;
+  }
+
+  private _passwordHash: string;
+
+  get passwordHash(): string {
+    return this._passwordHash;
+  }
+
+  private _role: string;
+
+  get role(): string {
+    return this._role;
+  }
+
+  private _isActive: boolean;
+
+  get isActive(): boolean {
+    return this._isActive;
   }
 
   static create(
@@ -71,19 +93,8 @@ export class UserCredential extends BaseAggregateRoot {
     this._isActive = true;
   }
 
-  get email(): string {
-    return this._email.value;
-  }
-
-  get role(): string {
-    return this._role;
-  }
-
-  get passwordHash(): string {
-    return this._passwordHash;
-  }
-
-  get isActive(): boolean {
-    return this._isActive;
+  public login(): void {
+    this.touch();
+    this.apply(new UserLoggedInEvent(this.id, crypto.randomUUID(), new Date()));
   }
 }

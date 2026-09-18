@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto';
-
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -43,7 +41,7 @@ export class UserPostgresRepository implements UserRepositoryPort {
       if (events.length > 0) {
         const outboxEntities = events.map((event) => {
           const outbox = new OutboxEntity();
-          outbox.id = randomUUID();
+          outbox.id = event.eventId;
           outbox.aggregateId = user.id;
           outbox.eventType = event.constructor.name;
           outbox.payload = { ...event } as Record<string, unknown>;
@@ -52,7 +50,6 @@ export class UserPostgresRepository implements UserRepositoryPort {
         });
 
         await queryRunner.manager.save(OutboxEntity, outboxEntities);
-        user.commit();
       }
 
       await queryRunner.commitTransaction();

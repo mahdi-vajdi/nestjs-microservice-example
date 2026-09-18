@@ -1,5 +1,5 @@
 import { UserCreatedIntegrationEvent } from '@app/contracts';
-import { ClientProxy } from '@nestjs/microservices';
+import type { JetStreamClient } from 'nats';
 import type { Repository } from 'typeorm';
 
 import { OutboxEntity } from '../persistence/entities/outbox.entity';
@@ -8,7 +8,7 @@ import { OutboxProcessor } from './outbox.processor';
 describe('OutboxProcessor', () => {
   let processor: OutboxProcessor;
   let mockOutboxRepo: jest.Mocked<Partial<Repository<OutboxEntity>>>;
-  let mockNatsClient: jest.Mocked<Partial<ClientProxy>>;
+  let mockNatsClient: jest.Mocked<Partial<JetStreamClient>>;
 
   beforeEach(() => {
     mockOutboxRepo = {
@@ -17,12 +17,12 @@ describe('OutboxProcessor', () => {
     };
 
     mockNatsClient = {
-      emit: jest.fn().mockReturnValue(undefined),
+      publish: jest.fn().mockResolvedValue(undefined),
     };
 
     processor = new OutboxProcessor(
       mockOutboxRepo as Repository<OutboxEntity>,
-      mockNatsClient as ClientProxy,
+      mockNatsClient as JetStreamClient,
     );
   });
 
@@ -40,10 +40,11 @@ describe('OutboxProcessor', () => {
 
     await processor.processOutbox();
 
-    expect(mockNatsClient.emit).toHaveBeenCalledTimes(1);
-    expect(mockNatsClient.emit).toHaveBeenCalledWith(
+    expect(mockNatsClient.publish).toHaveBeenCalledTimes(1);
+    expect(mockNatsClient.publish).toHaveBeenCalledWith(
       UserCreatedIntegrationEvent.TOPIC,
-      event.payload,
+      expect.anything(),
+      { msgID: event.id },
     );
 
     expect(mockOutboxRepo.update).toHaveBeenCalledWith(
@@ -63,13 +64,11 @@ describe('OutboxProcessor', () => {
     } as OutboxEntity;
 
     mockOutboxRepo.find.mockResolvedValue([event]);
-    mockNatsClient.emit.mockImplementation(() => {
-      throw new Error('NATS error');
-    });
+    mockNatsClient.publish.mockRejectedValue(new Error('NATS error'));
 
     await processor.processOutbox();
 
-    expect(mockNatsClient.emit).toHaveBeenCalledTimes(1);
+    expect(mockNatsClient.publish).toHaveBeenCalledTimes(1);
     expect(mockOutboxRepo.update).not.toHaveBeenCalled();
   });
 });

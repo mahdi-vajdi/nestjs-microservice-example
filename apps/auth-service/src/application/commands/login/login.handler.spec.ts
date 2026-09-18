@@ -1,58 +1,105 @@
 import { InvalidInputException } from '@app/common';
-import { randomUUID } from 'crypto';
+import { EventPublisher } from '@nestjs/cqrs';
 
-import { UserCredential } from '../../../domain';
+import {
+  PasswordVerifierPort,
+  TokenGeneratorPort,
+  TokenSessionRepositoryPort,
+  UserCredential,
+  UserCredentialRepositoryPort,
+} from '../../../domain';
+import { AuthResponseDto } from '../../dtos/auth.response.dto';
 import { LoginCommand } from './login.command';
 import { LoginHandler } from './login.handler';
 
-jest.mock('crypto', () => ({
-  randomUUID: jest.fn().mockReturnValue('fake-uuid'),
-}));
-
 describe('LoginHandler', () => {
   let handler: LoginHandler;
-  let mockUserRepo: any;
-  let mockTokenGen: any;
-  let mockTokenSession: any;
-  let mockPassVerifier: any;
-  let mockOutboxRepo: any;
+  let userRepo: jest.Mocked<UserCredentialRepositoryPort>;
+  let tokenGenerator: jest.Mocked<TokenGeneratorPort>;
+  let tokenSessionRepo: jest.Mocked<TokenSessionRepositoryPort>;
+  let passwordVerifier: jest.Mocked<PasswordVerifierPort>;
+  let eventPublisher: jest.Mocked<EventPublisher>;
 
   beforeEach(() => {
-    mockUserRepo = { findByEmail: jest.fn() };
-    mockTokenGen = {
-      generateAccessToken: jest.fn().mockResolvedValue({ token: 'access', expiresIn: 3600 }),
-      generateRefreshToken: jest.fn().mockResolvedValue({ token: 'refresh', expiresIn: 7200 }),
-    };
-    mockTokenSession = { store: jest.fn() };
-    mockPassVerifier = { verify: jest.fn() };
-    mockOutboxRepo = { save: jest.fn() };
+    userRepo = {
+      findByEmail: jest.fn(),
+      findByUserId: jest.fn(),
+      save: jest.fn(),
+    } as any;
+
+    tokenGenerator = {
+      generateAccessToken: jest.fn(),
+      generateRefreshToken: jest.fn(),
+      verifyAccessToken: jest.fn(),
+    } as any;
+
+    tokenSessionRepo = {
+      store: jest.fn(),
+      findUserIdByToken: jest.fn(),
+      revoke: jest.fn(),
+    } as any;
+
+    passwordVerifier = {
+      verify: jest.fn(),
+    } as any;
+
+    eventPublisher = {
+      mergeObjectContext: jest.fn().mockImplementation((obj) => obj),
+    } as any;
 
     handler = new LoginHandler(
-      mockUserRepo,
-      mockTokenGen,
-      mockTokenSession,
-      mockPassVerifier,
-      mockOutboxRepo,
+      userRepo,
+      tokenGenerator,
+      tokenSessionRepo,
+      passwordVerifier,
+      eventPublisher,
     );
   });
 
-  it('should successfully log in', async () => {
-    const cred = UserCredential.create('user-1', 'test@example.com', 'hashed', 'CUSTOMER');
-    mockUserRepo.findByEmail.mockResolvedValue(cred);
-    mockPassVerifier.verify.mockResolvedValue(true);
+  it('should throw when user not found', async () => {
+    userRepo.findByEmail.mockResolvedValue(null);
 
-    const result = await handler.execute(new LoginCommand('test@example.com', 'password'));
-
-    expect(result.accessToken).toBe('access');
-    expect(mockTokenGen.generateAccessToken).toHaveBeenCalledWith('user-1', 'CUSTOMER');
-    expect(mockTokenSession.store).toHaveBeenCalled();
-    expect(mockOutboxRepo.save).toHaveBeenCalled();
-  });
-
-  it('should throw on invalid user', async () => {
-    mockUserRepo.findByEmail.mockResolvedValue(null);
-    await expect(handler.execute(new LoginCommand('test@example.com', 'password'))).rejects.toThrow(
+    await expect(handler.execute(new LoginCommand('test@test.com', 'pwd'))).rejects.toThrow(
       InvalidInputException,
     );
+  });
+
+  it('should throw when user is inactive', async () => {
+    const cred = UserCredential.create('1', 'test@test.com', 'hash', 'CUSTOMER', false);
+    userRepo.findByEmail.mockResolvedValue(cred);
+
+    await expect(handler.execute(new LoginCommand('test@test.com', 'pwd'))).rejects.toThrow(
+      InvalidInputException,
+    );
+  });
+
+  it('should throw when password is wrong', async () => {
+    const cred = UserCredential.create('1', 'test@test.com', 'hash', 'CUSTOMER', true);
+    userRepo.findByEmail.mockResolvedValue(cred);
+    passwordVerifier.verify.mockResolvedValue(false);
+
+    await expect(handler.execute(new LoginCommand('test@test.com', 'wrong'))).rejects.toThrow(
+      InvalidInputException,
+    );
+  });
+
+  it('should return tokens and save on success', async () => {
+    const cred = UserCredential.create('1', 'test@test.com', 'hash', 'CUSTOMER', true);
+    jest.spyOn(cred, 'login');
+    jest.spyOn(cred, 'commit');
+    userRepo.findByEmail.mockResolvedValue(cred);
+    passwordVerifier.verify.mockResolvedValue(true);
+    tokenGenerator.generateAccessToken.mockResolvedValue({ token: 'access', expiresIn: 3600 });
+    tokenGenerator.generateRefreshToken.mockResolvedValue({ token: 'refresh', expiresIn: 86400 });
+
+    const result = await handler.execute(new LoginCommand('test@test.com', 'pwd'));
+
+    expect(result).toBeInstanceOf(AuthResponseDto);
+    expect(result.accessToken).toBe('access');
+    expect(result.refreshToken).toBe('refresh');
+
+    expect(cred.login).toHaveBeenCalled();
+    expect(userRepo.save).toHaveBeenCalledWith(cred);
+    expect(cred.commit).toHaveBeenCalled();
   });
 });
